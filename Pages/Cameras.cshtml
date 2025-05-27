@@ -1,0 +1,52 @@
+@page
+@model CamerasModel
+@{
+    ViewData["Title"] = "Camera Management";
+}
+
+ <a href="/Index">
+    <button type="button" style="padding: 8px 15px; font-size: 14px;">← Back to Dashboard</button>
+</a>
+<br></br>
+<div style="display: flex; gap: 20px;">
+    <!-- Left Column: Add Camera Form -->
+    <div style="flex: 1;">
+        <h3>Add Camera</h3>
+        <form method="post">
+            <div>
+                <label asp-for="NewCamera.CameraName">Camera Name:</label><br />
+                <input asp-for="NewCamera.CameraName" class="form-control" />
+            </div>
+            <div>
+                <label asp-for="NewCamera.RefreshRateInSeconds">Refresh Rate (seconds):</label><br />
+                <input asp-for="NewCamera.RefreshRateInSeconds" type="number" class="form-control" />
+            </div>
+            <br />
+            <button type="submit" class="btn btn-primary">Add Camera</button>
+        </form>
+    </div>
+
+    <!-- Right Column: Camera List -->
+    <div style="flex: 3;">
+        <h3>Camera List</h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Camera ID</th>
+                    <th>Name</th>
+                    <th>Refresh Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var camera in Model.Cameras)
+                {
+                    <tr>
+                        <td>@camera.CameraID</td>
+                        <td>@camera.CameraName</td>
+                        <td>@camera.RefreshRateInSeconds</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

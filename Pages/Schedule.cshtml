@@ -1,0 +1,167 @@
+@page
+@model ScheduleModel
+@{
+    ViewData["Title"] = "Add Schedule";
+}
+
+<h2>Add Schedule</h2>
+
+<div style="display: flex; gap: 40px; align-items: flex-start; margin-top: 20px;">
+    <!-- Left Panel: Form (1/4 width) -->
+    <div style="flex: 1; min-width: 300px;">
+        <a href="/Index">
+            <button type="button" style="padding: 8px 15px; font-size: 14px;">← Back to Dashboard</button>
+        </a>
+
+        <br /><br />
+
+        <form id="scheduleForm">
+            <div class="form-group">
+                <label for="cameraSelect">Select Camera:</label>
+                <select id="cameraSelect" class="form-control" onchange="loadSchedules()">
+                    <option value="">-- Select Camera --</option>
+                    @foreach (var camera in Model.Cameras)
+                    {
+                        <option value="@camera.CameraID">@camera.CameraName</option>
+                    }
+                </select>
+            </div>
+            <br />
+
+            <div class="form-group">
+                <label for="scheduleName">Schedule Name:</label>
+                <input type="text" id="scheduleName" placeholder="Enter schedule name" class="form-control" />
+            </div>
+            <br />
+
+            <div class="form-group">
+                <label for="duration">Duration (seconds):</label>
+                <input type="number" id="duration" min="1" placeholder="Duration in seconds" class="form-control" oninput="validateDuration(event)" />
+            </div>
+            <br />
+
+            <div class="form-group">
+                <label for="startTime">Start Time (24hr format):</label>
+                <input type="time" id="startTime" class="form-control" step="1" />
+            </div>
+            <br />
+
+            <button type="button" onclick="addSchedule()">Add Schedule</button>
+        </form>
+    </div>
+
+    <!-- Right Panel: Schedule List (3/4 width) -->
+    <div style="flex: 3;">
+        <h3>Existing Schedules</h3>
+        <table id="scheduleTable" border="1" cellpadding="5" style="width: 100%; display: none;">
+            <thead>
+                <tr>
+                    <th>Schedule Name</th>
+                    <th>Start Time</th>
+                    <th>Duration (s)</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<form method="post">
+    @Html.AntiForgeryToken()
+</form>
+
+@using System.Text.Json
+@{
+    var camerasJson = JsonSerializer.Serialize(Model.Cameras);
+}
+
+<script>
+    function validateDuration(e) {
+        if (e.target.value < 1) {
+            e.target.value = 1;
+        }
+    }
+
+    function addSchedule() {
+        var scheduleName = document.getElementById('scheduleName').value;
+        var timeValue = document.getElementById('startTime').value;
+        var duration = parseInt(document.getElementById('duration').value, 10);
+        var cameraId = parseInt(document.getElementById('cameraSelect').value, 10);
+
+        if (!scheduleName || !timeValue || isNaN(duration) || isNaN(cameraId)) {
+            alert('Please fill in all fields with valid values!');
+            return;
+        }
+
+        var [hours, minutes, seconds] = timeValue.split(':');
+        seconds = seconds || '00';
+
+        var today = new Date();
+        var localTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), parseInt(hours), parseInt(minutes), parseInt(seconds));
+        const pad = (n) => n.toString().padStart(2, '0');
+        var formattedLocalDate = `${localTime.getFullYear()}-${pad(localTime.getMonth() + 1)}-${pad(localTime.getDate())}T${pad(localTime.getHours())}:${pad(localTime.getMinutes())}:${pad(localTime.getSeconds())}`;
+
+        const scheduleData = {
+            cameraID: cameraId,
+            scheduleName: scheduleName,
+            startTime: formattedLocalDate,
+            durationInSec: duration
+        };
+
+        fetch('Schedule?handler=AddSchedule', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+            },
+            body: JSON.stringify(scheduleData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert("Schedule added: " + data.count);
+            loadSchedules(); // Refresh the schedule list
+        })
+        .catch(error => alert("Schedule error: " + error));
+    }
+
+    function formatDateTime(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
+    }
+
+    function loadSchedules() {
+        var cameraId = document.getElementById('cameraSelect').value;
+        if (!cameraId) {
+            document.getElementById("scheduleTable").style.display = "none";
+            return;
+        }
+
+        fetch(`Schedule?handler=GetSchedules&cameraId=${cameraId}`)
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.querySelector("#scheduleTable tbody");
+                tbody.innerHTML = "";
+                data.forEach(s => {
+                    const row = `<tr>
+                                    <td>${s.scheduleName}</td>
+                                    <td>${formatDateTime(s.startTime)}</td>
+                                    <td>${s.durationInSec}</td>
+                                 </tr>`;
+                    tbody.insertAdjacentHTML('beforeend', row);
+                });
+                document.getElementById("scheduleTable").style.display = data.length > 0 ? "table" : "none";
+            })
+            .catch(error => console.error("Failed to load schedules:", error));
+    }
+
+    // Optional: Auto-load schedules for the first camera on page load
+    window.onload = function () {
+        if (document.getElementById('cameraSelect').value) {
+            loadSchedules();
+        }
+    };
+</script>

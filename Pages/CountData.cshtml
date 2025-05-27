@@ -1,0 +1,62 @@
+@page
+@model CountDataModel
+@{
+    ViewData["Title"] = "Count Data";
+}
+
+<!-- Back to Dashboard Button -->
+<a href="/Index" style="padding: 8px 12px; background-color: #28a745; color: white; border: none; border-radius: 5px; text-decoration: none;">Back to Dashboard</a>
+<BR></BR>
+<form method="get" style="display: flex; flex-direction: row; gap: 30px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 20px;">
+    <div style="display: flex; flex-direction: column;">
+        <label for="filterDate">Date:</label>
+        <input type="date" id="filterDate" name="filterDate" />
+    </div>
+
+    <div style="display: flex; flex-direction: column;">
+        <label for="cameraId">Camera:</label>
+        <select id="cameraId" name="cameraId">
+            <option value="">-- Select a camera --</option>
+            @foreach (var cam in Model.Cameras)
+            {
+                <option value="@cam.CameraID">@cam.CameraName</option>
+            }
+        </select>
+    </div>
+
+    <div style="margin-top: 22px;">
+        <button type="submit" style="padding: 8px 16px; background-color: #007bff; color: white; border: none; border-radius: 5px;">Filter</button>
+    </div>
+</form>
+
+
+@if (Model.FilterDate.HasValue && Model.SelectedCameraId.HasValue)
+{
+    <div style="display: flex; gap: 40px; margin-top: 10px;">
+        <p><strong>Camera Name:</strong> @Model.Cameras.FirstOrDefault(cam => cam.CameraID == Model.SelectedCameraId)?.CameraName</p>
+        <p><strong>Date:</strong> @Model.FilterDate?.ToShortDateString()</p>
+        <p><strong>Total Rows:</strong> @Model.CountDataList.Count</p>
+    </div>
+}
+
+<table border="1" cellpadding="8" cellspacing="0" style="margin-top: 20px; width: 100%; text-align: left;">
+    <thead>
+        <tr>
+            <th>Sr.No</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>In</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var row in Model.CountDataList)
+    {
+        <tr>
+            <td>@row.SrNo</td>
+            <td>@row.DateOnly.ToShortDateString()</td>
+            <td>@row.TimeOnly</td>
+            <td>@row.In</td>
+        </tr>
+    }
+    </tbody>
+</table>
