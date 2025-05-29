@@ -29,11 +29,30 @@ public class ApplicationDBContext : DbContext {
             entity.Property(c => c.CameraName)
                 .IsRequired()
                 .HasMaxLength(100);
-            modelBuilder.Entity<CountData>()
-                    .HasKey(c => c.SrNo); // Define primary key explicitly (optional if [Key] attribute is used)
-            modelBuilder.Entity<CountData>()
-                    .Property(c => c.SrNo)
-                    .ValueGeneratedOnAdd(); // Ensures auto-increment behavior
+        });
+
+        // Configure CountData entity
+        modelBuilder.Entity<CountData>(entity =>
+        {
+            entity.HasKey(c => c.SrNo); // Define primary key explicitly
+            entity.Property(c => c.SrNo)
+                .ValueGeneratedOnAdd(); // Ensures auto-increment behavior
+        });
+
+        // Configure Schedule entity
+        modelBuilder.Entity<Schedule>(entity =>
+        {
+            entity.HasKey(s => s.ScheduleID);
+            entity.Property(s => s.ScheduleID)
+                .ValueGeneratedOnAdd(); // Auto-increment
+            entity.Property(s => s.ScheduleName)
+                .HasMaxLength(200);
+            
+            // Add foreign key relationship to Camera if needed
+            entity.HasOne<Camera>()
+                .WithMany()
+                .HasForeignKey(s => s.CameraID)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         // Seed initial values for the Camera table
