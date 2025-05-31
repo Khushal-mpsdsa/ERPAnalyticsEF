@@ -12,108 +12,7 @@
     <title>Camera Management - CCTV Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
-    
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            200: '#bae6fd',
-                            300: '#7dd3fc',
-                            400: '#38bdf8',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            700: '#0369a1',
-                            800: '#075985',
-                            900: '#0c4a6e',
-                            950: '#082f49',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <style>
-        @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f9fafb;
-        }
-        
-        .dashboard-card {
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        
-        .dashboard-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        
-        .action-button {
-            background-color: #0284c7;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            border: none;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        
-        .action-button:hover {
-            background-color: #0369a1;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        
-        .form-input {
-            border: 1px solid #d1d5db;
-            border-radius: 0.5rem;
-            padding: 0.75rem 1rem;
-            font-size: 0.875rem;
-            transition: all 0.2s;
-            background-color: white;
-            width: 100%;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: #0284c7;
-            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
-        }
-        
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        
-        .status-badge.active {
-            background-color: #d1fae5;
-            color: #065f46;
-        }
-        
-        .status-badge.inactive {
-            background-color: #fee2e2;
-            color: #991b1b;
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/cameras.css" asp-append-version="true" />
 </head>
 
 <body class="bg-gray-50 min-h-screen">
@@ -424,12 +323,6 @@
         </div>
     </section>
 
-    <script>
-        // Add any JavaScript functionality here
-        document.addEventListener('DOMContentLoaded', function() {
-            // Form validation or other interactive features can be added here
-            console.log('Camera management page loaded');
-        });
-    </script>
+    <script src="~/js/cameras.js" asp-append-version="true"></script>
 </body>
 </html>

@@ -4,7 +4,6 @@
     ViewData["Title"] = "Count Data Analytics";
 }
 
-<!-- Hidden form to generate the anti-forgery token -->
 <form method="post">
     @Html.AntiForgeryToken()
 </form>
@@ -60,14 +59,11 @@
       }
     }
     
-    // Global variables for data
     let dataChart;
     let trendsChart;
     let filteredData = [];
     
-    // Initialize data with server-side model data
     function initializeData() {
-        // Pass server data to JavaScript
         filteredData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CountDataList));
         updateAnalytics();
         updateDataChart();
@@ -75,7 +71,6 @@
         updateDataTable();
     }
     
-    // Update analytics cards
     function updateAnalytics() {
         const totalEntries = filteredData.length;
         const totalIn = filteredData.reduce((sum, item) => sum + item.in, 0);
@@ -88,7 +83,6 @@
         document.getElementById('peakHour').textContent = peakHour;
     }
     
-    // Find peak hour from data
     function getPeakHour() {
         if (filteredData.length === 0) return '--:--';
         
@@ -105,7 +99,6 @@
         return `${peakHour.padStart(2, '0')}:00`;
     }
     
-    // Update main data chart
     function updateDataChart() {
         const ctx = document.getElementById('dataChart').getContext('2d');
         
@@ -113,7 +106,6 @@
             dataChart.destroy();
         }
         
-        // Group data by hour
         const hourlyData = {};
         filteredData.forEach(item => {
             const hour = new Date(`2000-01-01T${item.timeOnly}`).getHours();
@@ -187,7 +179,6 @@
         });
     }
     
-    // Update trends chart
     function updateTrendsChart() {
         const ctx = document.getElementById('trendsChart').getContext('2d');
         
@@ -195,7 +186,6 @@
             trendsChart.destroy();
         }
         
-        // Generate sample trend data for last 7 days
         const trendData = generateTrendData();
         
         trendsChart = new Chart(ctx, {
@@ -247,7 +237,6 @@
         });
     }
     
-    // Generate sample trend data
     function generateTrendData() {
         const labels = [];
         const data = [];
@@ -257,20 +246,16 @@
             const date = new Date(today);
             date.setDate(date.getDate() - i);
             labels.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
-            
-            // Sample data - in real implementation, this would come from your service
             data.push(Math.floor(Math.random() * 200) + 50);
         }
         
         return { labels, data };
     }
     
-    // Update data table
     function updateDataTable() {
         const tbody = document.querySelector('#dataTable tbody');
         tbody.innerHTML = '';
         
-        // Show only first 10 entries for performance
         const displayData = filteredData.slice(0, 10);
         
         displayData.forEach(item => {
@@ -301,7 +286,6 @@
             tbody.appendChild(row);
         });
         
-        // Update table footer
         const remainingCount = Math.max(0, filteredData.length - 10);
         const footerText = remainingCount > 0 ? 
             `Showing 10 of ${filteredData.length} entries` : 
@@ -309,13 +293,11 @@
         document.getElementById('tableFooter').textContent = footerText;
     }
     
-    // Filter data function
     function filterData() {
         const dateInput = document.getElementById('filterDate').value;
         const cameraInput = document.getElementById('cameraId').value;
         
         if (dateInput && cameraInput) {
-            // Redirect with query parameters
             const url = new URL(window.location.href);
             url.searchParams.set('filterDate', dateInput);
             url.searchParams.set('cameraId', cameraInput);
@@ -325,14 +307,12 @@
         }
     }
     
-    // Export data function
     function exportData() {
         if (filteredData.length === 0) {
             alert('No data to export');
             return;
         }
         
-        // Create CSV content
         const headers = ['Sr.No', 'Date', 'Time', 'In'];
         const csvContent = [
             headers.join(','),
@@ -344,7 +324,6 @@
             ].join(','))
         ].join('\n');
         
-        // Download CSV
         const blob = new Blob([csvContent], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -362,11 +341,9 @@
         sidebar.classList.toggle('flex');
     }
     
-    // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
         initializeData();
         
-        // Set form values if they exist in the model
         const filterDate = '@(Model.FilterDate?.ToString("yyyy-MM-dd") ?? "")';
         const selectedCameraId = '@(Model.SelectedCameraId?.ToString() ?? "")';
         
@@ -431,13 +408,11 @@
 }
 
 <script type="text/javascript">
-// Pass server-side data to JavaScript
 window.camerasFromServer = @Html.Raw(camerasJson);
 </script>
 
 <body class="bg-gray-50 min-h-screen font-sans">
 
-<!-- Mobile Header -->
 <header class="lg:hidden bg-white shadow-sm p-4 flex items-center justify-between sticky top-0 z-50">
   <div class="flex items-center gap-3">
     <button onclick="toggleSidebar()" class="text-gray-700 focus:outline-none">
@@ -455,7 +430,6 @@ window.camerasFromServer = @Html.Raw(camerasJson);
   </div>
 </header>
 
-<!-- Sidebar -->
 <nav id="sidebar" class="hidden lg:block w-64 h-screen bg-white text-gray-700 fixed border-r border-gray-200 z-40 flex-col overflow-hidden transition-all duration-300">
   <div class="p-5 border-b border-gray-200 flex items-center space-x-3">
     <i class="fas fa-video text-xl text-primary-600"></i>
@@ -500,9 +474,7 @@ window.camerasFromServer = @Html.Raw(camerasJson);
   </div>
 </nav>
 
-<!-- Main Content -->
 <section class="lg:ml-64 overflow-auto px-4 py-6 lg:p-8 min-h-screen">
-  <!-- Top Navigation Bar -->
   <header class="bg-white shadow-sm rounded-xl px-6 py-5 mb-6 flex justify-between items-center">
     <div class="flex items-center gap-4">
       <div>
@@ -522,7 +494,6 @@ window.camerasFromServer = @Html.Raw(camerasJson);
     </div>
   </header>
 
-  <!-- Filter Section -->
   <div class="bg-white p-6 rounded-xl shadow-card border border-gray-100 mb-8">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-lg font-semibold text-gray-800">Data Filters</h2>
@@ -574,7 +545,6 @@ window.camerasFromServer = @Html.Raw(camerasJson);
 
   @if (Model.FilterDate.HasValue && Model.SelectedCameraId.HasValue)
   {
-    <!-- Analytics Overview -->
     <div class="mb-8">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-lg font-semibold text-gray-800">Analytics Overview</h2>
@@ -652,9 +622,7 @@ window.camerasFromServer = @Html.Raw(camerasJson);
       </div>
     </div>
 
-    <!-- Charts Section -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-      <!-- Main Data Chart -->
       <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-card border border-gray-100">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-lg font-semibold text-gray-800">Hourly Activity</h2>
@@ -669,7 +637,6 @@ window.camerasFromServer = @Html.Raw(camerasJson);
         </div>
       </div>
       
-      <!-- Trends Chart -->
       <div class="bg-white p-6 rounded-xl shadow-card border border-gray-100">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-lg font-semibold text-gray-800">Weekly Trends</h2>
@@ -681,7 +648,6 @@ window.camerasFromServer = @Html.Raw(camerasJson);
     </div>
   }
 
-  <!-- Data Table -->
   <div class="bg-white rounded-xl shadow-card border border-gray-100">
     <div class="px-6 py-4 border-b border-gray-200">
       <div class="flex justify-between items-center">
@@ -805,8 +771,7 @@ window.camerasFromServer = @Html.Raw(camerasJson);
     }
   </div>
 
-  <!-- Quick Stats Cards -->
-  @@if (Model.FilterDate.HasValue && Model.SelectedCameraId.HasValue && Model.CountDataList.Any())
+  @if (Model.FilterDate.HasValue && Model.SelectedCameraId.HasValue && Model.CountDataList != null && Model.CountDataList.Any())
   {
     <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
       <div class="bg-white p-6 rounded-xl shadow-card border border-gray-100">
@@ -845,11 +810,7 @@ window.camerasFromServer = @Html.Raw(camerasJson);
         </div>
       </div>
     </div>
-  }
 
-  <!-- Export Options -->
-  @if (Model.FilterDate.HasValue && Model.SelectedCameraId.HasValue && Model.CountDataList.Any())
-  {
     <div class="mt-8 bg-white p-6 rounded-xl shadow-card border border-gray-100">
       <h2 class="text-lg font-semibold text-gray-800 mb-4">Export Options</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -870,7 +831,6 @@ window.camerasFromServer = @Html.Raw(camerasJson);
     </div>
   }
 
-  <!-- Footer -->
   <footer class="mt-8 mb-4 px-4 py-6 bg-white rounded-xl shadow-sm border border-gray-100">
     <div class="flex flex-wrap justify-between items-center">
       <div>

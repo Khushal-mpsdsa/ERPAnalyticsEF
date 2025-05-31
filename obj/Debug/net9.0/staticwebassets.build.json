@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "VNKyhglopIhyjw5KfnasV47VN3oHWD+LNVI+n0qxnJA=",
+  "Hash": "LV+l0gLLHQrv7LGSajrL38Tn6nDumaVl0S9CLyYLiRY=",
   "Source": "dotnetprojects",
   "BasePath": "_content/dotnetprojects",
   "Mode": "Default",
@@ -563,6 +563,27 @@
       "OriginalItemSpec": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.js"
     },
     {
+      "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\c7e14opagz-t7m8vgrrn3.gz",
+      "SourceId": "dotnetprojects",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\",
+      "BasePath": "_content/dotnetprojects",
+      "RelativePath": "css/cameras#[.{fingerprint=t7m8vgrrn3}]?.css.gz",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\cameras.css",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "Fingerprint": "jxtc8jydt6",
+      "Integrity": "h7YeshZciFleP8/NVh9kH1UPF+im+b/8+KvlS9lg0GQ=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\cameras.css"
+    },
+    {
       "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\ca3pziozgy-43atpzeawx.gz",
       "SourceId": "dotnetprojects",
       "SourceType": "Discovered",
@@ -687,27 +708,6 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.min.css"
-    },
-    {
-      "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\dirxa4tw7e-hvzyklrzu3.gz",
-      "SourceId": "dotnetprojects",
-      "SourceType": "Discovered",
-      "ContentRoot": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\",
-      "BasePath": "_content/dotnetprojects",
-      "RelativePath": "css/dashboard#[.{fingerprint=hvzyklrzu3}]?.css.gz",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Alternative",
-      "AssetMergeBehavior": "",
-      "AssetMergeSource": "",
-      "RelatedAsset": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\dashboard.css",
-      "AssetTraitName": "Content-Encoding",
-      "AssetTraitValue": "gzip",
-      "Fingerprint": "5la751dhd9",
-      "Integrity": "WQpnd1fVvjM3dbfAqOpDOcmRJwGWkiLEUJ2gjMxaeyY=",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\dashboard.css"
     },
     {
       "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\e3outc8jv7-0j3bgjxly4.gz",
@@ -920,6 +920,48 @@
       "OriginalItemSpec": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\lib\\jquery\\dist\\jquery.slim.js"
     },
     {
+      "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\kn73tf4i8d-b6y0r4nhr5.gz",
+      "SourceId": "dotnetprojects",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\",
+      "BasePath": "_content/dotnetprojects",
+      "RelativePath": "css/index#[.{fingerprint=b6y0r4nhr5}]?.css.gz",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\index.css",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "Fingerprint": "pprszmsyov",
+      "Integrity": "sylCYa4faq2iTxVNem4xg1xdHqCTtcoWkPSaLyecn/8=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\index.css"
+    },
+    {
+      "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\l78cvwboxm-x3b06nh9wd.gz",
+      "SourceId": "dotnetprojects",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\",
+      "BasePath": "_content/dotnetprojects",
+      "RelativePath": "js/index#[.{fingerprint=x3b06nh9wd}]?.js.gz",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\index.js",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "Fingerprint": "tdxnqbwjrj",
+      "Integrity": "P9G3xREzTyHc5GG8ao6JdA17EXojACvza21e1MqWnMc=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\index.js"
+    },
+    {
       "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\m06f1vw9bs-y7v9cxd14o.gz",
       "SourceId": "dotnetprojects",
       "SourceType": "Discovered",
@@ -962,6 +1004,48 @@
       "OriginalItemSpec": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.css"
     },
     {
+      "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\n0uzy0rbkp-ted29megf4.gz",
+      "SourceId": "dotnetprojects",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\",
+      "BasePath": "_content/dotnetprojects",
+      "RelativePath": "js/cameras#[.{fingerprint=ted29megf4}]?.js.gz",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\cameras.js",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "Fingerprint": "g39gc3q3ur",
+      "Integrity": "9JU0oC5NfJjKk7UTS3bj0UXCIL6vWvD9UlUeiSp28U0=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\cameras.js"
+    },
+    {
+      "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\nmwkhigjel-liag643hp6.gz",
+      "SourceId": "dotnetprojects",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\",
+      "BasePath": "_content/dotnetprojects",
+      "RelativePath": "css/schedule#[.{fingerprint=liag643hp6}]?.css.gz",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\schedule.css",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "Fingerprint": "r6d0luc4ek",
+      "Integrity": "w291+lR+T+c9jmJBJQPwSLxLjl8blxcVeRwF0G/WI+A=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\schedule.css"
+    },
+    {
       "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\oyn39idvvk-j5mq2jizvt.gz",
       "SourceId": "dotnetprojects",
       "SourceType": "Discovered",
@@ -1002,27 +1086,6 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.esm.js.map"
-    },
-    {
-      "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\qbgipymcaf-6wyy3vcoig.gz",
-      "SourceId": "dotnetprojects",
-      "SourceType": "Discovered",
-      "ContentRoot": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\",
-      "BasePath": "_content/dotnetprojects",
-      "RelativePath": "js/dashboard#[.{fingerprint=6wyy3vcoig}]?.js.gz",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Alternative",
-      "AssetMergeBehavior": "",
-      "AssetMergeSource": "",
-      "RelatedAsset": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\dashboard.js",
-      "AssetTraitName": "Content-Encoding",
-      "AssetTraitValue": "gzip",
-      "Fingerprint": "snkhjzs350",
-      "Integrity": "2GG97s+ObrYtqrahd458i7bBo+6JBNUmgeefGgz6BAA=",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\dashboard.js"
     },
     {
       "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\qwxcwmwtq3-fsbi9cje9m.gz",
@@ -1086,6 +1149,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css"
+    },
+    {
+      "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\sg38ug38m9-5mblgdscfb.gz",
+      "SourceId": "dotnetprojects",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\",
+      "BasePath": "_content/dotnetprojects",
+      "RelativePath": "js/schedule#[.{fingerprint=5mblgdscfb}]?.js.gz",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\schedule.js",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "Fingerprint": "58xbfj6vci",
+      "Integrity": "9Td7VmRgIXEzUWwxmTTdb3OSHL4d3cLi9IC0K+izM1E=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\schedule.js"
     },
     {
       "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\ski1l6t070-worgj0nhwm.gz",
@@ -1445,12 +1529,12 @@
       "OriginalItemSpec": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\scopedcss\\projectbundle\\dotnetprojects.bundle.scp.css"
     },
     {
-      "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\dashboard.css",
+      "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\cameras.css",
       "SourceId": "dotnetprojects",
       "SourceType": "Discovered",
       "ContentRoot": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\",
       "BasePath": "_content/dotnetprojects",
-      "RelativePath": "css/dashboard#[.{fingerprint}]?.css",
+      "RelativePath": "css/cameras#[.{fingerprint}]?.css",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -1459,11 +1543,53 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "hvzyklrzu3",
-      "Integrity": "453Dha6ligGBXBRbzetbdgPTi7TtoJTegHwTAYQCm0c=",
+      "Fingerprint": "t7m8vgrrn3",
+      "Integrity": "h67aueEijUu9TP3linBCi0dPspJvvDXTPcr8C+Vow2Y=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\css\\dashboard.css"
+      "OriginalItemSpec": "wwwroot\\css\\cameras.css"
+    },
+    {
+      "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\index.css",
+      "SourceId": "dotnetprojects",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\",
+      "BasePath": "_content/dotnetprojects",
+      "RelativePath": "css/index#[.{fingerprint}]?.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "b6y0r4nhr5",
+      "Integrity": "/RflPp0ziN/L1XZjFp2c+04l5qW4XKdnFD5dmXxfoOY=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\index.css"
+    },
+    {
+      "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\schedule.css",
+      "SourceId": "dotnetprojects",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\",
+      "BasePath": "_content/dotnetprojects",
+      "RelativePath": "css/schedule#[.{fingerprint}]?.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "liag643hp6",
+      "Integrity": "PV/AdjoZi8dtsC3KDlBpad7Ah9ieTeIhmqbYlkbhyyI=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\schedule.css"
     },
     {
       "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\site.css",
@@ -1508,12 +1634,12 @@
       "OriginalItemSpec": "wwwroot\\favicon.ico"
     },
     {
-      "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\dashboard.js",
+      "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\cameras.js",
       "SourceId": "dotnetprojects",
       "SourceType": "Discovered",
       "ContentRoot": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\",
       "BasePath": "_content/dotnetprojects",
-      "RelativePath": "js/dashboard#[.{fingerprint}]?.js",
+      "RelativePath": "js/cameras#[.{fingerprint}]?.js",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -1522,11 +1648,53 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "6wyy3vcoig",
-      "Integrity": "2psz7n2sJaD5k468OCpFzjYXZ+XoBA6jtQFeYRWLfoM=",
+      "Fingerprint": "ted29megf4",
+      "Integrity": "ZVEIbVF1uhIS0i3+o0Zp/0/m0xx1yzxTfYVKhj6b/C4=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\js\\dashboard.js"
+      "OriginalItemSpec": "wwwroot\\js\\cameras.js"
+    },
+    {
+      "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\index.js",
+      "SourceId": "dotnetprojects",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\",
+      "BasePath": "_content/dotnetprojects",
+      "RelativePath": "js/index#[.{fingerprint}]?.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "x3b06nh9wd",
+      "Integrity": "w/V8OGPZd1GzL2tDJFpNxPGQBgY4bSZ5bV6hz4Y3Hxg=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\index.js"
+    },
+    {
+      "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\schedule.js",
+      "SourceId": "dotnetprojects",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\",
+      "BasePath": "_content/dotnetprojects",
+      "RelativePath": "js/schedule#[.{fingerprint}]?.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "5mblgdscfb",
+      "Integrity": "860AlGSocTa/qgn59jykLc2cqhjCKwWE/wCsO+87m5E=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\schedule.js"
     },
     {
       "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\site.js",
@@ -2812,13 +2980,13 @@
   ],
   "Endpoints": [
     {
-      "Route": "css/dashboard.css",
-      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\dirxa4tw7e-hvzyklrzu3.gz",
+      "Route": "css/cameras.css",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\c7e14opagz-t7m8vgrrn3.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000231427910"
+          "Quality": "0.000299940012"
         }
       ],
       "ResponseHeaders": [
@@ -2828,15 +2996,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "4320"
+          "Value": "3333"
         },
         {
           "Name": "ETag",
-          "Value": "\"WQpnd1fVvjM3dbfAqOpDOcmRJwGWkiLEUJ2gjMxaeyY=\""
+          "Value": "\"h7YeshZciFleP8/NVh9kH1UPF+im+b/8+KvlS9lg0GQ=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 31 May 2025 05:21:24 GMT"
+          "Value": "Sat, 31 May 2025 06:37:37 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -2856,19 +3024,19 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"453Dha6ligGBXBRbzetbdgPTi7TtoJTegHwTAYQCm0c=\""
+          "Value": "W/\"h67aueEijUu9TP3linBCi0dPspJvvDXTPcr8C+Vow2Y=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-453Dha6ligGBXBRbzetbdgPTi7TtoJTegHwTAYQCm0c="
+          "Value": "sha256-h67aueEijUu9TP3linBCi0dPspJvvDXTPcr8C+Vow2Y="
         }
       ]
     },
     {
-      "Route": "css/dashboard.css",
-      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\dashboard.css",
+      "Route": "css/cameras.css",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\cameras.css",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -2877,7 +3045,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "19670"
+          "Value": "12588"
         },
         {
           "Name": "Content-Type",
@@ -2885,11 +3053,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"453Dha6ligGBXBRbzetbdgPTi7TtoJTegHwTAYQCm0c=\""
+          "Value": "\"h67aueEijUu9TP3linBCi0dPspJvvDXTPcr8C+Vow2Y=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 31 May 2025 05:21:24 GMT"
+          "Value": "Sat, 31 May 2025 06:37:37 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -2899,13 +3067,13 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-453Dha6ligGBXBRbzetbdgPTi7TtoJTegHwTAYQCm0c="
+          "Value": "sha256-h67aueEijUu9TP3linBCi0dPspJvvDXTPcr8C+Vow2Y="
         }
       ]
     },
     {
-      "Route": "css/dashboard.css.gz",
-      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\dirxa4tw7e-hvzyklrzu3.gz",
+      "Route": "css/cameras.css.gz",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\c7e14opagz-t7m8vgrrn3.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -2914,7 +3082,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "4320"
+          "Value": "3333"
         },
         {
           "Name": "Content-Type",
@@ -2922,11 +3090,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"WQpnd1fVvjM3dbfAqOpDOcmRJwGWkiLEUJ2gjMxaeyY=\""
+          "Value": "\"h7YeshZciFleP8/NVh9kH1UPF+im+b/8+KvlS9lg0GQ=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 31 May 2025 05:21:24 GMT"
+          "Value": "Sat, 31 May 2025 06:37:37 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -2944,18 +3112,18 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-WQpnd1fVvjM3dbfAqOpDOcmRJwGWkiLEUJ2gjMxaeyY="
+          "Value": "sha256-h7YeshZciFleP8/NVh9kH1UPF+im+b/8+KvlS9lg0GQ="
         }
       ]
     },
     {
-      "Route": "css/dashboard.hvzyklrzu3.css",
-      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\dirxa4tw7e-hvzyklrzu3.gz",
+      "Route": "css/cameras.t7m8vgrrn3.css",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\c7e14opagz-t7m8vgrrn3.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000231427910"
+          "Quality": "0.000299940012"
         }
       ],
       "ResponseHeaders": [
@@ -2965,15 +3133,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "4320"
+          "Value": "3333"
         },
         {
           "Name": "ETag",
-          "Value": "\"WQpnd1fVvjM3dbfAqOpDOcmRJwGWkiLEUJ2gjMxaeyY=\""
+          "Value": "\"h7YeshZciFleP8/NVh9kH1UPF+im+b/8+KvlS9lg0GQ=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 31 May 2025 05:21:24 GMT"
+          "Value": "Sat, 31 May 2025 06:37:37 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -2993,27 +3161,27 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"453Dha6ligGBXBRbzetbdgPTi7TtoJTegHwTAYQCm0c=\""
+          "Value": "W/\"h67aueEijUu9TP3linBCi0dPspJvvDXTPcr8C+Vow2Y=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "hvzyklrzu3"
+          "Value": "t7m8vgrrn3"
         },
         {
           "Name": "label",
-          "Value": "css/dashboard.css"
+          "Value": "css/cameras.css"
         },
         {
           "Name": "integrity",
-          "Value": "sha256-453Dha6ligGBXBRbzetbdgPTi7TtoJTegHwTAYQCm0c="
+          "Value": "sha256-h67aueEijUu9TP3linBCi0dPspJvvDXTPcr8C+Vow2Y="
         }
       ]
     },
     {
-      "Route": "css/dashboard.hvzyklrzu3.css",
-      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\dashboard.css",
+      "Route": "css/cameras.t7m8vgrrn3.css",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\cameras.css",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -3022,7 +3190,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "19670"
+          "Value": "12588"
         },
         {
           "Name": "Content-Type",
@@ -3030,11 +3198,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"453Dha6ligGBXBRbzetbdgPTi7TtoJTegHwTAYQCm0c=\""
+          "Value": "\"h67aueEijUu9TP3linBCi0dPspJvvDXTPcr8C+Vow2Y=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 31 May 2025 05:21:24 GMT"
+          "Value": "Sat, 31 May 2025 06:37:37 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3044,21 +3212,21 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "hvzyklrzu3"
+          "Value": "t7m8vgrrn3"
         },
         {
           "Name": "label",
-          "Value": "css/dashboard.css"
+          "Value": "css/cameras.css"
         },
         {
           "Name": "integrity",
-          "Value": "sha256-453Dha6ligGBXBRbzetbdgPTi7TtoJTegHwTAYQCm0c="
+          "Value": "sha256-h67aueEijUu9TP3linBCi0dPspJvvDXTPcr8C+Vow2Y="
         }
       ]
     },
     {
-      "Route": "css/dashboard.hvzyklrzu3.css.gz",
-      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\dirxa4tw7e-hvzyklrzu3.gz",
+      "Route": "css/cameras.t7m8vgrrn3.css.gz",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\c7e14opagz-t7m8vgrrn3.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -3067,7 +3235,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "4320"
+          "Value": "3333"
         },
         {
           "Name": "Content-Type",
@@ -3075,11 +3243,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"WQpnd1fVvjM3dbfAqOpDOcmRJwGWkiLEUJ2gjMxaeyY=\""
+          "Value": "\"h7YeshZciFleP8/NVh9kH1UPF+im+b/8+KvlS9lg0GQ=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 31 May 2025 05:21:24 GMT"
+          "Value": "Sat, 31 May 2025 06:37:37 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3097,15 +3265,611 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "hvzyklrzu3"
+          "Value": "t7m8vgrrn3"
         },
         {
           "Name": "label",
-          "Value": "css/dashboard.css.gz"
+          "Value": "css/cameras.css.gz"
         },
         {
           "Name": "integrity",
-          "Value": "sha256-WQpnd1fVvjM3dbfAqOpDOcmRJwGWkiLEUJ2gjMxaeyY="
+          "Value": "sha256-h7YeshZciFleP8/NVh9kH1UPF+im+b/8+KvlS9lg0GQ="
+        }
+      ]
+    },
+    {
+      "Route": "css/index.b6y0r4nhr5.css",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\kn73tf4i8d-b6y0r4nhr5.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000727802038"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1373"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"sylCYa4faq2iTxVNem4xg1xdHqCTtcoWkPSaLyecn/8=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 06:17:09 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"/RflPp0ziN/L1XZjFp2c+04l5qW4XKdnFD5dmXxfoOY=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "b6y0r4nhr5"
+        },
+        {
+          "Name": "label",
+          "Value": "css/index.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-/RflPp0ziN/L1XZjFp2c+04l5qW4XKdnFD5dmXxfoOY="
+        }
+      ]
+    },
+    {
+      "Route": "css/index.b6y0r4nhr5.css",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\index.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "5233"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"/RflPp0ziN/L1XZjFp2c+04l5qW4XKdnFD5dmXxfoOY=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 06:17:09 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "b6y0r4nhr5"
+        },
+        {
+          "Name": "label",
+          "Value": "css/index.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-/RflPp0ziN/L1XZjFp2c+04l5qW4XKdnFD5dmXxfoOY="
+        }
+      ]
+    },
+    {
+      "Route": "css/index.b6y0r4nhr5.css.gz",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\kn73tf4i8d-b6y0r4nhr5.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1373"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"sylCYa4faq2iTxVNem4xg1xdHqCTtcoWkPSaLyecn/8=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 06:17:09 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "b6y0r4nhr5"
+        },
+        {
+          "Name": "label",
+          "Value": "css/index.css.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-sylCYa4faq2iTxVNem4xg1xdHqCTtcoWkPSaLyecn/8="
+        }
+      ]
+    },
+    {
+      "Route": "css/index.css",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\kn73tf4i8d-b6y0r4nhr5.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000727802038"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1373"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"sylCYa4faq2iTxVNem4xg1xdHqCTtcoWkPSaLyecn/8=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 06:17:09 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"/RflPp0ziN/L1XZjFp2c+04l5qW4XKdnFD5dmXxfoOY=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-/RflPp0ziN/L1XZjFp2c+04l5qW4XKdnFD5dmXxfoOY="
+        }
+      ]
+    },
+    {
+      "Route": "css/index.css",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\index.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "5233"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"/RflPp0ziN/L1XZjFp2c+04l5qW4XKdnFD5dmXxfoOY=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 06:17:09 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-/RflPp0ziN/L1XZjFp2c+04l5qW4XKdnFD5dmXxfoOY="
+        }
+      ]
+    },
+    {
+      "Route": "css/index.css.gz",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\kn73tf4i8d-b6y0r4nhr5.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1373"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"sylCYa4faq2iTxVNem4xg1xdHqCTtcoWkPSaLyecn/8=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 06:17:09 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-sylCYa4faq2iTxVNem4xg1xdHqCTtcoWkPSaLyecn/8="
+        }
+      ]
+    },
+    {
+      "Route": "css/schedule.css",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\nmwkhigjel-liag643hp6.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.001367989056"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "730"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"w291+lR+T+c9jmJBJQPwSLxLjl8blxcVeRwF0G/WI+A=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 07:28:12 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"PV/AdjoZi8dtsC3KDlBpad7Ah9ieTeIhmqbYlkbhyyI=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-PV/AdjoZi8dtsC3KDlBpad7Ah9ieTeIhmqbYlkbhyyI="
+        }
+      ]
+    },
+    {
+      "Route": "css/schedule.css",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\schedule.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1906"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"PV/AdjoZi8dtsC3KDlBpad7Ah9ieTeIhmqbYlkbhyyI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 07:28:12 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-PV/AdjoZi8dtsC3KDlBpad7Ah9ieTeIhmqbYlkbhyyI="
+        }
+      ]
+    },
+    {
+      "Route": "css/schedule.css.gz",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\nmwkhigjel-liag643hp6.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "730"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"w291+lR+T+c9jmJBJQPwSLxLjl8blxcVeRwF0G/WI+A=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 07:28:12 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-w291+lR+T+c9jmJBJQPwSLxLjl8blxcVeRwF0G/WI+A="
+        }
+      ]
+    },
+    {
+      "Route": "css/schedule.liag643hp6.css",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\nmwkhigjel-liag643hp6.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.001367989056"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "730"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"w291+lR+T+c9jmJBJQPwSLxLjl8blxcVeRwF0G/WI+A=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 07:28:12 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"PV/AdjoZi8dtsC3KDlBpad7Ah9ieTeIhmqbYlkbhyyI=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "liag643hp6"
+        },
+        {
+          "Name": "label",
+          "Value": "css/schedule.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-PV/AdjoZi8dtsC3KDlBpad7Ah9ieTeIhmqbYlkbhyyI="
+        }
+      ]
+    },
+    {
+      "Route": "css/schedule.liag643hp6.css",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\schedule.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1906"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"PV/AdjoZi8dtsC3KDlBpad7Ah9ieTeIhmqbYlkbhyyI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 07:28:12 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "liag643hp6"
+        },
+        {
+          "Name": "label",
+          "Value": "css/schedule.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-PV/AdjoZi8dtsC3KDlBpad7Ah9ieTeIhmqbYlkbhyyI="
+        }
+      ]
+    },
+    {
+      "Route": "css/schedule.liag643hp6.css.gz",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\nmwkhigjel-liag643hp6.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "730"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"w291+lR+T+c9jmJBJQPwSLxLjl8blxcVeRwF0G/WI+A=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 07:28:12 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "liag643hp6"
+        },
+        {
+          "Name": "label",
+          "Value": "css/schedule.css.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-w291+lR+T+c9jmJBJQPwSLxLjl8blxcVeRwF0G/WI+A="
         }
       ]
     },
@@ -4302,13 +5066,13 @@
       ]
     },
     {
-      "Route": "js/dashboard.6wyy3vcoig.js",
-      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\qbgipymcaf-6wyy3vcoig.gz",
+      "Route": "js/cameras.js",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\n0uzy0rbkp-ted29megf4.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000198965380"
+          "Quality": "0.000237416904"
         }
       ],
       "ResponseHeaders": [
@@ -4318,19 +5082,19 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "5025"
+          "Value": "4211"
         },
         {
           "Name": "ETag",
-          "Value": "\"2GG97s+ObrYtqrahd458i7bBo+6JBNUmgeefGgz6BAA=\""
+          "Value": "\"9JU0oC5NfJjKk7UTS3bj0UXCIL6vWvD9UlUeiSp28U0=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 31 May 2025 05:21:08 GMT"
+          "Value": "Sat, 31 May 2025 06:37:11 GMT"
         },
         {
           "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
+          "Value": "no-cache"
         },
         {
           "Name": "Content-Encoding",
@@ -4346,27 +5110,19 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"2psz7n2sJaD5k468OCpFzjYXZ+XoBA6jtQFeYRWLfoM=\""
+          "Value": "W/\"ZVEIbVF1uhIS0i3+o0Zp/0/m0xx1yzxTfYVKhj6b/C4=\""
         }
       ],
       "EndpointProperties": [
         {
-          "Name": "fingerprint",
-          "Value": "6wyy3vcoig"
-        },
-        {
-          "Name": "label",
-          "Value": "js/dashboard.js"
-        },
-        {
           "Name": "integrity",
-          "Value": "sha256-2psz7n2sJaD5k468OCpFzjYXZ+XoBA6jtQFeYRWLfoM="
+          "Value": "sha256-ZVEIbVF1uhIS0i3+o0Zp/0/m0xx1yzxTfYVKhj6b/C4="
         }
       ]
     },
     {
-      "Route": "js/dashboard.6wyy3vcoig.js",
-      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\dashboard.js",
+      "Route": "js/cameras.js",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\cameras.js",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -4375,7 +5131,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "21993"
+          "Value": "15735"
         },
         {
           "Name": "Content-Type",
@@ -4383,35 +5139,27 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"2psz7n2sJaD5k468OCpFzjYXZ+XoBA6jtQFeYRWLfoM=\""
+          "Value": "\"ZVEIbVF1uhIS0i3+o0Zp/0/m0xx1yzxTfYVKhj6b/C4=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 31 May 2025 05:21:08 GMT"
+          "Value": "Sat, 31 May 2025 06:37:11 GMT"
         },
         {
           "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
+          "Value": "no-cache"
         }
       ],
       "EndpointProperties": [
         {
-          "Name": "fingerprint",
-          "Value": "6wyy3vcoig"
-        },
-        {
-          "Name": "label",
-          "Value": "js/dashboard.js"
-        },
-        {
           "Name": "integrity",
-          "Value": "sha256-2psz7n2sJaD5k468OCpFzjYXZ+XoBA6jtQFeYRWLfoM="
+          "Value": "sha256-ZVEIbVF1uhIS0i3+o0Zp/0/m0xx1yzxTfYVKhj6b/C4="
         }
       ]
     },
     {
-      "Route": "js/dashboard.6wyy3vcoig.js.gz",
-      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\qbgipymcaf-6wyy3vcoig.gz",
+      "Route": "js/cameras.js.gz",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\n0uzy0rbkp-ted29megf4.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -4420,7 +5168,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "5025"
+          "Value": "4211"
         },
         {
           "Name": "Content-Type",
@@ -4428,15 +5176,15 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"2GG97s+ObrYtqrahd458i7bBo+6JBNUmgeefGgz6BAA=\""
+          "Value": "\"9JU0oC5NfJjKk7UTS3bj0UXCIL6vWvD9UlUeiSp28U0=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 31 May 2025 05:21:08 GMT"
+          "Value": "Sat, 31 May 2025 06:37:11 GMT"
         },
         {
           "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
+          "Value": "no-cache"
         },
         {
           "Name": "Content-Encoding",
@@ -4449,27 +5197,19 @@
       ],
       "EndpointProperties": [
         {
-          "Name": "fingerprint",
-          "Value": "6wyy3vcoig"
-        },
-        {
-          "Name": "label",
-          "Value": "js/dashboard.js.gz"
-        },
-        {
           "Name": "integrity",
-          "Value": "sha256-2GG97s+ObrYtqrahd458i7bBo+6JBNUmgeefGgz6BAA="
+          "Value": "sha256-9JU0oC5NfJjKk7UTS3bj0UXCIL6vWvD9UlUeiSp28U0="
         }
       ]
     },
     {
-      "Route": "js/dashboard.js",
-      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\qbgipymcaf-6wyy3vcoig.gz",
+      "Route": "js/cameras.ted29megf4.js",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\n0uzy0rbkp-ted29megf4.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000198965380"
+          "Quality": "0.000237416904"
         }
       ],
       "ResponseHeaders": [
@@ -4479,15 +5219,176 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "5025"
+          "Value": "4211"
         },
         {
           "Name": "ETag",
-          "Value": "\"2GG97s+ObrYtqrahd458i7bBo+6JBNUmgeefGgz6BAA=\""
+          "Value": "\"9JU0oC5NfJjKk7UTS3bj0UXCIL6vWvD9UlUeiSp28U0=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 31 May 2025 05:21:08 GMT"
+          "Value": "Sat, 31 May 2025 06:37:11 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"ZVEIbVF1uhIS0i3+o0Zp/0/m0xx1yzxTfYVKhj6b/C4=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "ted29megf4"
+        },
+        {
+          "Name": "label",
+          "Value": "js/cameras.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-ZVEIbVF1uhIS0i3+o0Zp/0/m0xx1yzxTfYVKhj6b/C4="
+        }
+      ]
+    },
+    {
+      "Route": "js/cameras.ted29megf4.js",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\cameras.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "15735"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"ZVEIbVF1uhIS0i3+o0Zp/0/m0xx1yzxTfYVKhj6b/C4=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 06:37:11 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "ted29megf4"
+        },
+        {
+          "Name": "label",
+          "Value": "js/cameras.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-ZVEIbVF1uhIS0i3+o0Zp/0/m0xx1yzxTfYVKhj6b/C4="
+        }
+      ]
+    },
+    {
+      "Route": "js/cameras.ted29megf4.js.gz",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\n0uzy0rbkp-ted29megf4.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "4211"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"9JU0oC5NfJjKk7UTS3bj0UXCIL6vWvD9UlUeiSp28U0=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 06:37:11 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "ted29megf4"
+        },
+        {
+          "Name": "label",
+          "Value": "js/cameras.js.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-9JU0oC5NfJjKk7UTS3bj0UXCIL6vWvD9UlUeiSp28U0="
+        }
+      ]
+    },
+    {
+      "Route": "js/index.js",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\l78cvwboxm-x3b06nh9wd.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000187546887"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "5331"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"P9G3xREzTyHc5GG8ao6JdA17EXojACvza21e1MqWnMc=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 06:16:46 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4507,19 +5408,19 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"2psz7n2sJaD5k468OCpFzjYXZ+XoBA6jtQFeYRWLfoM=\""
+          "Value": "W/\"w/V8OGPZd1GzL2tDJFpNxPGQBgY4bSZ5bV6hz4Y3Hxg=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-2psz7n2sJaD5k468OCpFzjYXZ+XoBA6jtQFeYRWLfoM="
+          "Value": "sha256-w/V8OGPZd1GzL2tDJFpNxPGQBgY4bSZ5bV6hz4Y3Hxg="
         }
       ]
     },
     {
-      "Route": "js/dashboard.js",
-      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\dashboard.js",
+      "Route": "js/index.js",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\index.js",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -4528,7 +5429,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "21993"
+          "Value": "24362"
         },
         {
           "Name": "Content-Type",
@@ -4536,11 +5437,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"2psz7n2sJaD5k468OCpFzjYXZ+XoBA6jtQFeYRWLfoM=\""
+          "Value": "\"w/V8OGPZd1GzL2tDJFpNxPGQBgY4bSZ5bV6hz4Y3Hxg=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 31 May 2025 05:21:08 GMT"
+          "Value": "Sat, 31 May 2025 06:16:46 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4550,13 +5451,13 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-2psz7n2sJaD5k468OCpFzjYXZ+XoBA6jtQFeYRWLfoM="
+          "Value": "sha256-w/V8OGPZd1GzL2tDJFpNxPGQBgY4bSZ5bV6hz4Y3Hxg="
         }
       ]
     },
     {
-      "Route": "js/dashboard.js.gz",
-      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\qbgipymcaf-6wyy3vcoig.gz",
+      "Route": "js/index.js.gz",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\l78cvwboxm-x3b06nh9wd.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -4565,7 +5466,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "5025"
+          "Value": "5331"
         },
         {
           "Name": "Content-Type",
@@ -4573,11 +5474,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"2GG97s+ObrYtqrahd458i7bBo+6JBNUmgeefGgz6BAA=\""
+          "Value": "\"P9G3xREzTyHc5GG8ao6JdA17EXojACvza21e1MqWnMc=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 31 May 2025 05:21:08 GMT"
+          "Value": "Sat, 31 May 2025 06:16:46 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4595,7 +5496,466 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-2GG97s+ObrYtqrahd458i7bBo+6JBNUmgeefGgz6BAA="
+          "Value": "sha256-P9G3xREzTyHc5GG8ao6JdA17EXojACvza21e1MqWnMc="
+        }
+      ]
+    },
+    {
+      "Route": "js/index.x3b06nh9wd.js",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\l78cvwboxm-x3b06nh9wd.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000187546887"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "5331"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"P9G3xREzTyHc5GG8ao6JdA17EXojACvza21e1MqWnMc=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 06:16:46 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"w/V8OGPZd1GzL2tDJFpNxPGQBgY4bSZ5bV6hz4Y3Hxg=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "x3b06nh9wd"
+        },
+        {
+          "Name": "label",
+          "Value": "js/index.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-w/V8OGPZd1GzL2tDJFpNxPGQBgY4bSZ5bV6hz4Y3Hxg="
+        }
+      ]
+    },
+    {
+      "Route": "js/index.x3b06nh9wd.js",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\index.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "24362"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"w/V8OGPZd1GzL2tDJFpNxPGQBgY4bSZ5bV6hz4Y3Hxg=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 06:16:46 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "x3b06nh9wd"
+        },
+        {
+          "Name": "label",
+          "Value": "js/index.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-w/V8OGPZd1GzL2tDJFpNxPGQBgY4bSZ5bV6hz4Y3Hxg="
+        }
+      ]
+    },
+    {
+      "Route": "js/index.x3b06nh9wd.js.gz",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\l78cvwboxm-x3b06nh9wd.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "5331"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"P9G3xREzTyHc5GG8ao6JdA17EXojACvza21e1MqWnMc=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 06:16:46 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "x3b06nh9wd"
+        },
+        {
+          "Name": "label",
+          "Value": "js/index.js.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-P9G3xREzTyHc5GG8ao6JdA17EXojACvza21e1MqWnMc="
+        }
+      ]
+    },
+    {
+      "Route": "js/schedule.5mblgdscfb.js",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\sg38ug38m9-5mblgdscfb.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000343288706"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "2912"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"9Td7VmRgIXEzUWwxmTTdb3OSHL4d3cLi9IC0K+izM1E=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 07:27:44 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"860AlGSocTa/qgn59jykLc2cqhjCKwWE/wCsO+87m5E=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "5mblgdscfb"
+        },
+        {
+          "Name": "label",
+          "Value": "js/schedule.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-860AlGSocTa/qgn59jykLc2cqhjCKwWE/wCsO+87m5E="
+        }
+      ]
+    },
+    {
+      "Route": "js/schedule.5mblgdscfb.js",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\schedule.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "20288"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"860AlGSocTa/qgn59jykLc2cqhjCKwWE/wCsO+87m5E=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 07:27:44 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "5mblgdscfb"
+        },
+        {
+          "Name": "label",
+          "Value": "js/schedule.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-860AlGSocTa/qgn59jykLc2cqhjCKwWE/wCsO+87m5E="
+        }
+      ]
+    },
+    {
+      "Route": "js/schedule.5mblgdscfb.js.gz",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\sg38ug38m9-5mblgdscfb.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "2912"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"9Td7VmRgIXEzUWwxmTTdb3OSHL4d3cLi9IC0K+izM1E=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 07:27:44 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "5mblgdscfb"
+        },
+        {
+          "Name": "label",
+          "Value": "js/schedule.js.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-9Td7VmRgIXEzUWwxmTTdb3OSHL4d3cLi9IC0K+izM1E="
+        }
+      ]
+    },
+    {
+      "Route": "js/schedule.js",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\sg38ug38m9-5mblgdscfb.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000343288706"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "2912"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"9Td7VmRgIXEzUWwxmTTdb3OSHL4d3cLi9IC0K+izM1E=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 07:27:44 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"860AlGSocTa/qgn59jykLc2cqhjCKwWE/wCsO+87m5E=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-860AlGSocTa/qgn59jykLc2cqhjCKwWE/wCsO+87m5E="
+        }
+      ]
+    },
+    {
+      "Route": "js/schedule.js",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\schedule.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "20288"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"860AlGSocTa/qgn59jykLc2cqhjCKwWE/wCsO+87m5E=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 07:27:44 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-860AlGSocTa/qgn59jykLc2cqhjCKwWE/wCsO+87m5E="
+        }
+      ]
+    },
+    {
+      "Route": "js/schedule.js.gz",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\sg38ug38m9-5mblgdscfb.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "2912"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"9Td7VmRgIXEzUWwxmTTdb3OSHL4d3cLi9IC0K+izM1E=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 07:27:44 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-9Td7VmRgIXEzUWwxmTTdb3OSHL4d3cLi9IC0K+izM1E="
         }
       ]
     },

@@ -5,8 +5,16 @@
       "PackagePath": "staticwebassets\\dotnetprojects.qntd7ushnv.bundle.scp.css"
     },
     {
-      "Id": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\dashboard.css",
-      "PackagePath": "staticwebassets\\css\\dashboard.css"
+      "Id": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\cameras.css",
+      "PackagePath": "staticwebassets\\css\\cameras.css"
+    },
+    {
+      "Id": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\index.css",
+      "PackagePath": "staticwebassets\\css\\index.css"
+    },
+    {
+      "Id": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\schedule.css",
+      "PackagePath": "staticwebassets\\css\\schedule.css"
     },
     {
       "Id": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\site.css",
@@ -17,8 +25,16 @@
       "PackagePath": "staticwebassets\\favicon.ico"
     },
     {
-      "Id": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\dashboard.js",
-      "PackagePath": "staticwebassets\\js\\dashboard.js"
+      "Id": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\cameras.js",
+      "PackagePath": "staticwebassets\\js\\cameras.js"
+    },
+    {
+      "Id": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\index.js",
+      "PackagePath": "staticwebassets\\js\\index.js"
+    },
+    {
+      "Id": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\schedule.js",
+      "PackagePath": "staticwebassets\\js\\schedule.js"
     },
     {
       "Id": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\site.js",
