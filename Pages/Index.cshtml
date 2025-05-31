@@ -65,8 +65,9 @@
     let camerasData = [];
     let schedulesData = [];
     let activityChart;
+    let autoRefreshInterval;
     
-    // API Functions - Updated to use your actual endpoints
+    // API Functions
     async function apiCall(endpoint, method = 'GET', data = null) {
       try {
         const options = {
@@ -80,7 +81,6 @@
           options.body = JSON.stringify(data);
         }
         
-        // Use your actual endpoints
         const response = await fetch(`/Index?handler=${endpoint}`, options);
         
         if (!response.ok) {
@@ -94,6 +94,23 @@
       }
     }
     
+    // Auto refresh function
+    function startAutoRefresh() {
+      autoRefreshInterval = setInterval(async () => {
+        console.log('Auto-refreshing data...');
+        await loadSystemOverview();
+        await loadCameras();
+        await loadSchedules();
+        await loadHourlyTrafficData();
+      }, 30000); // 30 seconds
+    }
+    
+    function stopAutoRefresh() {
+      if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+      }
+    }
+    
     // Load System Overview Data
     async function loadSystemOverview() {
       try {
@@ -102,7 +119,6 @@
         updateSystemOverviewUI();
       } catch (error) {
         console.error('Failed to load system overview:', error);
-        // Keep existing server-side data as fallback
       }
     }
     
@@ -112,10 +128,49 @@
         const data = await apiCall('CamerasData');
         camerasData = data;
         updateCamerasUI();
+        updateCameraMapUI();
       } catch (error) {
         console.error('Failed to load cameras:', error);
-        // Use server-side rendered camera data as fallback
         updateCamerasUIFromServerData();
+      }
+    }
+    
+    // Load Schedules Data
+    async function loadSchedules() {
+      try {
+        let allSchedules = [];
+        if (window.camerasFromServer) {
+          for (const camera of window.camerasFromServer) {
+            const schedules = await apiCall(`GetSchedules&cameraId=${camera.cameraID}`);
+            allSchedules = allSchedules.concat(schedules);
+          }
+        }
+        schedulesData = allSchedules;
+        updateSchedulesUI();
+        updateSchedulesTable();
+      } catch (error) {
+        console.error('Failed to load schedules:', error);
+      }
+    }
+    
+    // Load hourly traffic data for the last hour
+    async function loadHourlyTrafficData() {
+      try {
+        const allCameraIds = window.camerasFromServer ? window.camerasFromServer.map(c => c.cameraID) : [];
+        
+        if (allCameraIds.length > 0) {
+          const cameraParams = allCameraIds.map(id => `cameraIds=${id}`).join('&');
+          const activityData = await apiCall(`LastHourTraffic&${cameraParams}`);
+          
+          const labels = activityData.map(d => d.hour);
+          const peopleInData = activityData.map(d => d.peopleIn);
+          const peopleOutData = activityData.map(d => d.peopleOut);
+          
+          updateActivityChart(labels, peopleInData, peopleOutData);
+        }
+      } catch (error) {
+        console.error('Failed to load hourly traffic data:', error);
+        updateActivityChart(); // Fall back to default chart
       }
     }
     
@@ -134,24 +189,6 @@
           });
         }
       });
-    }
-    
-    // Load Schedules Data
-    async function loadSchedules() {
-      try {
-        // Load schedules for all cameras
-        let allSchedules = [];
-        if (window.camerasFromServer) {
-          for (const camera of window.camerasFromServer) {
-            const schedules = await apiCall(`GetSchedules&cameraId=${camera.cameraID}`);
-            allSchedules = allSchedules.concat(schedules);
-          }
-        }
-        schedulesData = allSchedules;
-        updateSchedulesUI();
-      } catch (error) {
-        console.error('Failed to load schedules:', error);
-      }
     }
     
     // Update System Overview UI with real data
@@ -186,7 +223,6 @@
     function updateCamerasUI() {
       if (!camerasData.length) return;
       
-      // Update camera selection dropdowns
       const cameraSelects = ['activity_camera', 'cameraname', 'schedule_camera'];
       cameraSelects.forEach(selectId => {
         const select = document.getElementById(selectId);
@@ -202,11 +238,52 @@
       });
     }
     
+    // Update camera map with real data
+    function updateCameraMapUI() {
+      const ctx = document.getElementById('cameraMapChart').getContext('2d');
+      
+      let activeCameras = [];
+      let inactiveCameras = [];
+      
+      if (camerasData.length > 0) {
+        activeCameras = camerasData.filter(camera => camera.status === 'active').map(camera => ({
+          x: camera.location?.x || Math.random() * 80 + 10,
+          y: camera.location?.y || Math.random() * 80 + 10
+        }));
+        
+        inactiveCameras = camerasData.filter(camera => camera.status === 'inactive').map(camera => ({
+          x: camera.location?.x || Math.random() * 80 + 10,
+          y: camera.location?.y || Math.random() * 80 + 10
+        }));
+      } else {
+        // Use server data for fallback
+        const totalCameras = window.serverData?.totalCameras || 2;
+        const activeCamerasCount = window.serverData?.activeCameras || 0;
+        
+        for (let i = 0; i < activeCamerasCount; i++) {
+          activeCameras.push({
+            x: Math.random() * 80 + 10,
+            y: Math.random() * 80 + 10
+          });
+        }
+        
+        for (let i = 0; i < (totalCameras - activeCamerasCount); i++) {
+          inactiveCameras.push({
+            x: Math.random() * 80 + 10,
+            y: Math.random() * 80 + 10
+          });
+        }
+      }
+      
+      // Update legend
+      document.getElementById('activeCamerasCount').textContent = activeCameras.length;
+      document.getElementById('inactiveCamerasCount').textContent = inactiveCameras.length;
+    }
+    
     // Update Schedules UI
     function updateSchedulesUI() {
       if (!schedulesData.length) return;
       
-      // Update schedule dropdown
       const scheduleSelect = document.getElementById('mealtype');
       if (scheduleSelect) {
         scheduleSelect.innerHTML = '<option value="">-- Select a schedule --</option>';
@@ -219,7 +296,34 @@
       }
     }
     
-    // Main showPplCount function (unified version)
+    // Update schedules table
+    function updateSchedulesTable() {
+      const tbody = document.getElementById('schedulesTableBody');
+      if (!tbody || !schedulesData.length) return;
+      
+      tbody.innerHTML = '';
+      schedulesData.forEach(schedule => {
+        const cameraName = window.camerasFromServer?.find(c => c.cameraID === schedule.cameraID)?.cameraName || 'Unknown Camera';
+        const startTime = new Date(schedule.startTime).toLocaleTimeString('en-US', { 
+          hour12: false, 
+          hour: '2-digit', 
+          minute: '2-digit', 
+          second: '2-digit' 
+        });
+        
+        const row = `
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${schedule.scheduleName}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${cameraName}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${startTime}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${schedule.durationInSec}</td>
+          </tr>
+        `;
+        tbody.insertAdjacentHTML('beforeend', row);
+      });
+    }
+    
+    // Main showPplCount function
     async function showPplCount() {
       const selectedCameras = Array.from(document.getElementById('activity_camera').selectedOptions).map(opt => parseInt(opt.value));
       const selectedSchedule = document.getElementById('mealtype').value;
@@ -231,13 +335,11 @@
       }
 
       try {
-        // Get schedule details
         const scheduleData = await apiCall(`GetScheduleByID&scheduleID=${selectedSchedule}`);
         
         if (scheduleData && scheduleData.length > 0) {
           const schedule = scheduleData[0];
           
-          // Calculate time range (using existing logic)
           const inputDate = new Date(selectedDate);
           const scheduleTime = new Date(schedule.startTime);
           
@@ -247,18 +349,14 @@
           const startTime = Math.round(inputDate.getTime() / 1000);
           const endTime = startTime + schedule.durationInSec;
           
-          // Get people count
           const cameraParams = selectedCameras.map(id => `cameraIds=${id}`).join('&');
           const countData = await apiCall(`GetPeopleCount&${cameraParams}&from=${startTime}&to=${endTime}`);
           
           // Update UI
-          document.getElementById('countLabel1').textContent = countData.totalIn;
-          document.getElementById('countLabel2').textContent = countData.totalOut;
-          if (document.getElementById('countLabel3')) {
-            document.getElementById('countLabel3').textContent = countData.totalPresent;
-          }
+          document.getElementById('countLabel1').textContent = countData.totalIn || 0;
+          document.getElementById('countLabel2').textContent = countData.totalOut || 0;
+          document.getElementById('countLabel3').textContent = countData.totalPresent || 0;
           
-          // Update chart with activity data
           await updateActivityChartWithData(selectedCameras, inputDate);
         }
       } catch (error) {
@@ -281,7 +379,6 @@
         updateActivityChart(labels, peopleInData, peopleOutData);
       } catch (error) {
         console.error('Failed to load activity data:', error);
-        // Fall back to default chart
         updateActivityChart();
       }
     }
@@ -294,7 +391,6 @@
         activityChart.destroy();
       }
       
-      // Use provided data or fall back to mock data
       const chartLabels = labels || ['7:00', '8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00'];
       const inData = peopleInData || [5, 12, 28, 45, 77, 105, 118, 125, 131];
       const outData = peopleOutData || [0, 3, 8, 22, 48, 87, 102, 118, 128];
@@ -338,16 +434,6 @@
               right: 20,
               top: 20,
               bottom: 20
-            }
-          },
-          elements: {
-            point: {
-              radius: 3,
-              hoverRadius: 5
-            },
-            line: {
-              borderWidth: 2,
-              tension: 0.4
             }
           },
           plugins: {
@@ -422,175 +508,27 @@
       });
     }
     
-    // Initialize camera map with real data
-    function initMapChart() {
-      const ctx = document.getElementById('cameraMapChart').getContext('2d');
-      
-      // Use real camera data if available
-      let activeCameras = [];
-      let inactiveCameras = [];
-      
-      if (camerasData.length > 0) {
-        activeCameras = camerasData.filter(camera => camera.status === 'active').map(camera => ({
-          x: camera.location?.x || Math.random() * 80 + 10,
-          y: camera.location?.y || Math.random() * 80 + 10
-        }));
-        
-        inactiveCameras = camerasData.filter(camera => camera.status === 'inactive').map(camera => ({
-          x: camera.location?.x || Math.random() * 80 + 10,
-          y: camera.location?.y || Math.random() * 80 + 10
-        }));
-      } else {
-        // Fallback to mock data
-        activeCameras = [
-          { x: 15, y: 25 }, { x: 35, y: 45 }, { x: 55, y: 30 }, { x: 75, y: 65 },
-          { x: 25, y: 75 }, { x: 85, y: 20 }, { x: 45, y: 35 }, { x: 80, y: 75 }, { x: 65, y: 55 }
-        ];
-        inactiveCameras = [
-          { x: 80, y: 45 }, { x: 20, y: 55 }, { x: 50, y: 75 }
-        ];
-      }
-      
-      const chart = new Chart(ctx, {
-        type: 'scatter',
-        data: {
-          datasets: [
-            {
-              label: `Active Cameras (${activeCameras.length})`,
-              data: activeCameras,
-              backgroundColor: '#0ea5e9',
-              radius: 6,
-              hoverRadius: 8
-            },
-            {
-              label: `Inactive Cameras (${inactiveCameras.length})`,
-              data: inactiveCameras,
-              backgroundColor: '#d1d5db',
-              radius: 6,
-              hoverRadius: 8
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: true,
-          aspectRatio: 2,
-          layout: {
-            padding: {
-              left: 10,
-              right: 10,
-              top: 10,
-              bottom: 10
-            }
-          },
-          scales: {
-            x: {
-              min: 0,
-              max: 100,
-              ticks: { display: false },
-              grid: { display: false },
-              border: { display: false }
-            },
-            y: {
-              min: 0,
-              max: 100,
-              ticks: { display: false },
-              grid: { display: false },
-              border: { display: false }
-            }
-          },
-          plugins: {
-            tooltip: {
-              backgroundColor: 'rgba(17, 24, 39, 0.9)',
-              padding: 8,
-              cornerRadius: 6,
-              callbacks: {
-                label: function(context) {
-                  if (camerasData.length) {
-                    const isActive = context.datasetIndex === 0;
-                    const filteredCameras = camerasData.filter(c => (c.status === 'active') === isActive);
-                    return filteredCameras[context.dataIndex]?.name || 'Unknown Camera';
-                  }
-                  return `Camera ${context.dataIndex + 1}`;
-                }
-              }
-            },
-            legend: {
-              labels: {
-                usePointStyle: true,
-                padding: 15,
-                boxWidth: 12,
-                boxHeight: 12
-              }
-            }
-          }
-        }
-      });
-    }
-    
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
       sidebar.classList.toggle('hidden');
       sidebar.classList.toggle('flex');
     }
     
-    // Function for adding schedules
-    function addSchedule() {
-        var scheduleName = document.getElementById('scheduleName')?.value;
-        var timeValue = document.getElementById('startTime')?.value;
-        var duration = parseInt(document.getElementById('duration')?.value, 10);
-
-        if (!scheduleName || !timeValue || isNaN(duration)) {
-            alert('Please fill in all fields with valid values!');
-            return;
-        }
-
-        var [hours, minutes, seconds] = timeValue.split(':');
-        seconds = seconds || '00';
-
-        var today = new Date();
-        var localTime = new Date(
-            today.getFullYear(),
-            today.getMonth(),
-            today.getDate(),
-            parseInt(hours),
-            parseInt(minutes),
-            parseInt(seconds)
-        );
-
-        const pad = (n) => n.toString().padStart(2, '0');
-        var formattedLocalDate = `${localTime.getFullYear()}-${pad(localTime.getMonth() + 1)}-${pad(localTime.getDate())}T${pad(localTime.getHours())}:${pad(localTime.getMinutes())}:${pad(localTime.getSeconds())}`;
-
-        const scheduleData = {
-            cameraID: 9,
-            scheduleName: scheduleName,
-            startTime: formattedLocalDate,
-            durationInSec: duration
-        };
-
-        fetch('?handler=AddSchedule', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-            },
-            body: JSON.stringify(scheduleData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert("Added Schedule: " + data.count);
-        })
-        .catch(error => console.error('Error:', error));
-    }
-    
-    // Set up event listeners - SINGLE DOMContentLoaded
+    // Set up event listeners
     document.addEventListener('DOMContentLoaded', function() {
-      // Load data using updated functions
+      // Set today's date as default
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('Test_DatetimeLocal').value = today;
+      
+      // Load initial data
       loadSystemOverview();
       loadCameras();
       loadSchedules();
+      loadHourlyTrafficData();
       initMapChart();
-      updateActivityChart();
+      
+      // Start auto refresh
+      startAutoRefresh();
       
       // Update dashboard with server data immediately
       if (window.serverData) {
@@ -599,7 +537,6 @@
           document.getElementById('peopleIn').textContent = window.serverData.totalIn;
           document.getElementById('peopleOut').textContent = window.serverData.totalOut;
           
-          // Update progress bars
           if (window.serverData.totalCameras > 0) {
               const activePercentage = (window.serverData.activeCameras / window.serverData.totalCameras) * 100;
               document.getElementById('activeCamerasProgress').style.width = `${activePercentage}%`;
@@ -607,27 +544,15 @@
           }
       }
       
-      // Initialize dropdowns with server camera data
       updateCamerasUIFromServerData();
       
-      // Set up camera selection event listeners
-      const activityCameraSelect = document.getElementById('activity_camera');
-      if (activityCameraSelect) {
-        activityCameraSelect.addEventListener('change', function () {
-          const selectedOptions = Array.from(this.selectedOptions);
-          const selectedCameraIDs = selectedOptions.map(option => option.value);
-          console.log("Activity Camera IDs:", selectedCameraIDs);
-        });
-      }
-      
+      // Camera selection event listeners
       const cameranameSelect = document.getElementById('cameraname');
       if (cameranameSelect) {
         cameranameSelect.addEventListener('change', function () {
           const selectedOptions = Array.from(this.selectedOptions);
           const selectedCameraIDs = selectedOptions.map(option => option.value);
-          console.log("Selected Camera IDs:", selectedCameraIDs);
 
-          // Load schedules for the first selected camera
           if (selectedCameraIDs.length > 0) {
             fetch(`/Index?handler=GetSchedules&cameraId=${selectedCameraIDs[0]}`)
             .then(response => response.json())
@@ -648,11 +573,9 @@
         });
       }
       
-      // Handle window resize to redraw charts properly
-      window.addEventListener('resize', function() {
-        if (activityChart) {
-          activityChart.resize();
-        }
+      // Clean up on page unload
+      window.addEventListener('beforeunload', function() {
+        stopAutoRefresh();
       });
     });
 </script>
@@ -721,31 +644,6 @@
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
     
-    .action-button:active {
-      transform: translateY(0);
-      box-shadow: none;
-    }
-    
-    .active-nav-item {
-      background-color: rgba(2, 132, 199, 0.1);
-      border-left: 3px solid #0284c7;
-      color: #0284c7;
-    }
-    
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 5px;
-    }
-    
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: #f1f5f9;
-    }
-    
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background-color: #cbd5e1;
-      border-radius: 20px;
-    }
-    
-    /* Ensure chart container maintains proper dimensions */
     .chart-container {
       position: relative;
       width: 100%;
@@ -759,8 +657,8 @@
     }
     
     #cameraMapChart {
-      max-width: 100%;
-      height: auto !important;
+      width: 100%;
+      height: 200px;
     }
     
     @@media (max-width: 768px) {
@@ -801,11 +699,6 @@ window.serverData = {
       <h1 class="text-lg font-semibold text-gray-800">CCTV Manager</h1>
     </div>
   </div>
-  <div>
-    <button class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-      <i class="fas fa-user text-gray-600"></i>
-    </button>
-  </div>
 </header>
 
 <!-- Sidebar -->
@@ -814,10 +707,10 @@ window.serverData = {
     <i class="fas fa-video text-xl text-primary-600"></i>
     <h1 class="text-xl font-bold text-gray-800">CCTV Manager</h1>
   </div>
-  <div class="p-4 flex-1 overflow-y-auto custom-scrollbar">
+  <div class="p-4 flex-1 overflow-y-auto">
     <p class="text-xs uppercase text-gray-500 font-semibold px-4 mb-2">Main Menu</p>
     <ul class="space-y-1">
-      <li><a href="#dashboard" class="flex items-center px-4 py-3 rounded-lg active-nav-item">
+      <li><a href="#dashboard" class="flex items-center px-4 py-3 rounded-lg bg-primary-50 border-l-3 border-primary-600 text-primary-600">
         <i class="fas fa-tachometer-alt w-5 h-5 mr-3"></i>
         <span>Dashboard</span>
       </a></li>
@@ -835,147 +728,106 @@ window.serverData = {
       </a></li>
     </ul>
   </div>
-  <div class="p-4 border-t border-gray-200">
-    <div class="flex items-center">
-      <div class="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-600">
-        <i class="fas fa-user"></i>
-      </div>
-      <div class="ml-3">
-        <p class="text-sm font-medium text-gray-800">Admin User</p>
-        <p class="text-xs text-gray-500">admin@cctvmanager.com</p>
-      </div>
-      <div class="ml-auto">
-        <button class="text-gray-500 hover:text-gray-700 transition-colors">
-          <i class="fas fa-sign-out-alt"></i>
-        </button>
-      </div>
-    </div>
-  </div>
 </nav>
 
 <!-- Main Content -->
 <section id="dashboard" class="lg:ml-64 overflow-auto px-4 py-6 lg:p-8 min-h-screen">
-  <!-- Top Navigation Bar -->
-  <header class="bg-white shadow-sm rounded-xl px-6 py-5 mb-6 flex justify-between items-center">
-    <div class="flex items-center gap-4">
-      <div>
-        <h1 class="text-xl font-bold text-gray-800">ERP Security Dashboard</h1>
-        <p class="text-sm text-gray-500">Welcome back, Admin</p>
-      </div>
+  <!-- Header -->
+  <header class="bg-white shadow-sm rounded-xl px-6 py-5 mb-6">
+    <div>
+      <h1 class="text-xl font-bold text-gray-800">ERP Security Dashboard</h1>
+      <p class="text-sm text-gray-500">Welcome back, Admin</p>
     </div>
   </header>
 
-  <!-- Status Overview -->
-  <div class="mb-8">
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-lg font-semibold text-gray-800">System Overview</h2>
-      <div class="flex items-center gap-2 text-sm">
-        <span class="text-gray-500">Last updated:</span>
-        <span class="font-medium">May 28, 2025, 10:45 AM</span>
+  <!-- System Overview Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white p-6 rounded-xl shadow-card dashboard-card border border-gray-100">
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="text-sm font-medium text-gray-500">Total Cameras</p>
+          <h2 class="text-2xl font-bold text-gray-800 mt-2">
+            <span id="totalCameras">@Model.TotalCameras</span>
+          </h2>
+        </div>
+        <div class="bg-primary-50 p-3 rounded-lg text-primary-600">
+          <i class="fas fa-video text-xl"></i>
+        </div>
+      </div>
+      <div class="mt-4">
+        <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+          <div class="h-full bg-primary-500 rounded-full" id="totalCamerasProgress" style="width: 75%"></div>
+        </div>
+        <p class="text-xs font-medium text-gray-500 mt-2" id="totalCamerasCapacity">@Model.TotalCameras of 32 capacity</p>
       </div>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <div class="bg-white p-6 rounded-xl shadow-card dashboard-card border border-gray-100">
-        <div class="flex justify-between items-start">
-          <div>
-            <p class="text-sm font-medium text-gray-500">Total Cameras</p>
-            <h2 class="text-2xl font-bold text-gray-800 mt-2 flex items-baseline">
-              <span id="totalCameras">2</span>
-              <span class="text-sm font-medium text-green-600 ml-2" id="totalCamerasTrend">
-                <i class="fas fa-arrow-up text-xs mr-1"></i>4%
-              </span>
-            </h2>
-          </div>
-          <div class="bg-primary-50 p-3 rounded-lg text-primary-600">
-            <i class="fas fa-video text-xl"></i>
-          </div>
+    
+    <div class="bg-white p-6 rounded-xl shadow-card dashboard-card border border-gray-100">
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="text-sm font-medium text-gray-500">Active Cameras</p>
+          <h2 class="text-2xl font-bold text-gray-800 mt-2">
+            <span id="activeCameras">@Model.ActiveCameras</span>
+            <span class="text-xs font-medium text-gray-500 ml-2" id="activeCamerasTotal">of @Model.TotalCameras</span>
+          </h2>
         </div>
-        <div class="mt-4">
-          <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-            <div class="h-full bg-primary-500 rounded-full" id="totalCamerasProgress" style="width: 75%"></div>
-          </div>
-          <p class="text-xs font-medium text-gray-500 mt-2" id="totalCamerasCapacity">2 of 32 capacity</p>
+        <div class="bg-green-50 p-3 rounded-lg text-green-600">
+          <i class="fas fa-check-circle text-xl"></i>
         </div>
       </div>
-      
-      <div class="bg-white p-6 rounded-xl shadow-card dashboard-card border border-gray-100">
-        <div class="flex justify-between items-start">
-          <div>
-            <p class="text-sm font-medium text-gray-500">Active Cameras</p>
-            <h2 class="text-2xl font-bold text-gray-800 mt-2 flex items-baseline">
-              <span id="activeCameras">0</span>
-              <span class="text-xs font-medium text-gray-500 ml-2" id="activeCamerasTotal">of 2</span>
-            </h2>
-          </div>
-          <div class="bg-green-50 p-3 rounded-lg text-green-600">
-            <i class="fas fa-check-circle text-xl"></i>
-          </div>
+      <div class="mt-4">
+        <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+          <div class="h-full bg-green-500 rounded-full" id="activeCamerasProgress" style="width: 0%"></div>
         </div>
-        <div class="mt-4">
-          <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-            <div class="h-full bg-green-500 rounded-full" id="activeCamerasProgress" style="width: 0%"></div>
-          </div>
-          <p class="text-xs font-medium text-gray-500 mt-2" id="activeCamerasPercentage">0% operational</p>
+        <p class="text-xs font-medium text-gray-500 mt-2" id="activeCamerasPercentage">0% operational</p>
+      </div>
+    </div>
+    
+    <div class="bg-white p-6 rounded-xl shadow-card dashboard-card border border-gray-100">
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="text-sm font-medium text-gray-500">People In</p>
+          <h2 class="text-2xl font-bold text-gray-800 mt-2">
+            <span id="peopleIn">@Model.TotalIn</span>
+          </h2>
+        </div>
+        <div class="bg-indigo-50 p-3 rounded-lg text-indigo-600">
+          <i class="fas fa-sign-in-alt text-xl"></i>
         </div>
       </div>
-      
-      <div class="bg-white p-6 rounded-xl shadow-card dashboard-card border border-gray-100">
-        <div class="flex justify-between items-start">
-          <div>
-            <p class="text-sm font-medium text-gray-500">People In</p>
-            <h2 class="text-2xl font-bold text-gray-800 mt-2 flex items-baseline">
-              <span id="peopleIn">0</span>
-              <span class="text-sm font-medium text-red-600 ml-2" id="peopleInTrend">
-                <i class="fas fa-arrow-down text-xs mr-1"></i>12%
-              </span>
-            </h2>
-          </div>
-          <div class="bg-indigo-50 p-3 rounded-lg text-indigo-600">
-            <i class="fas fa-sign-in-alt text-xl"></i>
-          </div>
+      <div class="mt-4">
+        <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+          <div class="h-full bg-indigo-500 rounded-full" id="peopleInProgress" style="width: 0%"></div>
         </div>
-        <div class="mt-4">
-          <div class="flex justify-between text-xs font-medium mb-1">
-            <span class="text-gray-500">Today</span>
-            <span class="text-gray-700" id="peopleInCapacity">0 of 165 capacity</span>
-          </div>
-          <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-            <div class="h-full bg-indigo-500 rounded-full" id="peopleInProgress" style="width: 0%"></div>
-          </div>
+        <p class="text-xs font-medium text-gray-500 mt-2" id="peopleInCapacity">@Model.TotalIn of 165 capacity</p>
+      </div>
+    </div>
+    
+    <div class="bg-white p-6 rounded-xl shadow-card dashboard-card border border-gray-100">
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="text-sm font-medium text-gray-500">People Out</p>
+          <h2 class="text-2xl font-bold text-gray-800 mt-2">
+            <span id="peopleOut">@Model.TotalOut</span>
+          </h2>
+        </div>
+        <div class="bg-orange-50 p-3 rounded-lg text-orange-600">
+          <i class="fas fa-sign-out-alt text-xl"></i>
         </div>
       </div>
-      
-      <div class="bg-white p-6 rounded-xl shadow-card dashboard-card border border-gray-100">
-        <div class="flex justify-between items-start">
-          <div>
-            <p class="text-sm font-medium text-gray-500">People Out</p>
-            <h2 class="text-2xl font-bold text-gray-800 mt-2 flex items-baseline">
-              <span id="peopleOut">0</span>
-              <span class="text-sm font-medium text-green-600 ml-2" id="peopleOutTrend">
-                <i class="fas fa-arrow-up text-xs mr-1"></i>8%
-              </span>
-            </h2>
-          </div>
-          <div class="bg-orange-50 p-3 rounded-lg text-orange-600">
-            <i class="fas fa-sign-out-alt text-xl"></i>
-          </div>
+      <div class="mt-4">
+        <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+          <div class="h-full bg-orange-500 rounded-full" id="peopleOutProgress" style="width: 0%"></div>
         </div>
-        <div class="mt-4">
-          <div class="flex justify-between text-xs font-medium mb-1">
-            <span class="text-gray-500">Today</span>
-            <span class="text-gray-700" id="peopleOutCapacity">0 of 0 checked in</span>
-          </div>
-          <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-            <div class="h-full bg-orange-500 rounded-full" id="peopleOutProgress" style="width: 0%"></div>
-          </div>
-        </div>
+        <p class="text-xs font-medium text-gray-500 mt-2" id="peopleOutCapacity">@Model.TotalOut of @Model.TotalIn checked in</p>
       </div>
     </div>
   </div>
-  
-  <!-- Top Row Cards -->
+
+  <!-- Main Dashboard Grid -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-    <!-- Quick Actions -->
+    
+    <!-- Left Column: Quick Actions -->
     <div class="bg-white p-6 rounded-xl shadow-card border border-gray-100">
       <h2 class="text-lg font-semibold text-gray-800 mb-6">Quick Actions</h2>
       <div class="space-y-4">
@@ -1001,77 +853,54 @@ window.serverData = {
           <i class="fas fa-chevron-right ml-auto text-gray-400 group-hover:text-primary-500"></i>
         </a>
         
-        <button class="w-full flex items-center p-4 rounded-lg border border-gray-200 hover:border-primary-300 bg-white hover:bg-primary-50 transition-colors group">
-          <div class="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600 group-hover:bg-orange-200">
-            <i class="fas fa-bell"></i>
-          </div>
-          <div class="ml-4 text-left">
-            <h3 class="font-medium text-gray-800">Configure Alerts</h3>
-            <p class="text-xs text-gray-500">Manage notification settings</p>
-          </div>
-          <i class="fas fa-chevron-right ml-auto text-gray-400 group-hover:text-primary-500"></i>
-        </button>
-        
         <a href="/CountData" class="w-full flex items-center p-4 rounded-lg border border-gray-200 hover:border-primary-300 bg-white hover:bg-primary-50 transition-colors group">
           <div class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-200">
-            <i class="fas fa-download"></i>
+            <i class="fas fa-chart-line"></i>
           </div>
           <div class="ml-4 text-left">
-            <h3 class="font-medium text-gray-800">Export Reports</h3>
-            <p class="text-xs text-gray-500">Download data in multiple formats</p>
+            <h3 class="font-medium text-gray-800">Analytics</h3>
+            <p class="text-xs text-gray-500">View detailed reports and data</p>
           </div>
           <i class="fas fa-chevron-right ml-auto text-gray-400 group-hover:text-primary-500"></i>
         </a>
       </div>
     </div>
-    
-    <!-- Camera Map -->
+
+    <!-- Right Column: Camera Map -->
     <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-card border border-gray-100">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-lg font-semibold text-gray-800">Camera Locations</h2>
         <div class="flex gap-2">
-          <button class="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
-            <i class="fas fa-expand-alt mr-2"></i>Expand
-          </button>
-          <button class="px-3 py-1.5 text-sm bg-primary-50 hover:bg-primary-100 text-primary-700 rounded-lg transition-colors">
+          <button class="px-3 py-1.5 text-sm bg-primary-50 hover:bg-primary-100 text-primary-700 rounded-lg transition-colors" onclick="updateCameraMapUI()">
             <i class="fas fa-sync-alt mr-2"></i>Refresh
           </button>
         </div>
       </div>
       <div class="relative">
-        <div class="h-64 w-full relative bg-gray-50 rounded-lg overflow-hidden border border-gray-100 chart-container">
+        <div class="h-64 w-full relative bg-gray-50 rounded-lg overflow-hidden border border-gray-100">
           <canvas id="cameraMapChart"></canvas>
         </div>
         <div class="absolute top-3 left-3 bg-white bg-opacity-80 rounded-lg p-2 shadow-sm text-xs font-medium">
           <div class="flex items-center gap-2 mb-1">
             <span class="block w-3 h-3 rounded-full bg-primary-500"></span>
-            <span>Active Cameras (0)</span>
+            <span>Active Cameras (<span id="activeCamerasCount">@Model.ActiveCameras</span>)</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="block w-3 h-3 rounded-full bg-gray-300"></span>
-            <span>Inactive Cameras (2)</span>
+            <span>Inactive Cameras (<span id="inactiveCamerasCount">@(Model.TotalCameras - Model.ActiveCameras)</span>)</span>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Camera Activity Chart -->
+  <!-- Camera Activity Section -->
   <div class="bg-white p-6 rounded-xl shadow-card border border-gray-100 mb-8">
     <div class="flex flex-wrap justify-between items-center mb-6">
       <h2 class="text-lg font-semibold text-gray-800">Camera Activity</h2>
-      <div class="flex gap-3">
-        <div class="inline-flex rounded-md shadow-sm">
-          <button class="py-1.5 px-3 text-sm font-medium rounded-l-lg bg-primary-600 text-white">Day</button>
-          <button class="py-1.5 px-3 text-sm font-medium bg-gray-100 text-gray-600">Week</button>
-          <button class="py-1.5 px-3 text-sm font-medium rounded-r-lg bg-gray-100 text-gray-600">Month</button>
-        </div>
-        <button class="p-1.5 text-gray-400 hover:text-gray-600 bg-gray-50 rounded-md">
-          <i class="fas fa-ellipsis-v"></i>
-        </button>
-      </div>
     </div>
 
+    <!-- Form Section -->
     <div class="form-container bg-gray-50 rounded-lg border border-gray-200 mb-6">
       <div class="form-item">
         <label for="Test_DatetimeLocal" class="block text-sm font-medium text-gray-700 mb-2">Date</label>
@@ -1081,7 +910,10 @@ window.serverData = {
       <div class="form-item">
         <label for="activity_camera" class="block text-sm font-medium text-gray-700 mb-2">Camera Selection</label>
         <select name="activity_camera" id="activity_camera" multiple class="block w-full rounded-md border border-gray-300 bg-white py-2.5 px-4 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
-          <!-- Options will be populated by JavaScript -->
+          @foreach (var camera in Model.Cameras)
+          {
+            <option value="@camera.CameraID">@camera.CameraName</option>
+          }
         </select>
       </div>
 
@@ -1100,7 +932,9 @@ window.serverData = {
       </div>
     </div>
 
+    <!-- Results Section -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Chart -->
       <div class="lg:col-span-2">
         <div class="bg-white rounded-lg border border-gray-200 p-4 h-full">
           <h3 class="text-md font-medium text-gray-700 mb-4">Hourly Traffic</h3>
@@ -1109,133 +943,272 @@ window.serverData = {
           </div>
         </div>
       </div>
+      
+      <!-- Count Results -->
       <div>
         <div class="bg-white rounded-lg border border-gray-200 p-6 h-full">
           <h3 class="text-md font-medium text-gray-700 mb-4">Count Results</h3>
           <div class="space-y-4">
             <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
               <div class="flex justify-between items-center">
-                <p class="text-sm text-gray-500">In Count</p>
+                <p class="text-sm text-gray-500">Total Entry Count</p>
                 <div class="bg-indigo-50 h-8 w-8 rounded-full flex items-center justify-center">
                   <i class="fas fa-sign-in-alt text-indigo-600"></i>
                 </div>
               </div>
               <p class="text-2xl font-bold text-gray-800 mt-2" id="countLabel1">-</p>
-              <div class="mt-2 h-1 w-full bg-gray-200 rounded-full overflow-hidden">
-                <div class="h-full bg-indigo-500 rounded-full" style="width: 0%"></div>
-              </div>
             </div>
+            
             <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
               <div class="flex justify-between items-center">
-                <p class="text-sm text-gray-500">Out Count</p>
+                <p class="text-sm text-gray-500">Total Exit Count</p>
                 <div class="bg-orange-50 h-8 w-8 rounded-full flex items-center justify-center">
                   <i class="fas fa-sign-out-alt text-orange-600"></i>
                 </div>
               </div>
               <p class="text-2xl font-bold text-gray-800 mt-2" id="countLabel2">-</p>
-              <div class="mt-2 h-1 w-full bg-gray-200 rounded-full overflow-hidden">
-                <div class="h-full bg-orange-500 rounded-full" style="width: 0%"></div>
+            </div>
+            
+            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+              <div class="flex justify-between items-center">
+                <p class="text-sm text-gray-500">Total Count Present Inside</p>
+                <div class="bg-green-50 h-8 w-8 rounded-full flex items-center justify-center">
+                  <i class="fas fa-users text-green-600"></i>
+                </div>
               </div>
+              <p class="text-2xl font-bold text-gray-800 mt-2" id="countLabel3">-</p>
             </div>
           </div>
-          <div class="mt-4">
-            <button class="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium flex items-center justify-center">
-              <i class="fas fa-download mr-2"></i> Export Data
-            </button>
-          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Camera Details Section -->
+  <!-- Camera Schedules Section -->
   <div class="bg-white p-6 rounded-xl shadow-card border border-gray-100 mb-8">
     <div class="flex justify-between items-center mb-6">
-      <h2 class="text-lg font-semibold text-gray-800">Camera Details</h2>
+      <h2 class="text-lg font-semibold text-gray-800">Camera Schedules</h2>
       <div>
-        <a href="/Cameras" class="px-3 py-1.5 text-sm bg-primary-50 hover:bg-primary-100 text-primary-700 rounded-lg transition-colors">
-          <i class="fas fa-plus mr-2"></i>Add Camera
+        <a href="/Schedule" class="px-3 py-1.5 text-sm bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
+          <i class="fas fa-plus mr-2"></i>Add Schedule
         </a>
       </div>
     </div>
 
-    <div class="form-container bg-gray-50 rounded-lg border border-gray-200">
+    <div class="form-container bg-gray-50 rounded-lg border border-gray-200 mb-6">
       <div class="form-item">
-        <label for="DurationSeconds" class="block text-sm font-medium text-gray-700 mb-2">Duration (Seconds)</label>
-        <input type="number" id="DurationSeconds" placeholder="Duration in seconds" class="block w-full rounded-md border border-gray-300 bg-white py-2.5 px-4 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+        <label for="scheduleName" class="block text-sm font-medium text-gray-700 mb-2">Schedule Name</label>
+        <input type="text" id="scheduleName" placeholder="Enter schedule name" class="block w-full rounded-md border border-gray-300 bg-white py-2.5 px-4 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
       </div>
 
       <div class="form-item">
-        <label for="cameraname" class="block text-sm font-medium text-gray-700 mb-2">Camera Name</label>
-        <select name="cameraname" id="cameraname" multiple class="block w-full rounded-md border border-gray-300 bg-white py-2.5 px-4 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
-          <!-- Options will be populated by JavaScript -->
+        <label for="duration" class="block text-sm font-medium text-gray-700 mb-2">Duration (Seconds)</label>
+        <input type="number" id="duration" min="1" placeholder="Duration in seconds" class="block w-full rounded-md border border-gray-300 bg-white py-2.5 px-4 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+      </div>
+
+      <div class="form-item">
+        <label for="startTime" class="block text-sm font-medium text-gray-700 mb-2">Start Time (24hr Format)</label>
+        <input type="time" id="startTime" step="1" class="block w-full rounded-md border border-gray-300 bg-white py-2.5 px-4 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+      </div>
+
+      <div class="form-item">
+        <label for="schedule_camera" class="block text-sm font-medium text-gray-700 mb-2">Camera Selection</label>
+        <select name="schedule_camera" id="schedule_camera" class="block w-full rounded-md border border-gray-300 bg-white py-2.5 px-4 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+          <option value="">-- Select Camera --</option>
+          @foreach (var camera in Model.Cameras)
+          {
+            <option value="@camera.CameraID">@camera.CameraName</option>
+          }
         </select>
+      </div>
+
+      <div class="form-item flex items-end">
+        <button onclick="addQuickSchedule()" class="action-button">
+          <i class="fas fa-plus mr-2"></i>
+          Add Schedule
+        </button>
       </div>
     </div>
 
-    <div class="mt-6 p-5 bg-white rounded-lg border border-gray-200">
-      <div class="flex items-center mb-4">
-        <div class="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center text-primary-600 mr-4">
-          <i class="fas fa-camera"></i>
-        </div>
-        <div>
-          <h3 class="text-md font-medium text-gray-800">Sample Camera</h3>
-          <p class="text-sm text-gray-500">Last updated: 10 minutes ago</p>
-        </div>
-        <div class="ml-auto">
-          <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">
-            Inactive
-          </span>
-        </div>
-      </div>
-      
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-          <p class="text-sm font-medium text-gray-500 mb-1">Name:</p>
-          <p class="text-sm text-gray-700">Kitchen Main Camera</p>
-        </div>
-        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-          <p class="text-sm font-medium text-gray-500 mb-1">Refresh Rate:</p>
-          <p class="text-sm text-gray-700">0 sec</p>
-        </div>
-        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-          <p class="text-sm font-medium text-gray-500 mb-1">Camera API URL:</p>
-          <p class="text-sm text-gray-700">Not configured</p>
-        </div>
-      </div>
-      
-      <div class="flex justify-end mt-4 gap-3">
-        <button class="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
-          <i class="fas fa-cog mr-2"></i>Configure
-        </button>
-        <button class="px-3 py-1.5 text-sm bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
-          <i class="fas fa-eye mr-2"></i>View Feed
-        </button>
+    <!-- Existing Schedules Table -->
+    <div class="bg-white rounded-lg border border-gray-200 p-4">
+      <h3 class="text-md font-medium text-gray-700 mb-4">Existing Schedules</h3>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Schedule Name</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Camera</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Time</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration (s)</th>
+            </tr>
+          </thead>
+          <tbody id="schedulesTableBody" class="bg-white divide-y divide-gray-200">
+            @foreach (var schedule in Model.AllSchedules)
+            {
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">@schedule.ScheduleName</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  @{
+                    var camera = Model.Cameras.FirstOrDefault(c => c.CameraID == schedule.CameraID);
+                  }
+                  @(camera?.CameraName ?? "Unknown Camera")
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@schedule.StartTime.ToString("HH:mm:ss")</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@schedule.DurationInSec</td>
+              </tr>
+            }
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
 
-  <!-- Footer -->
-  <footer class="mt-8 mb-4 px-4 py-6 bg-white rounded-xl shadow-sm border border-gray-100">
-    <div class="flex flex-wrap justify-between items-center">
-      <div>
-        <p class="text-sm text-gray-500">© 2025 Central ICT. All rights reserved.</p>
-        <p class="text-xs text-gray-400 mt-1">Version 2.5.3</p>
-      </div>
-      <div class="flex gap-4 mt-4 md:mt-0">
-        <a href="#" class="text-gray-400 hover:text-gray-600 transition-colors">
-          <i class="fas fa-question-circle"></i>
-        </a>
-        <a href="#" class="text-gray-400 hover:text-gray-600 transition-colors">
-          <i class="fas fa-cog"></i>
-        </a>
-        <a href="#" class="text-gray-400 hover:text-gray-600 transition-colors">
-          <i class="fas fa-user"></i>
-        </a>
-      </div>
-    </div>
-  </footer>
 </section>
+
+<script>
+// Function to add quick schedule
+function addQuickSchedule() {
+    var scheduleName = document.getElementById('scheduleName').value;
+    var timeValue = document.getElementById('startTime').value;
+    var duration = parseInt(document.getElementById('duration').value, 10);
+    var cameraId = parseInt(document.getElementById('schedule_camera').value, 10);
+
+    if (!scheduleName || !timeValue || isNaN(duration) || isNaN(cameraId)) {
+        alert('Please fill in all fields with valid values!');
+        return;
+    }
+
+    var [hours, minutes, seconds] = timeValue.split(':');
+    seconds = seconds || '00';
+
+    var today = new Date();
+    var localTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), parseInt(hours), parseInt(minutes), parseInt(seconds));
+    const pad = (n) => n.toString().padStart(2, '0');
+    var formattedLocalDate = `${localTime.getFullYear()}-${pad(localTime.getMonth() + 1)}-${pad(localTime.getDate())}T${pad(localTime.getHours())}:${pad(localTime.getMinutes())}:${pad(localTime.getSeconds())}`;
+
+    const scheduleData = {
+        cameraID: cameraId,
+        scheduleName: scheduleName,
+        startTime: formattedLocalDate,
+        durationInSec: duration
+    };
+
+    fetch('/Schedule?handler=AddSchedule', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+        },
+        body: JSON.stringify(scheduleData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert("Schedule added: " + data.count);
+        // Clear form
+        document.getElementById('scheduleName').value = '';
+        document.getElementById('startTime').value = '';
+        document.getElementById('duration').value = '';
+        document.getElementById('schedule_camera').value = '';
+        // Refresh schedules
+        loadSchedules();
+    })
+    .catch(error => {
+        console.error('Error adding schedule:', error);
+        alert("Error adding schedule: " + error.message);
+    });
+}
+
+// Initialize camera map chart
+function initMapChart() {
+  const ctx = document.getElementById('cameraMapChart').getContext('2d');
+  
+  let activeCameras = [];
+  let inactiveCameras = [];
+  
+  // Use server data
+  const totalCameras = window.serverData?.totalCameras || 2;
+  const activeCamerasCount = window.serverData?.activeCameras || 0;
+  
+  for (let i = 0; i < activeCamerasCount; i++) {
+    activeCameras.push({
+      x: Math.random() * 80 + 10,
+      y: Math.random() * 80 + 10
+    });
+  }
+  
+  for (let i = 0; i < (totalCameras - activeCamerasCount); i++) {
+    inactiveCameras.push({
+      x: Math.random() * 80 + 10,
+      y: Math.random() * 80 + 10
+    });
+  }
+  
+  const chart = new Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: [
+        {
+          label: `Active Cameras (${activeCameras.length})`,
+          data: activeCameras,
+          backgroundColor: '#0ea5e9',
+          radius: 6,
+          hoverRadius: 8
+        },
+        {
+          label: `Inactive Cameras (${inactiveCameras.length})`,
+          data: inactiveCameras,
+          backgroundColor: '#d1d5db',
+          radius: 6,
+          hoverRadius: 8
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      aspectRatio: 2,
+      scales: {
+        x: {
+          min: 0,
+          max: 100,
+          ticks: { display: false },
+          grid: { display: false },
+          border: { display: false }
+        },
+        y: {
+          min: 0,
+          max: 100,
+          ticks: { display: false },
+          grid: { display: false },
+          border: { display: false }
+        }
+      },
+      plugins: {
+        tooltip: {
+          backgroundColor: 'rgba(17, 24, 39, 0.9)',
+          padding: 8,
+          cornerRadius: 6,
+          callbacks: {
+            label: function(context) {
+              const isActive = context.datasetIndex === 0;
+              return isActive ? 'Active Camera' : 'Inactive Camera';
+            }
+          }
+        },
+        legend: {
+          labels: {
+            usePointStyle: true,
+            padding: 15,
+            boxWidth: 12,
+            boxHeight: 12
+          }
+        }
+      }
+    }
+  });
+}
+</script>
 
 </body>
 </html>

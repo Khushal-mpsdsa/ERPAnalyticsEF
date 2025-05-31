@@ -4,49 +4,432 @@
     ViewData["Title"] = "Camera Management";
 }
 
- <a href="/Index">
-    <button type="button" style="padding: 8px 15px; font-size: 14px;">← Back to Dashboard</button>
-</a>
-<br></br>
-<div style="display: flex; gap: 20px;">
-    <!-- Left Column: Add Camera Form -->
-    <div style="flex: 1;">
-        <h3>Add Camera</h3>
-        <form method="post">
-            <div>
-                <label asp-for="NewCamera.CameraName">Camera Name:</label><br />
-                <input asp-for="NewCamera.CameraName" class="form-control" />
-            </div>
-            <div>
-                <label asp-for="NewCamera.RefreshRateInSeconds">Refresh Rate (seconds):</label><br />
-                <input asp-for="NewCamera.RefreshRateInSeconds" type="number" class="form-control" />
-            </div>
-            <br />
-            <button type="submit" class="btn btn-primary">Add Camera</button>
-        </form>
-    </div>
-
-    <!-- Right Column: Camera List -->
-    <div style="flex: 3;">
-        <h3>Camera List</h3>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Camera ID</th>
-                    <th>Name</th>
-                    <th>Refresh Rate</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var camera in Model.Cameras)
-                {
-                    <tr>
-                        <td>@camera.CameraID</td>
-                        <td>@camera.CameraName</td>
-                        <td>@camera.RefreshRateInSeconds</td>
-                    </tr>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Camera Management - CCTV Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                            950: '#082f49',
+                        }
+                    }
                 }
-            </tbody>
-        </table>
-    </div>
-</div>
+            }
+        }
+    </script>
+    
+    <style>
+        @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+        }
+        
+        .dashboard-card {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .action-button {
+            background-color: #0284c7;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .action-button:hover {
+            background-color: #0369a1;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .form-input {
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            background-color: white;
+            width: 100%;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #0284c7;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .status-badge.active {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-badge.inactive {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <!-- Sidebar -->
+    <nav class="hidden lg:block w-64 h-screen bg-white text-gray-700 fixed border-r border-gray-200 z-40 flex-col overflow-hidden">
+        <div class="p-5 border-b border-gray-200 flex items-center space-x-3">
+            <i class="fas fa-video text-xl text-primary-600"></i>
+            <h1 class="text-xl font-bold text-gray-800">CCTV Manager</h1>
+        </div>
+        <div class="p-4 flex-1 overflow-y-auto">
+            <p class="text-xs uppercase text-gray-500 font-semibold px-4 mb-2">Main Menu</p>
+            <ul class="space-y-1">
+                <li><a href="/Index" class="flex items-center px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-tachometer-alt w-5 h-5 mr-3 text-gray-600"></i>
+                    <span>Dashboard</span>
+                </a></li>
+                <li><a href="/Cameras" class="flex items-center px-4 py-3 rounded-lg bg-primary-50 border-l-3 border-primary-600 text-primary-600">
+                    <i class="fas fa-camera w-5 h-5 mr-3"></i>
+                    <span>Cameras</span>
+                </a></li>
+                <li><a href="/Schedule" class="flex items-center px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-calendar w-5 h-5 mr-3 text-gray-600"></i>
+                    <span>Schedules</span>
+                </a></li>
+                <li><a href="/CountData" class="flex items-center px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-600"></i>
+                    <span>Analytics</span>
+                </a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <section class="lg:ml-64 px-4 py-6 lg:p-8 min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow-sm rounded-xl px-6 py-5 mb-6 dashboard-card">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">Camera Management</h1>
+                    <p class="text-sm text-gray-500 mt-1">Configure and manage your CCTV cameras</p>
+                </div>
+                <a href="/Index" class="action-button">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back to Dashboard
+                </a>
+            </div>
+        </header>
+
+        <!-- Camera Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-card dashboard-card border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Total Cameras</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-2">@Model.Cameras.Count</h3>
+                    </div>
+                    <div class="bg-primary-50 p-3 rounded-lg text-primary-600">
+                        <i class="fas fa-video text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-xl shadow-card dashboard-card border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Active Cameras</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-2">@Model.Cameras.Count(c => c.RefreshRateInSeconds > 0)</h3>
+                    </div>
+                    <div class="bg-green-50 p-3 rounded-lg text-green-600">
+                        <i class="fas fa-check-circle text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-xl shadow-card dashboard-card border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Inactive Cameras</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-2">@Model.Cameras.Count(c => c.RefreshRateInSeconds <= 0)</h3>
+                    </div>
+                    <div class="bg-red-50 p-3 rounded-lg text-red-600">
+                        <i class="fas fa-exclamation-triangle text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Add Camera Form -->
+            <div class="lg:col-span-1">
+                <div class="bg-white p-6 rounded-xl shadow-card dashboard-card border border-gray-100">
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center text-primary-600 mr-4">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-800">Add New Camera</h2>
+                            <p class="text-sm text-gray-500">Configure a new camera device</p>
+                        </div>
+                    </div>
+                    
+                    <form method="post" class="space-y-4">
+                        <div>
+                            <label asp-for="NewCamera.CameraName" class="block text-sm font-medium text-gray-700 mb-2">Camera Name</label>
+                            <input asp-for="NewCamera.CameraName" class="form-input" placeholder="Enter camera name" />
+                            <span asp-validation-for="NewCamera.CameraName" class="text-red-500 text-xs mt-1"></span>
+                        </div>
+                        
+                        <div>
+                            <label asp-for="NewCamera.RefreshRateInSeconds" class="block text-sm font-medium text-gray-700 mb-2">Refresh Rate (seconds)</label>
+                            <input asp-for="NewCamera.RefreshRateInSeconds" type="number" min="0" class="form-input" placeholder="e.g., 60" />
+                            <span asp-validation-for="NewCamera.RefreshRateInSeconds" class="text-red-500 text-xs mt-1"></span>
+                            <p class="text-xs text-gray-500 mt-1">Set to 0 to disable automatic refresh</p>
+                        </div>
+                        
+                        <div>
+                            <label asp-for="NewCamera.CameraAPIURL" class="block text-sm font-medium text-gray-700 mb-2">Camera API URL (Optional)</label>
+                            <input asp-for="NewCamera.CameraAPIURL" type="url" class="form-input" placeholder="https://camera-api-url.com" />
+                            <span asp-validation-for="NewCamera.CameraAPIURL" class="text-red-500 text-xs mt-1"></span>
+                        </div>
+                        
+                        <button type="submit" class="action-button w-full">
+                            <i class="fas fa-plus mr-2"></i>
+                            Add Camera
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Camera List -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-xl shadow-card dashboard-card border border-gray-100">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h2 class="text-lg font-semibold text-gray-800">Camera List</h2>
+                                <p class="text-sm text-gray-500">Manage your existing cameras</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-gray-500">Total: @Model.Cameras.Count cameras</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        @if (Model.Cameras.Any())
+                        {
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Camera</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Refresh Rate</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Update</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @foreach (var camera in Model.Cameras)
+                                    {
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <div class="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center text-primary-600 mr-4">
+                                                        <i class="fas fa-camera"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div class="text-sm font-medium text-gray-900">@camera.CameraName</div>
+                                                        <div class="text-sm text-gray-500">ID: @camera.CameraID</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                @if (camera.RefreshRateInSeconds > 0)
+                                                {
+                                                    <span class="status-badge active">
+                                                        <i class="fas fa-circle mr-1 text-xs"></i>
+                                                        Active
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="status-badge inactive">
+                                                        <i class="fas fa-circle mr-1 text-xs"></i>
+                                                        Inactive
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                @if (camera.RefreshRateInSeconds > 0)
+                                                {
+                                                    @camera.RefreshRateInSeconds
+                                                    <span class="text-gray-500">sec</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-gray-400">Disabled</span>
+                                                }
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                @if (camera.LastRefreshTimestamp > DateTime.MinValue)
+                                                {
+                                                    @camera.LastRefreshTimestamp.ToString("MMM dd, HH:mm")
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-gray-400">Never</span>
+                                                }
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <div class="flex items-center gap-2">
+                                                    <button class="text-primary-600 hover:text-primary-900 transition-colors p-2 rounded-lg hover:bg-primary-50">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="text-green-600 hover:text-green-900 transition-colors p-2 rounded-lg hover:bg-green-50">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="text-red-600 hover:text-red-900 transition-colors p-2 rounded-lg hover:bg-red-50">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <div class="p-12 text-center">
+                                <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-camera text-2xl text-gray-400"></i>
+                                </div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-2">No cameras found</h3>
+                                <p class="text-gray-500 mb-4">Get started by adding your first camera</p>
+                                <button class="action-button">
+                                    <i class="fas fa-plus mr-2"></i>
+                                    Add Your First Camera
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats Cards -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-white p-4 rounded-lg shadow-card dashboard-card border border-gray-100">
+                <div class="flex items-center">
+                    <div class="bg-blue-50 p-2 rounded-lg text-blue-600 mr-3">
+                        <i class="fas fa-signal"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase">Avg Refresh Rate</p>
+                        <p class="text-lg font-semibold text-gray-800">
+                            @if (Model.Cameras.Any(c => c.RefreshRateInSeconds > 0))
+                            {
+                                @Math.Round(Model.Cameras.Where(c => c.RefreshRateInSeconds > 0).Average(c => c.RefreshRateInSeconds), 1)<span class="text-sm text-gray-500">sec</span>
+                            }
+                            else
+                            {
+                                <span class="text-gray-400">N/A</span>
+                            }
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-4 rounded-lg shadow-card dashboard-card border border-gray-100">
+                <div class="flex items-center">
+                    <div class="bg-green-50 p-2 rounded-lg text-green-600 mr-3">
+                        <i class="fas fa-wifi"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase">Connected</p>
+                        <p class="text-lg font-semibold text-gray-800">@Model.Cameras.Count(c => !string.IsNullOrEmpty(c.CameraAPIURL))</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-4 rounded-lg shadow-card dashboard-card border border-gray-100">
+                <div class="flex items-center">
+                    <div class="bg-yellow-50 p-2 rounded-lg text-yellow-600 mr-3">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase">Recently Updated</p>
+                        <p class="text-lg font-semibold text-gray-800">@Model.Cameras.Count(c => c.LastRefreshTimestamp > DateTime.Now.AddHours(-1))</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-4 rounded-lg shadow-card dashboard-card border border-gray-100">
+                <div class="flex items-center">
+                    <div class="bg-purple-50 p-2 rounded-lg text-purple-600 mr-3">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase">Configuration</p>
+                        <p class="text-lg font-semibold text-gray-800">
+                            @Math.Round((double)Model.Cameras.Count(c => c.RefreshRateInSeconds > 0) / Math.Max(Model.Cameras.Count, 1) * 100, 1)<span class="text-sm text-gray-500">%</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Add any JavaScript functionality here
+        document.addEventListener('DOMContentLoaded', function() {
+            // Form validation or other interactive features can be added here
+            console.log('Camera management page loaded');
+        });
+    </script>
+</body>
+</html>

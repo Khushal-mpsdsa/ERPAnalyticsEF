@@ -5,12 +5,20 @@
       "PackagePath": "staticwebassets\\dotnetprojects.qntd7ushnv.bundle.scp.css"
     },
     {
+      "Id": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\dashboard.css",
+      "PackagePath": "staticwebassets\\css\\dashboard.css"
+    },
+    {
       "Id": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\site.css",
       "PackagePath": "staticwebassets\\css\\site.css"
     },
     {
       "Id": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\favicon.ico",
       "PackagePath": "staticwebassets\\favicon.ico"
+    },
+    {
+      "Id": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\dashboard.js",
+      "PackagePath": "staticwebassets\\js\\dashboard.js"
     },
     {
       "Id": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\site.js",

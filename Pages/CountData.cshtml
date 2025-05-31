@@ -1,62 +1,896 @@
 @page
 @model CountDataModel
 @{
-    ViewData["Title"] = "Count Data";
+    ViewData["Title"] = "Count Data Analytics";
 }
 
-<!-- Back to Dashboard Button -->
-<a href="/Index" style="padding: 8px 12px; background-color: #28a745; color: white; border: none; border-radius: 5px; text-decoration: none;">Back to Dashboard</a>
-<BR></BR>
-<form method="get" style="display: flex; flex-direction: row; gap: 30px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 20px;">
-    <div style="display: flex; flex-direction: column;">
-        <label for="filterDate">Date:</label>
-        <input type="date" id="filterDate" name="filterDate" />
-    </div>
-
-    <div style="display: flex; flex-direction: column;">
-        <label for="cameraId">Camera:</label>
-        <select id="cameraId" name="cameraId">
-            <option value="">-- Select a camera --</option>
-            @foreach (var cam in Model.Cameras)
-            {
-                <option value="@cam.CameraID">@cam.CameraName</option>
-            }
-        </select>
-    </div>
-
-    <div style="margin-top: 22px;">
-        <button type="submit" style="padding: 8px 16px; background-color: #007bff; color: white; border: none; border-radius: 5px;">Filter</button>
-    </div>
+<!-- Hidden form to generate the anti-forgery token -->
+<form method="post">
+    @Html.AntiForgeryToken()
 </form>
 
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Count Data Analytics - CCTV Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 
-@if (Model.FilterDate.HasValue && Model.SelectedCameraId.HasValue)
-{
-    <div style="display: flex; gap: 40px; margin-top: 10px;">
-        <p><strong>Camera Name:</strong> @Model.Cameras.FirstOrDefault(cam => cam.CameraID == Model.SelectedCameraId)?.CameraName</p>
-        <p><strong>Date:</strong> @Model.FilterDate?.ToShortDateString()</p>
-        <p><strong>Total Rows:</strong> @Model.CountDataList.Count</p>
-    </div>
+<script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+              950: '#082f49',
+            },
+            secondary: {
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              200: '#e2e8f0',
+              300: '#cbd5e1',
+              400: '#94a3b8',
+              500: '#64748b',
+              600: '#475569',
+              700: '#334155',
+              800: '#1e293b',
+              900: '#0f172a',
+              950: '#020617',
+            }
+          },
+          boxShadow: {
+            card: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+            'card-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+          },
+        }
+      }
+    }
+    
+    // Global variables for data
+    let dataChart;
+    let trendsChart;
+    let filteredData = [];
+    
+    // Initialize data with server-side model data
+    function initializeData() {
+        // Pass server data to JavaScript
+        filteredData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CountDataList));
+        updateAnalytics();
+        updateDataChart();
+        updateTrendsChart();
+        updateDataTable();
+    }
+    
+    // Update analytics cards
+    function updateAnalytics() {
+        const totalEntries = filteredData.length;
+        const totalIn = filteredData.reduce((sum, item) => sum + item.in, 0);
+        const avgInPerHour = totalEntries > 0 ? (totalIn / totalEntries).toFixed(1) : 0;
+        const peakHour = getPeakHour();
+        
+        document.getElementById('totalEntries').textContent = totalEntries;
+        document.getElementById('totalIn').textContent = totalIn;
+        document.getElementById('avgPerHour').textContent = avgInPerHour;
+        document.getElementById('peakHour').textContent = peakHour;
+    }
+    
+    // Find peak hour from data
+    function getPeakHour() {
+        if (filteredData.length === 0) return '--:--';
+        
+        const hourCounts = {};
+        filteredData.forEach(item => {
+            const hour = new Date(`2000-01-01T${item.timeOnly}`).getHours();
+            hourCounts[hour] = (hourCounts[hour] || 0) + item.in;
+        });
+        
+        const peakHour = Object.keys(hourCounts).reduce((a, b) => 
+            hourCounts[a] > hourCounts[b] ? a : b
+        );
+        
+        return `${peakHour.padStart(2, '0')}:00`;
+    }
+    
+    // Update main data chart
+    function updateDataChart() {
+        const ctx = document.getElementById('dataChart').getContext('2d');
+        
+        if (dataChart) {
+            dataChart.destroy();
+        }
+        
+        // Group data by hour
+        const hourlyData = {};
+        filteredData.forEach(item => {
+            const hour = new Date(`2000-01-01T${item.timeOnly}`).getHours();
+            if (!hourlyData[hour]) {
+                hourlyData[hour] = { in: 0, count: 0 };
+            }
+            hourlyData[hour].in += item.in;
+            hourlyData[hour].count += 1;
+        });
+        
+        const labels = [];
+        const dataPoints = [];
+        
+        for (let hour = 0; hour < 24; hour++) {
+            labels.push(`${hour.toString().padStart(2, '0')}:00`);
+            dataPoints.push(hourlyData[hour] ? hourlyData[hour].in : 0);
+        }
+        
+        dataChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'People In',
+                    data: dataPoints,
+                    borderColor: '#0284c7',
+                    backgroundColor: 'rgba(2, 132, 199, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 2.5,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        align: 'center'
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                        cornerRadius: 8
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#6b7280'
+                        },
+                        grid: {
+                            color: 'rgba(156, 163, 175, 0.2)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#6b7280'
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // Update trends chart
+    function updateTrendsChart() {
+        const ctx = document.getElementById('trendsChart').getContext('2d');
+        
+        if (trendsChart) {
+            trendsChart.destroy();
+        }
+        
+        // Generate sample trend data for last 7 days
+        const trendData = generateTrendData();
+        
+        trendsChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: trendData.labels,
+                datasets: [{
+                    label: 'Daily Total',
+                    data: trendData.data,
+                    backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                    borderColor: '#22c55e',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 1.5,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                        cornerRadius: 8
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#6b7280'
+                        },
+                        grid: {
+                            color: 'rgba(156, 163, 175, 0.2)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#6b7280'
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // Generate sample trend data
+    function generateTrendData() {
+        const labels = [];
+        const data = [];
+        const today = new Date();
+        
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            labels.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
+            
+            // Sample data - in real implementation, this would come from your service
+            data.push(Math.floor(Math.random() * 200) + 50);
+        }
+        
+        return { labels, data };
+    }
+    
+    // Update data table
+    function updateDataTable() {
+        const tbody = document.querySelector('#dataTable tbody');
+        tbody.innerHTML = '';
+        
+        // Show only first 10 entries for performance
+        const displayData = filteredData.slice(0, 10);
+        
+        displayData.forEach(item => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50 transition-colors';
+            
+            const date = new Date(item.dateOnly).toLocaleDateString();
+            const time = new Date(`2000-01-01T${item.timeOnly}`).toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+            
+            row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.srNo}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${date}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${time}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        ${item.in}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button class="text-indigo-600 hover:text-indigo-900">View</button>
+                </td>
+            `;
+            
+            tbody.appendChild(row);
+        });
+        
+        // Update table footer
+        const remainingCount = Math.max(0, filteredData.length - 10);
+        const footerText = remainingCount > 0 ? 
+            `Showing 10 of ${filteredData.length} entries` : 
+            `Showing all ${filteredData.length} entries`;
+        document.getElementById('tableFooter').textContent = footerText;
+    }
+    
+    // Filter data function
+    function filterData() {
+        const dateInput = document.getElementById('filterDate').value;
+        const cameraInput = document.getElementById('cameraId').value;
+        
+        if (dateInput && cameraInput) {
+            // Redirect with query parameters
+            const url = new URL(window.location.href);
+            url.searchParams.set('filterDate', dateInput);
+            url.searchParams.set('cameraId', cameraInput);
+            window.location.href = url.toString();
+        } else {
+            alert('Please select both date and camera');
+        }
+    }
+    
+    // Export data function
+    function exportData() {
+        if (filteredData.length === 0) {
+            alert('No data to export');
+            return;
+        }
+        
+        // Create CSV content
+        const headers = ['Sr.No', 'Date', 'Time', 'In'];
+        const csvContent = [
+            headers.join(','),
+            ...filteredData.map(item => [
+                item.srNo,
+                new Date(item.dateOnly).toLocaleDateString(),
+                new Date(`2000-01-01T${item.timeOnly}`).toLocaleTimeString(),
+                item.in
+            ].join(','))
+        ].join('\n');
+        
+        // Download CSV
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `count_data_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    }
+    
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('hidden');
+        sidebar.classList.toggle('flex');
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeData();
+        
+        // Set form values if they exist in the model
+        const filterDate = '@(Model.FilterDate?.ToString("yyyy-MM-dd") ?? "")';
+        const selectedCameraId = '@(Model.SelectedCameraId?.ToString() ?? "")';
+        
+        if (filterDate) {
+            document.getElementById('filterDate').value = filterDate;
+        }
+        if (selectedCameraId) {
+            document.getElementById('cameraId').value = selectedCameraId;
+        }
+    });
+</script>
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f9fafb;
+    }
+    
+    .dashboard-card {
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    .dashboard-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .active-nav-item {
+      background-color: rgba(2, 132, 199, 0.1);
+      border-left: 3px solid #0284c7;
+      color: #0284c7;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 5px;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background-color: #cbd5e1;
+      border-radius: 20px;
+    }
+    
+    .chart-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+</style>
+</head>
+
+@using System.Text.Json
+@{
+  var camerasJson = JsonSerializer.Serialize(Model.Cameras);
 }
 
-<table border="1" cellpadding="8" cellspacing="0" style="margin-top: 20px; width: 100%; text-align: left;">
-    <thead>
-        <tr>
-            <th>Sr.No</th>
-            <th>Date</th>
-            <th>Time</th>
-            <th>In</th>
-        </tr>
-    </thead>
-    <tbody>
-    @foreach (var row in Model.CountDataList)
+<script type="text/javascript">
+// Pass server-side data to JavaScript
+window.camerasFromServer = @Html.Raw(camerasJson);
+</script>
+
+<body class="bg-gray-50 min-h-screen font-sans">
+
+<!-- Mobile Header -->
+<header class="lg:hidden bg-white shadow-sm p-4 flex items-center justify-between sticky top-0 z-50">
+  <div class="flex items-center gap-3">
+    <button onclick="toggleSidebar()" class="text-gray-700 focus:outline-none">
+      <i class="fas fa-bars text-xl"></i>
+    </button>
+    <div class="flex items-center">
+      <i class="fas fa-chart-line text-primary-600 text-xl mr-2"></i>
+      <h1 class="text-lg font-semibold text-gray-800">Count Data</h1>
+    </div>
+  </div>
+  <div>
+    <button class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+      <i class="fas fa-user text-gray-600"></i>
+    </button>
+  </div>
+</header>
+
+<!-- Sidebar -->
+<nav id="sidebar" class="hidden lg:block w-64 h-screen bg-white text-gray-700 fixed border-r border-gray-200 z-40 flex-col overflow-hidden transition-all duration-300">
+  <div class="p-5 border-b border-gray-200 flex items-center space-x-3">
+    <i class="fas fa-video text-xl text-primary-600"></i>
+    <h1 class="text-xl font-bold text-gray-800">CCTV Manager</h1>
+  </div>
+  <div class="p-4 flex-1 overflow-y-auto custom-scrollbar">
+    <p class="text-xs uppercase text-gray-500 font-semibold px-4 mb-2">Main Menu</p>
+    <ul class="space-y-1">
+      <li><a href="/Index" class="flex items-center px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+        <i class="fas fa-tachometer-alt w-5 h-5 mr-3 text-gray-600"></i>
+        <span>Dashboard</span>
+      </a></li>
+      <li><a href="/Cameras" class="flex items-center px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+        <i class="fas fa-camera w-5 h-5 mr-3 text-gray-600"></i>
+        <span>Cameras</span>
+      </a></li>
+      <li><a href="/Schedule" class="flex items-center px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+        <i class="fas fa-calendar w-5 h-5 mr-3 text-gray-600"></i>
+        <span>Schedules</span>
+      </a></li>
+      <li><a href="/CountData" class="flex items-center px-4 py-3 rounded-lg active-nav-item">
+        <i class="fas fa-chart-line w-5 h-5 mr-3"></i>
+        <span>Analytics</span>
+      </a></li>
+    </ul>
+  </div>
+  <div class="p-4 border-t border-gray-200">
+    <div class="flex items-center">
+      <div class="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-600">
+        <i class="fas fa-user"></i>
+      </div>
+      <div class="ml-3">
+        <p class="text-sm font-medium text-gray-800">Admin User</p>
+        <p class="text-xs text-gray-500">admin@cctvmanager.com</p>
+      </div>
+      <div class="ml-auto">
+        <button class="text-gray-500 hover:text-gray-700 transition-colors">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<section class="lg:ml-64 overflow-auto px-4 py-6 lg:p-8 min-h-screen">
+  <!-- Top Navigation Bar -->
+  <header class="bg-white shadow-sm rounded-xl px-6 py-5 mb-6 flex justify-between items-center">
+    <div class="flex items-center gap-4">
+      <div>
+        <h1 class="text-xl font-bold text-gray-800">Count Data Analytics</h1>
+        <p class="text-sm text-gray-500">Analyze people counting data and trends</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <button onclick="exportData()" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-medium flex items-center">
+        <i class="fas fa-download mr-2"></i>
+        Export Data
+      </button>
+      <a href="/Index" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium flex items-center">
+        <i class="fas fa-arrow-left mr-2"></i>
+        Back to Dashboard
+      </a>
+    </div>
+  </header>
+
+  <!-- Filter Section -->
+  <div class="bg-white p-6 rounded-xl shadow-card border border-gray-100 mb-8">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-lg font-semibold text-gray-800">Data Filters</h2>
+      <div class="text-sm text-gray-500">
+        <i class="fas fa-filter mr-1"></i>
+        Filter your data by date and camera
+      </div>
+    </div>
+    
+    <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+      <div>
+        <label for="filterDate" class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+        <input type="date" id="filterDate" name="filterDate" 
+               class="block w-full rounded-lg border border-gray-300 bg-white py-3 px-4 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+               value="@(Model.FilterDate?.ToString("yyyy-MM-dd") ?? "")">
+      </div>
+
+      <div>
+        <label for="cameraId" class="block text-sm font-medium text-gray-700 mb-2">Camera</label>
+        <select id="cameraId" name="cameraId" 
+                class="block w-full rounded-lg border border-gray-300 bg-white py-3 px-4 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+          <option value="">-- Select a camera --</option>
+          @foreach (var cam in Model.Cameras)
+          {
+            <option value="@cam.CameraID" @@(Model.SelectedCameraId == cam.CameraID ? "selected" : "")>
+              @cam.CameraName
+            </option>
+          }
+        </select>
+      </div>
+
+      <div>
+        <button type="submit" onclick="filterData()" 
+                class="w-full px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-medium flex items-center justify-center">
+          <i class="fas fa-search mr-2"></i>
+          Apply Filter
+        </button>
+      </div>
+
+      <div>
+        <a href="/CountData" 
+           class="w-full px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium flex items-center justify-center">
+          <i class="fas fa-times mr-2"></i>
+          Clear Filters
+        </a>
+      </div>
+    </form>
+  </div>
+
+  @if (Model.FilterDate.HasValue && Model.SelectedCameraId.HasValue)
+  {
+    <!-- Analytics Overview -->
+    <div class="mb-8">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-semibold text-gray-800">Analytics Overview</h2>
+        <div class="flex items-center gap-2 text-sm">
+          <span class="text-gray-500">Camera:</span>
+          <span class="font-medium">@Model.Cameras.FirstOrDefault(cam => cam.CameraID == Model.SelectedCameraId)?.CameraName</span>
+          <span class="text-gray-500 mx-2">•</span>
+          <span class="text-gray-500">Date:</span>
+          <span class="font-medium">@Model.FilterDate?.ToShortDateString()</span>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white p-6 rounded-xl shadow-card dashboard-card border border-gray-100">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-sm font-medium text-gray-500">Total Entries</p>
+              <h2 class="text-2xl font-bold text-gray-800 mt-2" id="totalEntries">@Model.CountDataList.Count</h2>
+            </div>
+            <div class="bg-blue-50 p-3 rounded-lg text-blue-600">
+              <i class="fas fa-list text-xl"></i>
+            </div>
+          </div>
+          <div class="mt-4">
+            <p class="text-xs font-medium text-gray-500">Data points collected</p>
+          </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-xl shadow-card dashboard-card border border-gray-100">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-sm font-medium text-gray-500">Total People In</p>
+              <h2 class="text-2xl font-bold text-gray-800 mt-2" id="totalIn">@Model.CountDataList.Sum(x => x.In)</h2>
+            </div>
+            <div class="bg-green-50 p-3 rounded-lg text-green-600">
+              <i class="fas fa-sign-in-alt text-xl"></i>
+            </div>
+          </div>
+          <div class="mt-4">
+            <p class="text-xs font-medium text-gray-500">Cumulative count for selected date</p>
+          </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-xl shadow-card dashboard-card border border-gray-100">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-sm font-medium text-gray-500">Avg Per Entry</p>
+              <h2 class="text-2xl font-bold text-gray-800 mt-2" id="avgPerHour">
+                @(Model.CountDataList.Count > 0 ? (Model.CountDataList.Sum(x => x.In) / (double)Model.CountDataList.Count).ToString("F1") : "0")
+              </h2>
+            </div>
+            <div class="bg-purple-50 p-3 rounded-lg text-purple-600">
+              <i class="fas fa-chart-bar text-xl"></i>
+            </div>
+          </div>
+          <div class="mt-4">
+            <p class="text-xs font-medium text-gray-500">Average people per data entry</p>
+          </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-xl shadow-card dashboard-card border border-gray-100">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-sm font-medium text-gray-500">Peak Hour</p>
+              <h2 class="text-2xl font-bold text-gray-800 mt-2" id="peakHour">--:--</h2>
+            </div>
+            <div class="bg-orange-50 p-3 rounded-lg text-orange-600">
+              <i class="fas fa-clock text-xl"></i>
+            </div>
+          </div>
+          <div class="mt-4">
+            <p class="text-xs font-medium text-gray-500">Hour with highest activity</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <!-- Main Data Chart -->
+      <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-card border border-gray-100">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-lg font-semibold text-gray-800">Hourly Activity</h2>
+          <div class="flex gap-2">
+            <button class="px-3 py-1.5 text-sm bg-primary-50 hover:bg-primary-100 text-primary-700 rounded-lg transition-colors">
+              <i class="fas fa-sync-alt mr-2"></i>Refresh
+            </button>
+          </div>
+        </div>
+        <div class="chart-container" style="height: 300px;">
+          <canvas id="dataChart"></canvas>
+        </div>
+      </div>
+      
+      <!-- Trends Chart -->
+      <div class="bg-white p-6 rounded-xl shadow-card border border-gray-100">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-lg font-semibold text-gray-800">Weekly Trends</h2>
+        </div>
+        <div class="chart-container" style="height: 300px;">
+          <canvas id="trendsChart"></canvas>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Data Table -->
+  <div class="bg-white rounded-xl shadow-card border border-gray-100">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <div class="flex justify-between items-center">
+        <h2 class="text-lg font-semibold text-gray-800">Data Records</h2>
+        <div class="flex items-center gap-3">
+          @if (Model.FilterDate.HasValue && Model.SelectedCameraId.HasValue)
+          {
+            <span class="text-sm text-gray-500" id="tableFooter">
+              Showing @(Math.Min(10, Model.CountDataList.Count)) of @Model.CountDataList.Count entries
+            </span>
+          }
+          else
+          {
+            <span class="text-sm text-gray-500">No filters applied</span>
+          }
+          <button class="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
+            <i class="fas fa-cog mr-2"></i>Settings
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="overflow-x-auto">
+      <table id="dataTable" class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Sr. No
+            </th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Date
+            </th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Time
+            </th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              People In
+            </th>
+            <th scope="col" class="relative px-6 py-3">
+              <span class="sr-only">Actions</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          @if (Model.CountDataList != null && Model.CountDataList.Any())
+          {
+            @foreach (var row in Model.CountDataList.Take(10))
+            {
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  @row.SrNo
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  @row.DateOnly.ToShortDateString()
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  @row.TimeOnly.ToString(@"hh\:mm\:ss")
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    @row.In
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <button class="text-indigo-600 hover:text-indigo-900 transition-colors">
+                    <i class="fas fa-eye mr-1"></i>View
+                  </button>
+                </td>
+              </tr>
+            }
+          }
+          else
+          {
+            <tr>
+              <td colspan="5" class="px-6 py-12 text-center">
+                <div class="flex flex-col items-center">
+                  <i class="fas fa-search text-4xl text-gray-300 mb-4"></i>
+                  <h3 class="text-lg font-medium text-gray-900 mb-2">No data found</h3>
+                  <p class="text-gray-500 text-sm mb-4">
+                    @if (!Model.FilterDate.HasValue || !Model.SelectedCameraId.HasValue)
+                    {
+                      <span>Please select a date and camera to view count data.</span>
+                    }
+                    else
+                    {
+                      <span>No count data available for the selected date and camera.</span>
+                    }
+                  </p>
+                  @if (!Model.FilterDate.HasValue || !Model.SelectedCameraId.HasValue)
+                  {
+                    <button onclick="document.getElementById('filterDate').focus()" 
+                            class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-medium">
+                      Select Filters
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    
+    @if (Model.CountDataList != null && Model.CountDataList.Count > 10)
     {
-        <tr>
-            <td>@row.SrNo</td>
-            <td>@row.DateOnly.ToShortDateString()</td>
-            <td>@row.TimeOnly</td>
-            <td>@row.In</td>
-        </tr>
+      <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+        <div class="flex justify-between items-center">
+          <div class="text-sm text-gray-700">
+            Showing <span class="font-medium">1</span> to <span class="font-medium">10</span> of <span class="font-medium">@Model.CountDataList.Count</span> results
+          </div>
+          <div class="flex gap-2">
+            <button class="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors">
+              <i class="fas fa-chevron-left mr-1"></i>Previous
+            </button>
+            <button class="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors">
+              Next<i class="fas fa-chevron-right ml-1"></i>
+            </button>
+          </div>
+        </div>
+      </div>
     }
-    </tbody>
-</table>
+  </div>
+
+  <!-- Quick Stats Cards -->
+  @@if (Model.FilterDate.HasValue && Model.SelectedCameraId.HasValue && Model.CountDataList.Any())
+  {
+    <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-white p-6 rounded-xl shadow-card border border-gray-100">
+        <div class="flex items-center">
+          <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 mr-4">
+            <i class="fas fa-chart-line text-xl"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-800">First Entry</h3>
+            <p class="text-sm text-gray-500">@Model.CountDataList.First().TimeOnly.ToString(@"hh\:mm\:ss")</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white p-6 rounded-xl shadow-card border border-gray-100">
+        <div class="flex items-center">
+          <div class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center text-green-600 mr-4">
+            <i class="fas fa-chart-bar text-xl"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-800">Last Entry</h3>
+            <p class="text-sm text-gray-500">@Model.CountDataList.Last().TimeOnly.ToString(@"hh\:mm\:ss")</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white p-6 rounded-xl shadow-card border border-gray-100">
+        <div class="flex items-center">
+          <div class="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600 mr-4">
+            <i class="fas fa-users text-xl"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-800">Max Single Entry</h3>
+            <p class="text-sm text-gray-500">@Model.CountDataList.Max(x => x.In) people</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Export Options -->
+  @if (Model.FilterDate.HasValue && Model.SelectedCameraId.HasValue && Model.CountDataList.Any())
+  {
+    <div class="mt-8 bg-white p-6 rounded-xl shadow-card border border-gray-100">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">Export Options</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <button onclick="exportData()" 
+                class="flex items-center justify-center px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors">
+          <i class="fas fa-file-csv mr-2"></i>
+          Export as CSV
+        </button>
+        <button class="flex items-center justify-center px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+          <i class="fas fa-file-pdf mr-2"></i>
+          Export as PDF
+        </button>
+        <button class="flex items-center justify-center px-4 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors">
+          <i class="fas fa-file-excel mr-2"></i>
+          Export as Excel
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Footer -->
+  <footer class="mt-8 mb-4 px-4 py-6 bg-white rounded-xl shadow-sm border border-gray-100">
+    <div class="flex flex-wrap justify-between items-center">
+      <div>
+        <p class="text-sm text-gray-500">© 2025 Central ICT. All rights reserved.</p>
+        <p class="text-xs text-gray-400 mt-1">Count Data Analytics - Version 2.5.3</p>
+      </div>
+      <div class="flex gap-4 mt-4 md:mt-0">
+        <a href="#" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <i class="fas fa-question-circle"></i>
+        </a>
+        <a href="#" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <i class="fas fa-cog"></i>
+        </a>
+        <a href="#" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <i class="fas fa-user"></i>
+        </a>
+      </div>
+    </div>
+  </footer>
+</section>
+
+</body>
+</html>

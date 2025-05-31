@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "GA9xgAV6XQqQZlezobHW1+DOWnKyBzEQg0tQB/l97ro=",
+  "Hash": "VNKyhglopIhyjw5KfnasV47VN3oHWD+LNVI+n0qxnJA=",
   "Source": "dotnetprojects",
   "BasePath": "_content/dotnetprojects",
   "Mode": "Default",
@@ -689,6 +689,27 @@
       "OriginalItemSpec": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.min.css"
     },
     {
+      "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\dirxa4tw7e-hvzyklrzu3.gz",
+      "SourceId": "dotnetprojects",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\",
+      "BasePath": "_content/dotnetprojects",
+      "RelativePath": "css/dashboard#[.{fingerprint=hvzyklrzu3}]?.css.gz",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\dashboard.css",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "Fingerprint": "5la751dhd9",
+      "Integrity": "WQpnd1fVvjM3dbfAqOpDOcmRJwGWkiLEUJ2gjMxaeyY=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\dashboard.css"
+    },
+    {
       "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\e3outc8jv7-0j3bgjxly4.gz",
       "SourceId": "dotnetprojects",
       "SourceType": "Discovered",
@@ -981,6 +1002,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.esm.js.map"
+    },
+    {
+      "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\qbgipymcaf-6wyy3vcoig.gz",
+      "SourceId": "dotnetprojects",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\",
+      "BasePath": "_content/dotnetprojects",
+      "RelativePath": "js/dashboard#[.{fingerprint=6wyy3vcoig}]?.js.gz",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\dashboard.js",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "Fingerprint": "snkhjzs350",
+      "Integrity": "2GG97s+ObrYtqrahd458i7bBo+6JBNUmgeefGgz6BAA=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\dashboard.js"
     },
     {
       "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\qwxcwmwtq3-fsbi9cje9m.gz",
@@ -1403,6 +1445,27 @@
       "OriginalItemSpec": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\scopedcss\\projectbundle\\dotnetprojects.bundle.scp.css"
     },
     {
+      "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\dashboard.css",
+      "SourceId": "dotnetprojects",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\",
+      "BasePath": "_content/dotnetprojects",
+      "RelativePath": "css/dashboard#[.{fingerprint}]?.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "hvzyklrzu3",
+      "Integrity": "453Dha6ligGBXBRbzetbdgPTi7TtoJTegHwTAYQCm0c=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\dashboard.css"
+    },
+    {
       "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\site.css",
       "SourceId": "dotnetprojects",
       "SourceType": "Discovered",
@@ -1443,6 +1506,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\favicon.ico"
+    },
+    {
+      "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\dashboard.js",
+      "SourceId": "dotnetprojects",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\",
+      "BasePath": "_content/dotnetprojects",
+      "RelativePath": "js/dashboard#[.{fingerprint}]?.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "6wyy3vcoig",
+      "Integrity": "2psz7n2sJaD5k468OCpFzjYXZ+XoBA6jtQFeYRWLfoM=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\dashboard.js"
     },
     {
       "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\site.js",
@@ -2728,6 +2812,304 @@
   ],
   "Endpoints": [
     {
+      "Route": "css/dashboard.css",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\dirxa4tw7e-hvzyklrzu3.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000231427910"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "4320"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"WQpnd1fVvjM3dbfAqOpDOcmRJwGWkiLEUJ2gjMxaeyY=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 05:21:24 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"453Dha6ligGBXBRbzetbdgPTi7TtoJTegHwTAYQCm0c=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-453Dha6ligGBXBRbzetbdgPTi7TtoJTegHwTAYQCm0c="
+        }
+      ]
+    },
+    {
+      "Route": "css/dashboard.css",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\dashboard.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "19670"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"453Dha6ligGBXBRbzetbdgPTi7TtoJTegHwTAYQCm0c=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 05:21:24 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-453Dha6ligGBXBRbzetbdgPTi7TtoJTegHwTAYQCm0c="
+        }
+      ]
+    },
+    {
+      "Route": "css/dashboard.css.gz",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\dirxa4tw7e-hvzyklrzu3.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "4320"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"WQpnd1fVvjM3dbfAqOpDOcmRJwGWkiLEUJ2gjMxaeyY=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 05:21:24 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-WQpnd1fVvjM3dbfAqOpDOcmRJwGWkiLEUJ2gjMxaeyY="
+        }
+      ]
+    },
+    {
+      "Route": "css/dashboard.hvzyklrzu3.css",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\dirxa4tw7e-hvzyklrzu3.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000231427910"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "4320"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"WQpnd1fVvjM3dbfAqOpDOcmRJwGWkiLEUJ2gjMxaeyY=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 05:21:24 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"453Dha6ligGBXBRbzetbdgPTi7TtoJTegHwTAYQCm0c=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "hvzyklrzu3"
+        },
+        {
+          "Name": "label",
+          "Value": "css/dashboard.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-453Dha6ligGBXBRbzetbdgPTi7TtoJTegHwTAYQCm0c="
+        }
+      ]
+    },
+    {
+      "Route": "css/dashboard.hvzyklrzu3.css",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\dashboard.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "19670"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"453Dha6ligGBXBRbzetbdgPTi7TtoJTegHwTAYQCm0c=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 05:21:24 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "hvzyklrzu3"
+        },
+        {
+          "Name": "label",
+          "Value": "css/dashboard.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-453Dha6ligGBXBRbzetbdgPTi7TtoJTegHwTAYQCm0c="
+        }
+      ]
+    },
+    {
+      "Route": "css/dashboard.hvzyklrzu3.css.gz",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\dirxa4tw7e-hvzyklrzu3.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "4320"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"WQpnd1fVvjM3dbfAqOpDOcmRJwGWkiLEUJ2gjMxaeyY=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 05:21:24 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "hvzyklrzu3"
+        },
+        {
+          "Name": "label",
+          "Value": "css/dashboard.css.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-WQpnd1fVvjM3dbfAqOpDOcmRJwGWkiLEUJ2gjMxaeyY="
+        }
+      ]
+    },
+    {
       "Route": "css/site.b9sayid5wm.css",
       "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\b28roouwj8-b9sayid5wm.gz",
       "Selectors": [
@@ -3916,6 +4298,304 @@
         {
           "Name": "integrity",
           "Value": "sha256-+/824NtfTA0L7Mr42Fo+86YJP4R5cigdi9S7Fx5VVl4="
+        }
+      ]
+    },
+    {
+      "Route": "js/dashboard.6wyy3vcoig.js",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\qbgipymcaf-6wyy3vcoig.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000198965380"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "5025"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"2GG97s+ObrYtqrahd458i7bBo+6JBNUmgeefGgz6BAA=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 05:21:08 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"2psz7n2sJaD5k468OCpFzjYXZ+XoBA6jtQFeYRWLfoM=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "6wyy3vcoig"
+        },
+        {
+          "Name": "label",
+          "Value": "js/dashboard.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-2psz7n2sJaD5k468OCpFzjYXZ+XoBA6jtQFeYRWLfoM="
+        }
+      ]
+    },
+    {
+      "Route": "js/dashboard.6wyy3vcoig.js",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\dashboard.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "21993"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"2psz7n2sJaD5k468OCpFzjYXZ+XoBA6jtQFeYRWLfoM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 05:21:08 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "6wyy3vcoig"
+        },
+        {
+          "Name": "label",
+          "Value": "js/dashboard.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-2psz7n2sJaD5k468OCpFzjYXZ+XoBA6jtQFeYRWLfoM="
+        }
+      ]
+    },
+    {
+      "Route": "js/dashboard.6wyy3vcoig.js.gz",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\qbgipymcaf-6wyy3vcoig.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "5025"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"2GG97s+ObrYtqrahd458i7bBo+6JBNUmgeefGgz6BAA=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 05:21:08 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "6wyy3vcoig"
+        },
+        {
+          "Name": "label",
+          "Value": "js/dashboard.js.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-2GG97s+ObrYtqrahd458i7bBo+6JBNUmgeefGgz6BAA="
+        }
+      ]
+    },
+    {
+      "Route": "js/dashboard.js",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\qbgipymcaf-6wyy3vcoig.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000198965380"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "5025"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"2GG97s+ObrYtqrahd458i7bBo+6JBNUmgeefGgz6BAA=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 05:21:08 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"2psz7n2sJaD5k468OCpFzjYXZ+XoBA6jtQFeYRWLfoM=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-2psz7n2sJaD5k468OCpFzjYXZ+XoBA6jtQFeYRWLfoM="
+        }
+      ]
+    },
+    {
+      "Route": "js/dashboard.js",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\js\\dashboard.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "21993"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"2psz7n2sJaD5k468OCpFzjYXZ+XoBA6jtQFeYRWLfoM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 05:21:08 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-2psz7n2sJaD5k468OCpFzjYXZ+XoBA6jtQFeYRWLfoM="
+        }
+      ]
+    },
+    {
+      "Route": "js/dashboard.js.gz",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\Debug\\net9.0\\compressed\\qbgipymcaf-6wyy3vcoig.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "5025"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"2GG97s+ObrYtqrahd458i7bBo+6JBNUmgeefGgz6BAA=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 31 May 2025 05:21:08 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-2GG97s+ObrYtqrahd458i7bBo+6JBNUmgeefGgz6BAA="
         }
       ]
     },

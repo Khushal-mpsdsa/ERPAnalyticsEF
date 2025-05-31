@@ -57,8 +57,15 @@ public class ApplicationDBContext : DbContext {
 
         // Seed initial values for the Camera table
         modelBuilder.Entity<Camera>().HasData(
-            new Camera { CameraID = 1, CameraName = "Kitchen Main Camera" },
-            new Camera { CameraID = 2, CameraName = "Swadishta Camera" }
+            new Camera { CameraID = 1, CameraName = "Kitchen Main Camera", RefreshRateInSeconds = 0, LastRefreshTimestamp = DateTime.MinValue },
+            new Camera { CameraID = 2, CameraName = "Swadishta Camera", RefreshRateInSeconds = 0, LastRefreshTimestamp = DateTime.MinValue }
+        );
+
+        // Seed initial schedules for testing
+        modelBuilder.Entity<Schedule>().HasData(
+            new Schedule { ScheduleID = 1, CameraID = 1, ScheduleName = "Morning Shift", StartTime = DateTime.Today.AddHours(9), DurationInSec = 3600 },
+            new Schedule { ScheduleID = 2, CameraID = 1, ScheduleName = "Lunch Break", StartTime = DateTime.Today.AddHours(12), DurationInSec = 1800 },
+            new Schedule { ScheduleID = 3, CameraID = 2, ScheduleName = "Evening Shift", StartTime = DateTime.Today.AddHours(17), DurationInSec = 3600 }
         );
     }
 }
