@@ -24,7 +24,7 @@ public class IndexModel(CameraService cameraService, CountDataService countDataS
     {
         // Load cameras
         Cameras = _cameraService.GetCameras();
-        
+
         // Load all schedules for dropdowns
         AllSchedules = new List<Schedule>();
         foreach (var camera in Cameras)
@@ -36,13 +36,13 @@ public class IndexModel(CameraService cameraService, CountDataService countDataS
         // Calculate dashboard metrics
         TotalCameras = Cameras.Count;
         ActiveCameras = Cameras.Count(c => c.RefreshRateInSeconds > 0); // Assuming active if refresh rate > 0
-        
+
         // Get today's counts
         var today = DateTime.Today;
         var startOfDay = ((DateTimeOffset)today.ToUniversalTime()).ToUnixTimeSeconds();
         var endOfDay = ((DateTimeOffset)today.AddDays(1).ToUniversalTime()).ToUnixTimeSeconds();
         var allCameraIds = Cameras.Select(c => c.CameraID).ToList();
-        
+
         if (allCameraIds.Any())
         {
             var todayTotals = await _countDataService.GetCountTotalsFilteredAsync(allCameraIds, startOfDay, endOfDay);
@@ -65,7 +65,7 @@ public class IndexModel(CameraService cameraService, CountDataService countDataS
     {
         var totals = await _countDataService.GetCountTotalsFilteredAsync(cameraIds, from, to);
         int totalPresent = totals.TotalIn - totals.TotalOut;
-        
+
         return new JsonResult(new
         {
             totalIn = totals.TotalIn,
@@ -94,19 +94,19 @@ public class IndexModel(CameraService cameraService, CountDataService countDataS
         var cameras = _cameraService.GetCameras();
         var totalCameras = cameras.Count;
         var activeCameras = cameras.Count(c => c.RefreshRateInSeconds > 0);
-        
+
         // Get today's data
         var today = DateTime.Today;
         var startOfDay = ((DateTimeOffset)today.ToUniversalTime()).ToUnixTimeSeconds();
         var endOfDay = ((DateTimeOffset)today.AddDays(1).ToUniversalTime()).ToUnixTimeSeconds();
         var allCameraIds = cameras.Select(c => c.CameraID).ToList();
-        
+
         var todayTotals = new CountDataService.CountTotals();
         if (allCameraIds.Any())
         {
             todayTotals = await _countDataService.GetCountTotalsFilteredAsync(allCameraIds, startOfDay, endOfDay);
         }
-        
+
         return new JsonResult(new
         {
             totalCameras,
@@ -143,17 +143,17 @@ public class IndexModel(CameraService cameraService, CountDataService countDataS
     public async Task<JsonResult> OnGetActivityDataAsync([FromQuery] List<int> cameraIds, [FromQuery] DateTime date)
     {
         var hourlyData = new List<object>();
-        
+
         for (int hour = 7; hour < 16; hour++) // 7 AM to 3 PM
         {
             var startTime = new DateTime(date.Year, date.Month, date.Day, hour, 0, 0);
             var endTime = startTime.AddHours(1);
-            
+
             var startUnix = ((DateTimeOffset)startTime.ToUniversalTime()).ToUnixTimeSeconds();
             var endUnix = ((DateTimeOffset)endTime.ToUniversalTime()).ToUnixTimeSeconds();
-            
+
             var totals = await _countDataService.GetCountTotalsFilteredAsync(cameraIds, startUnix, endUnix);
-            
+
             hourlyData.Add(new
             {
                 hour = startTime.ToString("HH:mm"),
@@ -163,5 +163,71 @@ public class IndexModel(CameraService cameraService, CountDataService countDataS
         }
 
         return new JsonResult(hourlyData);
+    }
+    
+   
+
+    public async Task<JsonResult> OnGetCurrentPeopleCountAsync([FromQuery] List<int> cameraIds)
+    {
+        try
+        {
+            if (cameraIds == null || !cameraIds.Any())
+            {
+                // If no specific cameras, use all cameras
+                cameraIds = _cameraService.GetCameras().Select(c => c.CameraID).ToList();
+            }
+
+            var currentCount = await _countDataService.GetCurrentPeopleCountAsync(cameraIds);
+            
+            return new JsonResult(new
+            {
+                success = true,
+                currentCount = currentCount,
+                timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+            });
+        }
+        catch (Exception ex)
+        {
+            return new JsonResult(new
+            {
+                success = false,
+                error = ex.Message,
+                currentCount = 0
+            });
+        }
+    }
+
+    // API endpoint for historical count at specific time
+    public async Task<JsonResult> OnGetPeopleCountAtTimeAsync(
+        [FromQuery] List<int> cameraIds,
+        [FromQuery] long fromTime,
+        [FromQuery] long toTime)
+    {
+        try
+        {
+            if (cameraIds == null || !cameraIds.Any())
+            {
+                cameraIds = _cameraService.GetCameras().Select(c => c.CameraID).ToList();
+            }
+
+            var count = await _countDataService.GetPeopleCountAtTimeAsync(cameraIds, fromTime, toTime);
+            
+            return new JsonResult(new
+            {
+                success = true,
+                count = count,
+                fromTime = fromTime,
+                toTime = toTime
+            });
+        }
+        catch (Exception ex)
+        {
+            return new JsonResult(new
+            {
+                success = false,
+                error = ex.Message,
+                count = 0
+            });
+        }
     }
 }

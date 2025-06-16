@@ -84,5 +84,56 @@ public class CountDataService
             totalOut = this.TotalOut;
         }
     }
+   
 
+public async Task<int> GetCurrentPeopleCountAsync(List<int> cameraIDs)
+{
+    // Get all data from the beginning of today until now
+    var today = DateTime.Today;
+    var startOfDay = ((DateTimeOffset)today.ToUniversalTime()).ToUnixTimeSeconds();
+    var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+    
+    var totalCounts = await _context.CountData
+        .AsNoTracking()
+        .Where(cd => 
+            cameraIDs.Contains(cd.CameraId) &&
+            cd.StartTime >= startOfDay && 
+            cd.StartTime <= now)
+        .GroupBy(_ => 1)
+        .Select(g => new
+        {
+            TotalIn = g.Sum(cd => cd.In),
+            TotalOut = g.Sum(cd => cd.Out)
+        })
+        .FirstOrDefaultAsync();
+    
+    if (totalCounts == null)
+        return 0;
+    
+    // Current count = Total In - Total Out
+    return Math.Max(0, totalCounts.TotalIn - totalCounts.TotalOut);
+}
+
+// Alternative: Get current count for a specific time range
+public async Task<int> GetPeopleCountAtTimeAsync(List<int> cameraIDs, long fromTime, long toTime)
+{
+    var totalCounts = await _context.CountData
+        .AsNoTracking()
+        .Where(cd => 
+            cameraIDs.Contains(cd.CameraId) &&
+            cd.StartTime >= fromTime && 
+            cd.StartTime <= toTime)
+        .GroupBy(_ => 1)
+        .Select(g => new
+        {
+            TotalIn = g.Sum(cd => cd.In),
+            TotalOut = g.Sum(cd => cd.Out)
+        })
+        .FirstOrDefaultAsync();
+    
+    if (totalCounts == null)
+        return 0;
+    
+    return Math.Max(0, totalCounts.TotalIn - totalCounts.TotalOut);
+}
 }
