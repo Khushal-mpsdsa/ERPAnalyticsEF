@@ -174,7 +174,7 @@ function isValidUrl(url) {
  */
 function setupActionButtons() {
     // Edit buttons
-    const editButtons = document.querySelectorAll('.fa-edit').forEach(button => {
+    document.querySelectorAll('.fa-edit').forEach(button => {
         button.closest('button').addEventListener('click', handleEditCamera);
     });
     
@@ -230,10 +230,8 @@ function handleDeleteCamera(event) {
     const row = event.target.closest('tr');
     const cameraData = extractCameraDataFromRow(row);
     
-    // Show confirmation dialog
-    if (confirm(`Are you sure you want to delete camera "${cameraData.name}"?`)) {
-        deleteCameraById(cameraData.id);
-    }
+    // Show enhanced confirmation dialog
+    showDeleteConfirmation(cameraData);
 }
 
 /**
@@ -245,7 +243,7 @@ function extractCameraDataFromRow(row) {
     const cells = row.querySelectorAll('td');
     
     return {
-        id: cells[0].querySelector('.text-gray-500').textContent.replace('ID: ', ''),
+        id: row.getAttribute('data-camera-id') || cells[0].querySelector('.text-gray-500').textContent.replace('ID: ', ''),
         name: cells[0].querySelector('.text-gray-900').textContent,
         status: cells[1].querySelector('.status-badge').textContent.trim(),
         refreshRate: cells[2].textContent.trim(),
@@ -300,17 +298,92 @@ function showCameraDetailsModal(cameraData) {
  * Delete camera by ID
  * @param {string} cameraId - Camera ID to delete
  */
-function deleteCameraById(cameraId) {
-    // This would typically be an AJAX call to your delete endpoint
-    // For now, we'll just show a message
-    showNotification(`Camera ${cameraId} deletion requested`, 'info');
-    
-    // In a real implementation, you would:
-    // 1. Make AJAX call to delete endpoint
-    // 2. Handle response
-    // 3. Remove row from table or reload page
-    
-    console.log(`Delete camera with ID: ${cameraId}`);
+async function deleteCameraById(cameraId) {
+    try {
+        showLoadingState();
+        
+        const response = await fetch('/Cameras?handler=DeleteCamera', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+            },
+            body: JSON.stringify({ cameraId: parseInt(cameraId) })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification(result.message, 'success');
+            
+            // Remove the row from the table
+            const row = document.querySelector(`tr[data-camera-id="${cameraId}"]`);
+            if (row) {
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(-20px)';
+                setTimeout(() => {
+                    row.remove();
+                    refreshCameraStats();
+                }, 300);
+            } else {
+                // If no data attribute, reload the page
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            }
+        } else {
+            showNotification(result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error deleting camera:', error);
+        showNotification('Failed to delete camera. Please try again.', 'error');
+    } finally {
+        resetLoadingState();
+    }
+}
+
+/**
+ * Show enhanced delete confirmation dialog
+ * @param {Object} cameraData - Camera data to delete
+ */
+function showDeleteConfirmation(cameraData) {
+    // First, check if camera is in use
+    fetch(`/Cameras?handler=CameraDetails&cameraId=${cameraData.id}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.camera) {
+                const camera = data.camera;
+                const isInUse = camera.isInUse;
+                
+                let warningMessage = `Are you sure you want to delete the camera "${cameraData.name}"?`;
+                let canDelete = true;
+                
+                if (isInUse) {
+                    warningMessage = `⚠️ WARNING: Camera "${cameraData.name}" is currently being used in active schedules.\n\nDeleting this camera will affect the following:\n• All schedules using this camera will stop working\n• Historical data will be preserved but disconnected\n\nYou should remove the schedules first before deleting the camera.\n\nDo you still want to proceed with deletion?`;
+                    canDelete = false; // Don't allow deletion if in use
+                }
+                
+                if (canDelete) {
+                    if (confirm(warningMessage + '\n\nThis action cannot be undone.')) {
+                        deleteCameraById(cameraData.id);
+                    }
+                } else {
+                    alert(`Cannot delete camera "${cameraData.name}" because it is being used in active schedules.\n\nPlease remove the schedules first, then try deleting the camera again.`);
+                }
+            } else {
+                // Fallback to simple confirmation
+                if (confirm(`Are you sure you want to delete camera "${cameraData.name}"?\n\nThis action cannot be undone.`)) {
+                    deleteCameraById(cameraData.id);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error checking camera details:', error);
+            // Fallback to simple confirmation
+            if (confirm(`Are you sure you want to delete camera "${cameraData.name}"?\n\nThis action cannot be undone.`)) {
+                deleteCameraById(cameraData.id);
+            }
+        });
 }
 
 /**
@@ -399,6 +472,7 @@ function sortTable(header) {
     rows.forEach(row => tbody.appendChild(row));
     
     // Update header styling
+    const tableHeaders = document.querySelectorAll('th');
     tableHeaders.forEach(h => h.classList.remove('sorted-asc', 'sorted-desc'));
     header.classList.add(`sorted-${newOrder}`);
 }

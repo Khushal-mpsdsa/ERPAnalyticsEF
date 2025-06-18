@@ -138,8 +138,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>ted29megf4</Fingerprint>
-      <Integrity>ZVEIbVF1uhIS0i3+o0Zp/0/m0xx1yzxTfYVKhj6b/C4=</Integrity>
+      <Fingerprint>o3bwiysrsq</Fingerprint>
+      <Integrity>zGU3q6zahSmCKX5t7pTYblOA7tTZ/ZIOx/Tk9u0B7Nw=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\cameras.js'))</OriginalItemSpec>
@@ -174,8 +174,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>5mblgdscfb</Fingerprint>
-      <Integrity>860AlGSocTa/qgn59jykLc2cqhjCKwWE/wCsO+87m5E=</Integrity>
+      <Fingerprint>pn2ndshul0</Fingerprint>
+      <Integrity>y+VXUFnobLabyY+M0oBlb3nVdwjzMXvby+VQVy/H/DE=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\schedule.js'))</OriginalItemSpec>

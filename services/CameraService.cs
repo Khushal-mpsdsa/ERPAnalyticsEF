@@ -13,6 +13,13 @@ public class CameraService
     {
         return _dbContext.Cameras.ToList();
     }
+
+    // Method to get a camera by ID
+    public Camera? GetCameraById(int cameraId)
+    {
+        return _dbContext.Cameras.FirstOrDefault(c => c.CameraID == cameraId);
+    }
+
     public async Task SaveOrUpdateCameras(List<Camera> cameras)
     {
         foreach (var camera in cameras)
@@ -26,6 +33,7 @@ public class CameraService
                 existingCamera.CameraID = camera.CameraID;
                 existingCamera.RefreshRateInSeconds = camera.RefreshRateInSeconds;
                 existingCamera.LastRefreshTimestamp = camera.LastRefreshTimestamp;
+                existingCamera.CameraAPIURL = camera.CameraAPIURL;
             }
             else
             {
@@ -33,6 +41,32 @@ public class CameraService
                 _dbContext.Cameras.Add(camera);
             }
         }
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync();
+    }
+
+    // Method to delete a camera by ID
+    public async Task<bool> DeleteCameraAsync(int cameraId)
+    {
+        try
+        {
+            var camera = await _dbContext.Cameras.FindAsync(cameraId);
+            if (camera != null)
+            {
+                _dbContext.Cameras.Remove(camera);
+                await _dbContext.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    // Method to check if camera is being used in schedules
+    public bool IsCameraInUse(int cameraId)
+    {
+        return _dbContext.Schedules.Any(s => s.CameraID == cameraId);
     }
 }
