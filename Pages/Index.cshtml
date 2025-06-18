@@ -19,6 +19,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
   <link rel="stylesheet" href="~/css/index.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/index.css" asp-append-version="true" />
 </head>
 
 @using System.Text.Json
@@ -174,7 +176,7 @@ window.serverData = {
         <p class="text-xs font-medium text-gray-500 mt-2" id="peopleOutCapacity">@Model.TotalOut of @Model.TotalIn checked in</p>
       </div>
     </div>
-    <div class="bg-white p-6 rounded-xl shadow-card dashboard-card border border-gray-100"></div>
+    <div class="bg-white p-6 rounded-xl shadow-card dashboard-card border border-gray-100">
   <div class="flex justify-between items-start">
     <div>
       <p class="text-sm font-medium text-gray-500">Current People in Kitchen</p>

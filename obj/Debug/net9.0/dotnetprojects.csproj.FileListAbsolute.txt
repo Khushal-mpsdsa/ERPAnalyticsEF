@@ -617,9 +617,7 @@ D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\bin\Debug\net9.0\runtimes\win\lib\n
 D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\obj\Debug\net9.0\scopedcss\Pages\Shared\_Layout.cshtml.rz.scp.css
 D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\obj\Debug\net9.0\scopedcss\bundle\dotnetprojects.styles.css
 D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\obj\Debug\net9.0\scopedcss\projectbundle\dotnetprojects.bundle.scp.css
-D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\obj\Debug\net9.0\compressed\b28roouwj8-b9sayid5wm.gz
 D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\obj\Debug\net9.0\compressed\d9j4ag78b8-61n19gt1b8.gz
-D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\obj\Debug\net9.0\compressed\riyj8ffu4i-xtxxf3hu2r.gz
 D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\obj\Debug\net9.0\compressed\63vl211uhx-t1cqhe9u97.gz
 D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\obj\Debug\net9.0\compressed\xqe5wu1off-c2jlpeoesf.gz
 D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\obj\Debug\net9.0\compressed\0im93s8nw3-sejl45xvog.gz
@@ -693,9 +691,12 @@ D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\obj\Debug\net9.0\staticwebassets.pa
 D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\obj\Debug\net9.0\dotnetpr.1C549DF1.Up2Date
 D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\obj\Debug\net9.0\dotnetprojects.genruntimeconfig.cache
 D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\obj\Debug\net9.0\ref\dotnetprojects.dll
-D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\obj\Debug\net9.0\compressed\c7e14opagz-t7m8vgrrn3.gz
-D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\obj\Debug\net9.0\compressed\kn73tf4i8d-b6y0r4nhr5.gz
-D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\obj\Debug\net9.0\compressed\nmwkhigjel-liag643hp6.gz
 D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\obj\Debug\net9.0\compressed\n0uzy0rbkp-ted29megf4.gz
 D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\obj\Debug\net9.0\compressed\l78cvwboxm-x3b06nh9wd.gz
 D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\obj\Debug\net9.0\compressed\sg38ug38m9-5mblgdscfb.gz
+D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\obj\Debug\net9.0\compressed\c7e14opagz-yiti3xx3pj.gz
+D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\obj\Debug\net9.0\compressed\89aoejsdy8-uyhzig1eaf.gz
+D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\obj\Debug\net9.0\compressed\nmwkhigjel-q68zg2blq6.gz
+D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\obj\Debug\net9.0\compressed\kn73tf4i8d-06p4p6b8ni.gz
+D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\obj\Debug\net9.0\compressed\b28roouwj8-4l7o42mnni.gz
+D:\Khushal\ICT\ERPAnalyticsEF\dotnetprojects\obj\Debug\net9.0\compressed\riyj8ffu4i-1g4b8prgsv.gz

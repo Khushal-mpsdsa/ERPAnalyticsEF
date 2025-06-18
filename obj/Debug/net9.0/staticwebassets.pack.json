@@ -9,6 +9,10 @@
       "PackagePath": "staticwebassets\\css\\cameras.css"
     },
     {
+      "Id": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\countdata.css",
+      "PackagePath": "staticwebassets\\css\\countdata.css"
+    },
+    {
       "Id": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\wwwroot\\css\\index.css",
       "PackagePath": "staticwebassets\\css\\index.css"
     },
