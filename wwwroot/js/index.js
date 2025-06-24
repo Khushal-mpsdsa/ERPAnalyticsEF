@@ -45,6 +45,7 @@ tailwind.config = {
   let schedulesData = [];
   let activityChart;
   let autoRefreshInterval;
+  let scheduleStatusInterval;
   
   // API Functions
   async function apiCall(endpoint, method = 'GET', data = null) {
@@ -73,7 +74,7 @@ tailwind.config = {
     }
   }
   
-  // Auto refresh function
+  // Auto refresh function with schedule awareness
   function startAutoRefresh() {
     autoRefreshInterval = setInterval(async () => {
       console.log('Auto-refreshing data...');
@@ -81,21 +82,70 @@ tailwind.config = {
       await loadCameras();
       await loadSchedules();
       await loadHourlyTrafficData();
+      await checkScheduleStatus();
     }, 30000); // 30 seconds
+    
+    // More frequent schedule status checking
+    scheduleStatusInterval = setInterval(async () => {
+      await checkScheduleStatus();
+    }, 10000); // 10 seconds
   }
   
   function stopAutoRefresh() {
     if (autoRefreshInterval) {
       clearInterval(autoRefreshInterval);
     }
+    if (scheduleStatusInterval) {
+      clearInterval(scheduleStatusInterval);
+    }
   }
   
-  // Load System Overview Data
+  // Check current schedule status
+  async function checkScheduleStatus() {
+    try {
+      const data = await apiCall('CurrentScheduleStatus');
+      updateScheduleStatusUI(data);
+      
+      // If schedule status changed, reload the overview data
+      if (window.serverData && window.serverData.hasActiveSchedule !== data.hasActiveSchedule) {
+        await loadSystemOverview();
+      }
+    } catch (error) {
+      console.error('Failed to check schedule status:', error);
+    }
+  }
+  
+  // Update schedule status UI
+  function updateScheduleStatusUI(statusData) {
+    const scheduleTimeElement = document.getElementById('scheduleTimeRemaining');
+    
+    if (statusData.hasActiveSchedule && scheduleTimeElement) {
+      const timeRemaining = statusData.timeRemaining;
+      if (timeRemaining > 0) {
+        const minutes = Math.floor(timeRemaining / 60);
+        const seconds = timeRemaining % 60;
+        scheduleTimeElement.textContent = `Time remaining: ${minutes}m ${seconds}s`;
+      } else {
+        scheduleTimeElement.textContent = 'Schedule ending...';
+      }
+    }
+  }
+  
+  // Load System Overview Data with schedule awareness
   async function loadSystemOverview() {
     try {
       const data = await apiCall('SystemOverview');
       systemOverviewData = data;
       updateSystemOverviewUI();
+      
+      // Update server data for consistency
+      if (window.serverData) {
+        window.serverData.hasActiveSchedule = data.hasActiveSchedule;
+        window.serverData.currentScheduleName = data.currentScheduleName;
+        window.serverData.totalIn = data.peopleIn;
+        window.serverData.totalOut = data.peopleOut;
+        window.serverData.totalPresent = Math.max(0,data.peopleIn - data.peopleOut);
+      }
     } catch (error) {
       console.error('Failed to load system overview:', error);
     }
@@ -170,7 +220,7 @@ tailwind.config = {
     });
   }
   
-  // Update System Overview UI with real data
+  // Update System Overview UI with schedule-aware data
   function updateSystemOverviewUI() {
     if (!systemOverviewData) return;
     
@@ -185,16 +235,43 @@ tailwind.config = {
     document.getElementById('activeCamerasProgress').style.width = `${(systemOverviewData.activeCameras / systemOverviewData.totalCameras) * 100}%`;
     document.getElementById('activeCamerasPercentage').textContent = `${Math.round((systemOverviewData.activeCameras / systemOverviewData.totalCameras) * 100)}% operational`;
     
-    // Update People In
+    // Update People In (schedule-aware)
     document.getElementById('peopleIn').textContent = systemOverviewData.peopleIn;
     document.getElementById('peopleInCapacity').textContent = `${systemOverviewData.peopleIn} of ${systemOverviewData.peopleInCapacity} capacity`;
     document.getElementById('peopleInProgress').style.width = `${(systemOverviewData.peopleIn / systemOverviewData.peopleInCapacity) * 100}%`;
     
-    // Update People Out
+    // Update People Out (schedule-aware)
     document.getElementById('peopleOut').textContent = systemOverviewData.peopleOut;
     document.getElementById('peopleOutCapacity').textContent = `${systemOverviewData.peopleOut} of ${systemOverviewData.peopleIn} checked in`;
     if (systemOverviewData.peopleIn > 0) {
       document.getElementById('peopleOutProgress').style.width = `${(systemOverviewData.peopleOut / systemOverviewData.peopleIn) * 100}%`;
+    }
+    
+    // Update Total Present (schedule-aware)
+    const totalPresent = Math.max(0, systemOverviewData.peopleIn - systemOverviewData.peopleOut);
+    document.getElementById('totalPresent').textContent = totalPresent;
+    document.querySelector('.current-people-count').textContent = totalPresent;
+    document.getElementById('currentCountProgress').style.width = `${(totalPresent / systemOverviewData.peopleInCapacity) * 100}%`;
+    
+    // Update schedule status indicators
+    updateScheduleStatusIndicators(systemOverviewData);
+  }
+  
+  // Update schedule status indicators in the UI
+  function updateScheduleStatusIndicators(data) {
+    // Update card labels to reflect schedule status
+    const peopleInLabel = document.querySelector('#peopleIn').closest('.dashboard-card').querySelector('.text-gray-500');
+    const peopleOutLabel = document.querySelector('#peopleOut').closest('.dashboard-card').querySelector('.text-gray-500');
+    const totalPresentLabel = document.querySelector('#totalPresent').closest('.dashboard-card').querySelector('.text-gray-500');
+    
+    if (data.hasActiveSchedule) {
+      if (peopleInLabel) peopleInLabel.textContent = `People In (${data.currentScheduleName})`;
+      if (peopleOutLabel) peopleOutLabel.textContent = `People Out (${data.currentScheduleName})`;
+      if (totalPresentLabel) totalPresentLabel.textContent = `Current People in Kitchen (${data.currentScheduleName})`;
+    } else {
+      if (peopleInLabel) peopleInLabel.textContent = 'People In (No Active Schedule)';
+      if (peopleOutLabel) peopleOutLabel.textContent = 'People Out (No Active Schedule)';
+      if (totalPresentLabel) totalPresentLabel.textContent = 'Current People in Kitchen (No Active Schedule)';
     }
   }
   
@@ -302,7 +379,7 @@ tailwind.config = {
     });
   }
   
-  // Main showPplCount function
+  // Main showPplCount function with schedule awareness
   async function showPplCount() {
     const selectedCameras = Array.from(document.getElementById('activity_camera').selectedOptions).map(opt => parseInt(opt.value));
     const selectedSchedule = document.getElementById('mealtype').value;
@@ -648,8 +725,11 @@ tailwind.config = {
     loadHourlyTrafficData();
     initMapChart();
     
-    // Start auto refresh
+    // Start auto refresh and schedule checking
     startAutoRefresh();
+    
+    // Initial schedule status check
+    checkScheduleStatus();
     
     // Update dashboard with server data immediately
     if (window.serverData) {
@@ -657,11 +737,21 @@ tailwind.config = {
         document.getElementById('activeCameras').textContent = window.serverData.activeCameras;
         document.getElementById('peopleIn').textContent = window.serverData.totalIn;
         document.getElementById('peopleOut').textContent = window.serverData.totalOut;
+        document.getElementById('totalPresent').textContent = window.serverData.totalPresent;
         
         if (window.serverData.totalCameras > 0) {
             const activePercentage = (window.serverData.activeCameras / window.serverData.totalCameras) * 100;
             document.getElementById('activeCamerasProgress').style.width = `${activePercentage}%`;
             document.getElementById('activeCamerasPercentage').textContent = `${Math.round(activePercentage)}% operational`;
+        }
+        
+        // Update progress bars for schedule-based data
+        if (window.serverData.totalIn > 0) {
+            document.getElementById('peopleInProgress').style.width = `${(window.serverData.totalIn / 165) * 100}%`;
+            document.getElementById('currentCountProgress').style.width = `${(window.serverData.totalPresent / 165) * 100}%`;
+        }
+        if (window.serverData.totalIn > 0 && window.serverData.totalOut > 0) {
+            document.getElementById('peopleOutProgress').style.width = `${(window.serverData.totalOut / window.serverData.totalIn) * 100}%`;
         }
     }
     
@@ -698,4 +788,20 @@ tailwind.config = {
     window.addEventListener('beforeunload', function() {
       stopAutoRefresh();
     });
-  })
+  });
+  
+  // Update last updated timestamp
+  function updateLastUpdated() {
+    const lastUpdatedElement = document.getElementById('lastUpdated');
+    if (lastUpdatedElement) {
+      const now = new Date();
+      lastUpdatedElement.textContent = now.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    }
+  }
+  
+  // Call updateLastUpdated when data is refreshed
+  setInterval(updateLastUpdated, 1000); // Update every second

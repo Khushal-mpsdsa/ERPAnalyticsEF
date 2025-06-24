@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\dotnetprojects.csproj": {}
+    "D:\\Khushal\\ICT\\ERPAnalyticsEF\\ERPAnalyticsEF\\dotnetprojects.csproj": {}
   },
   "projects": {
-    "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\dotnetprojects.csproj": {
+    "D:\\Khushal\\ICT\\ERPAnalyticsEF\\ERPAnalyticsEF\\dotnetprojects.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\dotnetprojects.csproj",
+        "projectUniqueName": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\ERPAnalyticsEF\\dotnetprojects.csproj",
         "projectName": "dotnetprojects",
-        "projectPath": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\dotnetprojects.csproj",
+        "projectPath": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\ERPAnalyticsEF\\dotnetprojects.csproj",
         "packagesPath": "C:\\Users\\khush\\.nuget\\packages\\",
-        "outputPath": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\dotnetprojects\\obj\\",
+        "outputPath": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\ERPAnalyticsEF\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\khush\\AppData\\Roaming\\NuGet\\NuGet.Config"
