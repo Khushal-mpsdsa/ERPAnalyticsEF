@@ -24,6 +24,10 @@ public class IndexModel(CameraService cameraService, CountDataService countDataS
     public string CurrentScheduleName { get; set; } = "No Active Schedule";
     public Schedule? CurrentActiveSchedule { get; set; }
     public bool HasActiveSchedule { get; set; } = false;
+    
+    public int LastFiveMinutesIn { get; set; }
+    public int LastFiveMinutesOut { get; set; }
+    public int LastFiveMinutesPresent { get; set; }
 
     public async Task OnGetAsync()
     {
@@ -51,18 +55,38 @@ public class IndexModel(CameraService cameraService, CountDataService countDataS
             CurrentScheduleName = activeSchedule.ScheduleName ?? "Active Schedule";
 
             // Get data only for the active schedule timeframe and camera
-            var scheduleStartUnix = ((DateTimeOffset)activeSchedule.StartTime.ToUniversalTime()).ToUnixTimeSeconds();
-            var scheduleEndUnix = scheduleStartUnix + activeSchedule.DurationInSec;
+            var now = DateTime.Now;
+            var today = now.Date;
+            var scheduleStartToday = new DateTime(
+                today.Year, today.Month, today.Day,
+                activeSchedule.StartTime.Hour,
+                activeSchedule.StartTime.Minute,
+                activeSchedule.StartTime.Second
+            );
+            var scheduleStartUnix = ((DateTimeOffset)scheduleStartToday.ToUniversalTime()).ToUnixTimeSeconds();
+            var nowUnix = ((DateTimeOffset)now.ToUniversalTime()).ToUnixTimeSeconds();
 
             var scheduleData = await _countDataService.GetCountTotalsFilteredAsync(
-                new List<int> { activeSchedule.CameraID }, 
-                scheduleStartUnix, 
-                scheduleEndUnix
+                new List<int> { activeSchedule.CameraID },
+                scheduleStartUnix,
+                nowUnix
             );
-            
+
             TotalIn = scheduleData.TotalIn;
             TotalOut = scheduleData.TotalOut;
-             TotalPresent = Math.Max(0, TotalIn - TotalOut);
+            TotalPresent = Math.Max(0, TotalIn - TotalOut);
+
+            // NEW: Get last 5 minutes data
+            var fiveMinutesAgoUnix = ((DateTimeOffset)now.AddMinutes(-5).ToUniversalTime()).ToUnixTimeSeconds();
+            var lastFiveMinutesData = await _countDataService.GetCountTotalsFilteredAsync(
+                new List<int> { activeSchedule.CameraID },
+                fiveMinutesAgoUnix,
+                nowUnix
+            );
+
+            LastFiveMinutesIn = lastFiveMinutesData.TotalIn;
+            LastFiveMinutesOut = lastFiveMinutesData.TotalOut;
+            LastFiveMinutesPresent = Math.Max(0, LastFiveMinutesIn - LastFiveMinutesOut);
         }
         else
         {
@@ -72,54 +96,128 @@ public class IndexModel(CameraService cameraService, CountDataService countDataS
             TotalIn = 0;
             TotalOut = 0;
             TotalPresent = 0;
+
+            // Last 5 minutes also zero when no active schedule
+            LastFiveMinutesIn = 0;
+            LastFiveMinutesOut = 0;
+            LastFiveMinutesPresent = 0;
         }
     }
+
+public async Task<JsonResult> OnGetLastFiveMinutesDataAsync()
+{
+    try
+    {
+        // Load all schedules for detection
+        var cameras = _cameraService.GetCameras();
+        var allSchedules = new List<Schedule>();
+        foreach (var camera in cameras)
+        {
+            var schedules = _scheduleService.GetSchedules(camera.CameraID);
+            allSchedules.AddRange(schedules);
+        }
+
+        var activeSchedule = GetCurrentActiveScheduleFromList(allSchedules);
+        var lastFiveMinutesData = new { In = 0, Out = 0, Present = 0 };
+
+        if (activeSchedule != null)
+        {
+            var now = DateTime.Now;
+            var fiveMinutesAgo = now.AddMinutes(-5);
+            
+            var fiveMinutesAgoUnix = ((DateTimeOffset)fiveMinutesAgo.ToUniversalTime()).ToUnixTimeSeconds();
+            var nowUnix = ((DateTimeOffset)now.ToUniversalTime()).ToUnixTimeSeconds();
+
+            var totals = await _countDataService.GetCountTotalsFilteredAsync(
+                new List<int> { activeSchedule.CameraID }, 
+                fiveMinutesAgoUnix, 
+                nowUnix
+            );
+            
+            var presentCount = Math.Max(0, totals.TotalIn - totals.TotalOut);
+            
+            lastFiveMinutesData = new 
+            { 
+                In = totals.TotalIn, 
+                Out = totals.TotalOut, 
+                Present = presentCount 
+            };
+
+            Console.WriteLine($"[LAST 5 MIN] Schedule: {activeSchedule.ScheduleName}, In: {totals.TotalIn}, Out: {totals.TotalOut}, Present: {presentCount}");
+        }
+        else
+        {
+            Console.WriteLine($"[LAST 5 MIN] No active schedule");
+        }
+        
+        return new JsonResult(new
+        {
+            success = true,
+            data = lastFiveMinutesData,
+            timeWindow = "Last 5 minutes",
+            activeSchedule = activeSchedule?.ScheduleName ?? "No Active Schedule",
+            hasActiveSchedule = activeSchedule != null,
+            timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+        });
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[LAST 5 MIN ERROR] {ex.Message}");
+        return new JsonResult(new
+        {
+            success = false,
+            error = ex.Message,
+            data = new { In = 0, Out = 0, Present = 0 }
+        });
+    }
+}
+
 
     // Helper method to find current active schedule
     // Add this method to your IndexModel class for debugging
-private Schedule? GetCurrentActiveSchedule()
-{
-    var now = DateTime.Now;
-    var today = now.Date;
-
-    Console.WriteLine($"[DEBUG] Current DateTime: {now:yyyy-MM-dd HH:mm:ss}");
-    Console.WriteLine($"[DEBUG] Today's Date: {today:yyyy-MM-dd}");
-
-    foreach (var schedule in AllSchedules)
+    private Schedule? GetCurrentActiveSchedule()
     {
-        Console.WriteLine($"\n[DEBUG] Checking Schedule: {schedule.ScheduleName}");
-        Console.WriteLine($"[DEBUG] Schedule.StartTime from DB: {schedule.StartTime:yyyy-MM-dd HH:mm:ss}");
-        
-        // Convert schedule start time to today's date with the same time
-        var scheduleTimeToday = new DateTime(
-            today.Year, 
-            today.Month, 
-            today.Day,
-            schedule.StartTime.Hour,
-            schedule.StartTime.Minute,
-            schedule.StartTime.Second
-        );
+        var now = DateTime.Now;
+        var today = now.Date;
 
-        var scheduleEndTime = scheduleTimeToday.AddSeconds(schedule.DurationInSec);
+        Console.WriteLine($"[DEBUG] Current DateTime: {now:yyyy-MM-dd HH:mm:ss}");
+        Console.WriteLine($"[DEBUG] Today's Date: {today:yyyy-MM-dd}");
 
-        Console.WriteLine($"[DEBUG] Schedule Start Today: {scheduleTimeToday:HH:mm:ss}");
-        Console.WriteLine($"[DEBUG] Schedule End Today: {scheduleEndTime:HH:mm:ss}");
-        Console.WriteLine($"[DEBUG] Duration: {schedule.DurationInSec} seconds");
-        Console.WriteLine($"[DEBUG] Now >= Start: {now >= scheduleTimeToday}");
-        Console.WriteLine($"[DEBUG] Now <= End: {now <= scheduleEndTime}");
-        Console.WriteLine($"[DEBUG] Is Active: {now >= scheduleTimeToday && now <= scheduleEndTime}");
-
-        // Check if current time is within the schedule window
-        if (now >= scheduleTimeToday && now <= scheduleEndTime)
+        foreach (var schedule in AllSchedules)
         {
-            Console.WriteLine($"[DEBUG] *** ACTIVE SCHEDULE FOUND: {schedule.ScheduleName} ***");
-            return schedule;
-        }
-    }
+            Console.WriteLine($"\n[DEBUG] Checking Schedule: {schedule.ScheduleName}");
+            Console.WriteLine($"[DEBUG] Schedule.StartTime from DB: {schedule.StartTime:yyyy-MM-dd HH:mm:ss}");
 
-    Console.WriteLine($"[DEBUG] No active schedule found at {now:HH:mm:ss}");
-    return null;
-}
+            // Convert schedule start time to today's date with the same time
+            var scheduleTimeToday = new DateTime(
+                today.Year,
+                today.Month,
+                today.Day,
+                schedule.StartTime.Hour,
+                schedule.StartTime.Minute,
+                schedule.StartTime.Second
+            );
+
+            var scheduleEndTime = scheduleTimeToday.AddSeconds(schedule.DurationInSec);
+
+            Console.WriteLine($"[DEBUG] Schedule Start Today: {scheduleTimeToday:HH:mm:ss}");
+            Console.WriteLine($"[DEBUG] Schedule End Today: {scheduleEndTime:HH:mm:ss}");
+            Console.WriteLine($"[DEBUG] Duration: {schedule.DurationInSec} seconds");
+            Console.WriteLine($"[DEBUG] Now >= Start: {now >= scheduleTimeToday}");
+            Console.WriteLine($"[DEBUG] Now <= End: {now <= scheduleEndTime}");
+            Console.WriteLine($"[DEBUG] Is Active: {now >= scheduleTimeToday && now <= scheduleEndTime}");
+
+            // Check if current time is within the schedule window
+            if (now >= scheduleTimeToday && now <= scheduleEndTime)
+            {
+                Console.WriteLine($"[DEBUG] *** ACTIVE SCHEDULE FOUND: {schedule.ScheduleName} ***");
+                return schedule;
+            }
+        }
+
+        Console.WriteLine($"[DEBUG] No active schedule found at {now:HH:mm:ss}");
+        return null;
+    }
 
     // API endpoint for getting people count
     public async Task<JsonResult> OnGetGetPeopleCountAsync([FromQuery] List<int> cameraIds,
@@ -157,7 +255,6 @@ private Schedule? GetCurrentActiveSchedule()
     var totalCameras = cameras.Count;
     var activeCameras = cameras.Count(c => c.RefreshRateInSeconds > 0);
 
-    // Load all schedules for current active schedule detection
     var allSchedules = new List<Schedule>();
     foreach (var camera in cameras)
     {
@@ -165,13 +262,12 @@ private Schedule? GetCurrentActiveSchedule()
         allSchedules.AddRange(schedules);
     }
 
-    // Get current active schedule using the same logic as OnGetAsync
     var activeSchedule = GetCurrentActiveScheduleFromList(allSchedules);
     var todayTotals = new CountDataService.CountTotals();
+    var lastFiveMinutesTotals = new CountDataService.CountTotals();
 
     if (activeSchedule != null)
     {
-        // Calculate schedule time window for today
         var now = DateTime.Now;
         var today = now.Date;
         var scheduleStartToday = new DateTime(
@@ -183,26 +279,33 @@ private Schedule? GetCurrentActiveSchedule()
         var scheduleStartUnix = ((DateTimeOffset)scheduleStartToday.ToUniversalTime()).ToUnixTimeSeconds();
         var nowUnix = ((DateTimeOffset)now.ToUniversalTime()).ToUnixTimeSeconds();
 
-        // Get data from schedule start to now
+        // Get total data from schedule start to now
         todayTotals = await _countDataService.GetCountTotalsFilteredAsync(
             new List<int> { activeSchedule.CameraID }, 
             scheduleStartUnix, 
             nowUnix
         );
 
-        Console.WriteLine($"[API DEBUG] Active schedule found: {activeSchedule.ScheduleName}");
-        Console.WriteLine($"[API DEBUG] Raw totals - In: {todayTotals.TotalIn}, Out: {todayTotals.TotalOut}");
-    }
-    else
-    {
-        Console.WriteLine($"[API DEBUG] No active schedule found at {DateTime.Now:HH:mm:ss}");
+        // Get last 5 minutes data
+        var fiveMinutesAgoUnix = ((DateTimeOffset)now.AddMinutes(-5).ToUniversalTime()).ToUnixTimeSeconds();
+        lastFiveMinutesTotals = await _countDataService.GetCountTotalsFilteredAsync(
+            new List<int> { activeSchedule.CameraID }, 
+            fiveMinutesAgoUnix, 
+            nowUnix
+        );
+
+        Console.WriteLine($"[API DEBUG] Active schedule: {activeSchedule.ScheduleName}");
+        Console.WriteLine($"[API DEBUG] Total data - In: {todayTotals.TotalIn}, Out: {todayTotals.TotalOut}");
+        Console.WriteLine($"[API DEBUG] Last 5 min - In: {lastFiveMinutesTotals.TotalIn}, Out: {lastFiveMinutesTotals.TotalOut}");
     }
 
     var peopleIn = todayTotals.TotalIn;
     var peopleOut = todayTotals.TotalOut;
-    var totalPresent = Math.Max(0, peopleIn - peopleOut); // Zero check added
+    var totalPresent = Math.Max(0, peopleIn - peopleOut);
     
-    Console.WriteLine($"[API DEBUG] Final count - Present: {totalPresent}");
+    var lastFiveMinIn = lastFiveMinutesTotals.TotalIn;
+    var lastFiveMinOut = lastFiveMinutesTotals.TotalOut;
+    var lastFiveMinPresent = Math.Max(0, lastFiveMinIn - lastFiveMinOut);
 
     return new JsonResult(new
     {
@@ -218,7 +321,11 @@ private Schedule? GetCurrentActiveSchedule()
         peopleOutTrend = 8,
         currentScheduleName = activeSchedule?.ScheduleName ?? "No Active Schedule",
         hasActiveSchedule = activeSchedule != null,
-        totalPresent = totalPresent
+        totalPresent = totalPresent,
+        // NEW: Last 5 minutes data
+        lastFiveMinutesIn = lastFiveMinIn,
+        lastFiveMinutesOut = lastFiveMinOut,
+        lastFiveMinutesPresent = lastFiveMinPresent
     });
 }
 

@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "qlYHmEvcP5nbWft7z6wZyBVzS4/TnA4izmLSo3UafiU=",
+  "Hash": "t/71HHPMLrlHnbC3SpIfIh2sGIx5FdXS++0A1vpYRuo=",
   "Source": "dotnetprojects",
   "BasePath": "_content/dotnetprojects",
   "Mode": "Default",
@@ -962,12 +962,12 @@
       "OriginalItemSpec": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\ERPAnalyticsEF\\wwwroot\\css\\index.css"
     },
     {
-      "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\ERPAnalyticsEF\\obj\\Debug\\net9.0\\compressed\\l78cvwboxm-np1c50jbky.gz",
+      "Identity": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\ERPAnalyticsEF\\obj\\Debug\\net9.0\\compressed\\l78cvwboxm-2ksh42t2ei.gz",
       "SourceId": "dotnetprojects",
       "SourceType": "Discovered",
       "ContentRoot": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\ERPAnalyticsEF\\obj\\Debug\\net9.0\\compressed\\",
       "BasePath": "_content/dotnetprojects",
-      "RelativePath": "js/index#[.{fingerprint=np1c50jbky}]?.js.gz",
+      "RelativePath": "js/index#[.{fingerprint=2ksh42t2ei}]?.js.gz",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Alternative",
@@ -976,8 +976,8 @@
       "RelatedAsset": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\ERPAnalyticsEF\\wwwroot\\js\\index.js",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "betxn2y849",
-      "Integrity": "7Q27kmtMf06ELIQDOaTplQlpnHcbOKUJq84AzzYRHQo=",
+      "Fingerprint": "a0z9mge4ke",
+      "Integrity": "eg9tC1uI7lVzVsz4sGyy+SRepNVuF1c4iotNR4Lr64g=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\ERPAnalyticsEF\\wwwroot\\js\\index.js"
@@ -1711,8 +1711,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "np1c50jbky",
-      "Integrity": "q6h/NeTmv+sMApKS0wEIraybucLGjVdmSFQxBdlpF5o=",
+      "Fingerprint": "2ksh42t2ei",
+      "Integrity": "LjnQiBkkC9CafYBAvNTQyIat3tgDTROwTEBpWT5u3cY=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\js\\index.js"
@@ -5704,13 +5704,13 @@
       ]
     },
     {
-      "Route": "js/index.js",
-      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\ERPAnalyticsEF\\obj\\Debug\\net9.0\\compressed\\l78cvwboxm-np1c50jbky.gz",
+      "Route": "js/index.2ksh42t2ei.js",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\ERPAnalyticsEF\\obj\\Debug\\net9.0\\compressed\\l78cvwboxm-2ksh42t2ei.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000160668380"
+          "Quality": "0.000134336378"
         }
       ],
       "ResponseHeaders": [
@@ -5720,19 +5720,19 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "6223"
+          "Value": "7443"
         },
         {
           "Name": "ETag",
-          "Value": "\"7Q27kmtMf06ELIQDOaTplQlpnHcbOKUJq84AzzYRHQo=\""
+          "Value": "\"eg9tC1uI7lVzVsz4sGyy+SRepNVuF1c4iotNR4Lr64g=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 23 Jun 2025 12:47:23 GMT"
+          "Value": "Tue, 24 Jun 2025 10:21:46 GMT"
         },
         {
           "Name": "Cache-Control",
-          "Value": "no-cache"
+          "Value": "max-age=31536000, immutable"
         },
         {
           "Name": "Content-Encoding",
@@ -5748,18 +5748,26 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"q6h/NeTmv+sMApKS0wEIraybucLGjVdmSFQxBdlpF5o=\""
+          "Value": "W/\"LjnQiBkkC9CafYBAvNTQyIat3tgDTROwTEBpWT5u3cY=\""
         }
       ],
       "EndpointProperties": [
         {
+          "Name": "fingerprint",
+          "Value": "2ksh42t2ei"
+        },
+        {
+          "Name": "label",
+          "Value": "js/index.js"
+        },
+        {
           "Name": "integrity",
-          "Value": "sha256-q6h/NeTmv+sMApKS0wEIraybucLGjVdmSFQxBdlpF5o="
+          "Value": "sha256-LjnQiBkkC9CafYBAvNTQyIat3tgDTROwTEBpWT5u3cY="
         }
       ]
     },
     {
-      "Route": "js/index.js",
+      "Route": "js/index.2ksh42t2ei.js",
       "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\ERPAnalyticsEF\\wwwroot\\js\\index.js",
       "Selectors": [],
       "ResponseHeaders": [
@@ -5769,7 +5777,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "29415"
+          "Value": "36271"
         },
         {
           "Name": "Content-Type",
@@ -5777,121 +5785,21 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"q6h/NeTmv+sMApKS0wEIraybucLGjVdmSFQxBdlpF5o=\""
+          "Value": "\"LjnQiBkkC9CafYBAvNTQyIat3tgDTROwTEBpWT5u3cY=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 23 Jun 2025 12:47:23 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "no-cache"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-q6h/NeTmv+sMApKS0wEIraybucLGjVdmSFQxBdlpF5o="
-        }
-      ]
-    },
-    {
-      "Route": "js/index.js.gz",
-      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\ERPAnalyticsEF\\obj\\Debug\\net9.0\\compressed\\l78cvwboxm-np1c50jbky.gz",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "6223"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/javascript"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"7Q27kmtMf06ELIQDOaTplQlpnHcbOKUJq84AzzYRHQo=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Mon, 23 Jun 2025 12:47:23 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "no-cache"
-        },
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip"
-        },
-        {
-          "Name": "Vary",
-          "Value": "Content-Encoding"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-7Q27kmtMf06ELIQDOaTplQlpnHcbOKUJq84AzzYRHQo="
-        }
-      ]
-    },
-    {
-      "Route": "js/index.np1c50jbky.js",
-      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\ERPAnalyticsEF\\obj\\Debug\\net9.0\\compressed\\l78cvwboxm-np1c50jbky.gz",
-      "Selectors": [
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip",
-          "Quality": "0.000160668380"
-        }
-      ],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "6223"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"7Q27kmtMf06ELIQDOaTplQlpnHcbOKUJq84AzzYRHQo=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Mon, 23 Jun 2025 12:47:23 GMT"
+          "Value": "Tue, 24 Jun 2025 10:21:46 GMT"
         },
         {
           "Name": "Cache-Control",
           "Value": "max-age=31536000, immutable"
-        },
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip"
-        },
-        {
-          "Name": "Vary",
-          "Value": "Content-Encoding"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/javascript"
-        },
-        {
-          "Name": "ETag",
-          "Value": "W/\"q6h/NeTmv+sMApKS0wEIraybucLGjVdmSFQxBdlpF5o=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "np1c50jbky"
+          "Value": "2ksh42t2ei"
         },
         {
           "Name": "label",
@@ -5899,13 +5807,13 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-q6h/NeTmv+sMApKS0wEIraybucLGjVdmSFQxBdlpF5o="
+          "Value": "sha256-LjnQiBkkC9CafYBAvNTQyIat3tgDTROwTEBpWT5u3cY="
         }
       ]
     },
     {
-      "Route": "js/index.np1c50jbky.js",
-      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\ERPAnalyticsEF\\wwwroot\\js\\index.js",
+      "Route": "js/index.2ksh42t2ei.js.gz",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\ERPAnalyticsEF\\obj\\Debug\\net9.0\\compressed\\l78cvwboxm-2ksh42t2ei.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -5914,7 +5822,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "29415"
+          "Value": "7443"
         },
         {
           "Name": "Content-Type",
@@ -5922,56 +5830,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"q6h/NeTmv+sMApKS0wEIraybucLGjVdmSFQxBdlpF5o=\""
+          "Value": "\"eg9tC1uI7lVzVsz4sGyy+SRepNVuF1c4iotNR4Lr64g=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 23 Jun 2025 12:47:23 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "np1c50jbky"
-        },
-        {
-          "Name": "label",
-          "Value": "js/index.js"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-q6h/NeTmv+sMApKS0wEIraybucLGjVdmSFQxBdlpF5o="
-        }
-      ]
-    },
-    {
-      "Route": "js/index.np1c50jbky.js.gz",
-      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\ERPAnalyticsEF\\obj\\Debug\\net9.0\\compressed\\l78cvwboxm-np1c50jbky.gz",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "6223"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/javascript"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"7Q27kmtMf06ELIQDOaTplQlpnHcbOKUJq84AzzYRHQo=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Mon, 23 Jun 2025 12:47:23 GMT"
+          "Value": "Tue, 24 Jun 2025 10:21:46 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -5989,7 +5852,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "np1c50jbky"
+          "Value": "2ksh42t2ei"
         },
         {
           "Name": "label",
@@ -5997,7 +5860,144 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-7Q27kmtMf06ELIQDOaTplQlpnHcbOKUJq84AzzYRHQo="
+          "Value": "sha256-eg9tC1uI7lVzVsz4sGyy+SRepNVuF1c4iotNR4Lr64g="
+        }
+      ]
+    },
+    {
+      "Route": "js/index.js",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\ERPAnalyticsEF\\obj\\Debug\\net9.0\\compressed\\l78cvwboxm-2ksh42t2ei.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000134336378"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "7443"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"eg9tC1uI7lVzVsz4sGyy+SRepNVuF1c4iotNR4Lr64g=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 24 Jun 2025 10:21:46 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"LjnQiBkkC9CafYBAvNTQyIat3tgDTROwTEBpWT5u3cY=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-LjnQiBkkC9CafYBAvNTQyIat3tgDTROwTEBpWT5u3cY="
+        }
+      ]
+    },
+    {
+      "Route": "js/index.js",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\ERPAnalyticsEF\\wwwroot\\js\\index.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "36271"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"LjnQiBkkC9CafYBAvNTQyIat3tgDTROwTEBpWT5u3cY=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 24 Jun 2025 10:21:46 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-LjnQiBkkC9CafYBAvNTQyIat3tgDTROwTEBpWT5u3cY="
+        }
+      ]
+    },
+    {
+      "Route": "js/index.js.gz",
+      "AssetFile": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\ERPAnalyticsEF\\obj\\Debug\\net9.0\\compressed\\l78cvwboxm-2ksh42t2ei.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "7443"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"eg9tC1uI7lVzVsz4sGyy+SRepNVuF1c4iotNR4Lr64g=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 24 Jun 2025 10:21:46 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-eg9tC1uI7lVzVsz4sGyy+SRepNVuF1c4iotNR4Lr64g="
         }
       ]
     },

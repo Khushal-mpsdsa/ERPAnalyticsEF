@@ -95,7 +95,7 @@ window.serverData = {
   </header>
 
   <!-- System Overview Cards -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
     <div class="bg-white p-6 rounded-xl shadow-card dashboard-card border border-gray-100">
       <div class="flex justify-between items-start">
         <div>
@@ -131,16 +131,25 @@ window.serverData = {
       </div>
       <div class="mt-4">
         <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-          <div class="h-full bg-green-500 rounded-full" id="activeCamerasProgress" style="width: 0%"></div>
+          <div class="h-full bg-green-500 rounded-full" id="activeCamerasProgress" style="width: @((Model.TotalCameras > 0 ? (Model.ActiveCameras / (double)Model.TotalCameras) * 100 : 0))%"></div>
         </div>
-        <p class="text-xs font-medium text-gray-500 mt-2" id="activeCamerasPercentage">0% operational</p>
+        <p class="text-xs font-medium text-gray-500 mt-2" id="activeCamerasPercentage">@(Model.TotalCameras > 0 ? Math.Round((Model.ActiveCameras / (double)Model.TotalCameras) * 100) : 0)% operational</p>
       </div>
     </div>
     
     <div class="bg-white p-6 rounded-xl shadow-card dashboard-card border border-gray-100">
       <div class="flex justify-between items-start">
         <div>
-          <p class="text-sm font-medium text-gray-500">People In</p>
+          <p class="text-sm font-medium text-gray-500">
+            @if (Model.HasActiveSchedule)
+            {
+              <span>People In (@Model.CurrentScheduleName)</span>
+            }
+            else
+            {
+              <span>People In (No Active Schedule)</span>
+            }
+          </p>
           <h2 class="text-2xl font-bold text-gray-800 mt-2">
             <span id="peopleIn">@Model.TotalIn</span>
           </h2>
@@ -151,7 +160,7 @@ window.serverData = {
       </div>
       <div class="mt-4">
         <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-          <div class="h-full bg-indigo-500 rounded-full" id="peopleInProgress" style="width: 0%"></div>
+          <div class="h-full bg-indigo-500 rounded-full" id="peopleInProgress" style="width: @((Model.TotalIn / 165.0) * 100)%"></div>
         </div>
         <p class="text-xs font-medium text-gray-500 mt-2" id="peopleInCapacity">@Model.TotalIn of 165 capacity</p>
       </div>
@@ -160,7 +169,16 @@ window.serverData = {
     <div class="bg-white p-6 rounded-xl shadow-card dashboard-card border border-gray-100">
       <div class="flex justify-between items-start">
         <div>
-          <p class="text-sm font-medium text-gray-500">People Out</p>
+          <p class="text-sm font-medium text-gray-500">
+            @if (Model.HasActiveSchedule)
+            {
+              <span>People Out (@Model.CurrentScheduleName)</span>
+            }
+            else
+            {
+              <span>People Out (No Active Schedule)</span>
+            }
+          </p>
           <h2 class="text-2xl font-bold text-gray-800 mt-2">
             <span id="peopleOut">@Model.TotalOut</span>
           </h2>
@@ -171,39 +189,193 @@ window.serverData = {
       </div>
       <div class="mt-4">
         <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-          <div class="h-full bg-orange-500 rounded-full" id="peopleOutProgress" style="width: 0%"></div>
+          <div class="h-full bg-orange-500 rounded-full" id="peopleOutProgress" style="width: @(Model.TotalIn > 0 ? (Model.TotalOut / (double)Model.TotalIn) * 100 : 0)%"></div>
         </div>
         <p class="text-xs font-medium text-gray-500 mt-2" id="peopleOutCapacity">@Model.TotalOut of @Model.TotalIn checked in</p>
       </div>
     </div>
+    
     <div class="bg-white p-6 rounded-xl shadow-card dashboard-card border border-gray-100">
-  <div class="flex justify-between items-start">
-    <div>
-      <p class="text-sm font-medium text-gray-500">Current People in Kitchen</p>
-      <h2 class="text-2xl font-bold text-gray-800 mt-2">
-        <span id="totalPresent">@Model.TotalPresent</span>
-      </h2>
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="text-sm font-medium text-gray-500">
+            @if (Model.HasActiveSchedule)
+            {
+              <span>Current People in Kitchen (@Model.CurrentScheduleName)</span>
+            }
+            else
+            {
+              <span>Current People in Kitchen (No Active Schedule)</span>
+            }
+          </p>
+          <h2 class="text-2xl font-bold text-gray-800 mt-2">
+            <span id="totalPresent">@Model.TotalPresent</span>
+          </h2>
+        </div>
+        <div class="bg-green-50 p-3 rounded-lg text-green-600">
+          <i class="fas fa-users text-xl"></i>
+        </div>
+      </div>
+      <div class="mt-4">
+        <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+          <div class="h-full bg-green-500 rounded-full" id="currentCountProgress" style="width: @((Model.TotalPresent / 165.0) * 100)%"></div>
+        </div>
+        <p class="text-xs font-medium text-gray-500 mt-2">
+          <span class="current-people-count">@Model.TotalPresent</span> of 165 capacity
+        </p>
+      </div>
+      <div class="mt-3 flex items-center text-xs">
+        @if (Model.HasActiveSchedule)
+        {
+          <span class="flex items-center text-green-600">
+            <i class="fas fa-circle mr-1" style="font-size: 6px;"></i>
+            Schedule Active
+          </span>
+        }
+        else
+        {
+          <span class="flex items-center text-gray-600">
+            <i class="fas fa-circle mr-1" style="font-size: 6px;"></i>
+            No Active Schedule
+          </span>
+        }
+        <span class="ml-auto text-gray-500" id="lastUpdated">Just now</span>
+      </div>
     </div>
-    <div class="bg-green-50 p-3 rounded-lg text-green-600">
-      <i class="fas fa-users text-xl"></i>
+
+    <!-- NEW: Last 5 Minutes Card -->
+    <div class="bg-white p-6 rounded-xl shadow-card dashboard-card border border-gray-100 relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-400 to-purple-600"></div>
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="text-sm font-medium text-gray-500">
+            @if (Model.HasActiveSchedule)
+            {
+              <span>Last 5 Minutes Activity (@Model.CurrentScheduleName)</span>
+            }
+            else
+            {
+              <span>Last 5 Minutes Activity (No Active Schedule)</span>
+            }
+          </p>
+          <h2 class="text-2xl font-bold text-gray-800 mt-2">
+            <span id="lastFiveMinutesPresent">@Model.LastFiveMinutesPresent</span>
+          </h2>
+        </div>
+        <div class="bg-purple-50 p-3 rounded-lg text-purple-600">
+          <i class="fas fa-clock text-xl"></i>
+        </div>
+      </div>
+      <div class="mt-4">
+        <div class="grid grid-cols-2 gap-3 text-xs">
+          <div class="bg-purple-50 p-2 rounded">
+            <span class="text-purple-600 font-medium">In:</span>
+            <span class="text-gray-800 font-bold ml-1" id="lastFiveMinutesIn">@Model.LastFiveMinutesIn</span>
+          </div>
+          <div class="bg-purple-50 p-2 rounded">
+            <span class="text-purple-600 font-medium">Out:</span>
+            <span class="text-gray-800 font-bold ml-1" id="lastFiveMinutesOut">@Model.LastFiveMinutesOut</span>
+          </div>
+        </div>
+      </div>
+      <div class="mt-3 flex items-center text-xs">
+        @if (Model.HasActiveSchedule)
+        {
+          <span class="flex items-center text-purple-600">
+            <i class="fas fa-pulse mr-1" style="font-size: 6px;"></i>
+            Recent Activity
+          </span>
+        }
+        else
+        {
+          <span class="flex items-center text-gray-500">
+            <i class="fas fa-pause mr-1" style="font-size: 6px;"></i>
+            No Recent Activity
+          </span>
+        }
+        <span class="ml-auto text-gray-500" id="lastFiveMinutesUpdated">5 min window</span>
+      </div>
     </div>
   </div>
-  <div class="mt-4">
-    <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-      <div class="h-full bg-green-500 rounded-full" id="currentCountProgress" style="width: 0%"></div>
+
+  <!-- Camera Schedules Section -->
+  <div class="bg-white p-6 rounded-xl shadow-card border border-gray-100 mb-8">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-lg font-semibold text-gray-800">Camera Schedules</h2>
+      <div>
+        <a href="/Schedule" class="px-3 py-1.5 text-sm bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
+          <i class="fas fa-plus mr-2"></i>Add Schedule
+        </a>
+      </div>
     </div>
-    <p class="text-xs font-medium text-gray-500 mt-2">
-      <span class="current-people-count">@Model.TotalPresent</span> of 165 capacity
-    </p>
-  </div>
-  <div class="mt-3 flex items-center text-xs">
-    <span class="flex items-center text-green-600">
-      <i class="fas fa-circle mr-1" style="font-size: 6px;"></i>
-      Live Count
-    </span>
-    <span class="ml-auto text-gray-500" id="lastUpdated">Just now</span>
-  </div>
-</div>
+
+    <div class="form-container bg-gray-50 rounded-lg border border-gray-200 mb-6">
+      <div class="form-item">
+        <label for="scheduleName" class="block text-sm font-medium text-gray-700 mb-2">Schedule Name</label>
+        <input type="text" id="scheduleName" placeholder="Enter schedule name" class="block w-full rounded-md border border-gray-300 bg-white py-2.5 px-4 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+      </div>
+
+      <div class="form-item">
+        <label for="duration" class="block text-sm font-medium text-gray-700 mb-2">Duration (Seconds)</label>
+        <input type="number" id="duration" min="1" placeholder="Duration in seconds" class="block w-full rounded-md border border-gray-300 bg-white py-2.5 px-4 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+      </div>
+
+      <div class="form-item">
+        <label for="startTime" class="block text-sm font-medium text-gray-700 mb-2">Start Time (24hr Format)</label>
+        <input type="time" id="startTime" step="1" class="block w-full rounded-md border border-gray-300 bg-white py-2.5 px-4 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+      </div>
+
+      <div class="form-item">
+        <label for="schedule_camera" class="block text-sm font-medium text-gray-700 mb-2">Camera Selection</label>
+        <select name="schedule_camera" id="schedule_camera" class="block w-full rounded-md border border-gray-300 bg-white py-2.5 px-4 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+          <option value="">-- Select Camera --</option>
+          @foreach (var camera in Model.Cameras)
+          {
+            <option value="@camera.CameraID">@camera.CameraName</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-item flex items-end">
+        <button onclick="addQuickSchedule()" class="action-button">
+          <i class="fas fa-plus mr-2"></i>
+          Add Schedule
+        </button>
+      </div>
+    </div>
+
+    <!-- Existing Schedules Table -->
+    <div class="bg-white rounded-lg border border-gray-200 p-4">
+      <h3 class="text-md font-medium text-gray-700 mb-4">Existing Schedules</h3>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Schedule Name</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Camera</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Time</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration (s)</th>
+            </tr>
+          </thead>
+          <tbody id="schedulesTableBody" class="bg-white divide-y divide-gray-200">
+            @foreach (var schedule in Model.AllSchedules)
+            {
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">@schedule.ScheduleName</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  @{
+                    var camera = Model.Cameras.FirstOrDefault(c => c.CameraID == schedule.CameraID);
+                  }
+                  @(camera?.CameraName ?? "Unknown Camera")
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@schedule.StartTime.ToString("HH:mm:ss")</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@schedule.DurationInSec</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <!-- Main Dashboard Grid -->
@@ -366,85 +538,7 @@ window.serverData = {
     </div>
   </div>
 
-  <!-- Camera Schedules Section -->
-  <div class="bg-white p-6 rounded-xl shadow-card border border-gray-100 mb-8">
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-lg font-semibold text-gray-800">Camera Schedules</h2>
-      <div>
-        <a href="/Schedule" class="px-3 py-1.5 text-sm bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
-          <i class="fas fa-plus mr-2"></i>Add Schedule
-        </a>
-      </div>
-    </div>
-
-    <div class="form-container bg-gray-50 rounded-lg border border-gray-200 mb-6">
-      <div class="form-item">
-        <label for="scheduleName" class="block text-sm font-medium text-gray-700 mb-2">Schedule Name</label>
-        <input type="text" id="scheduleName" placeholder="Enter schedule name" class="block w-full rounded-md border border-gray-300 bg-white py-2.5 px-4 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
-      </div>
-
-      <div class="form-item">
-        <label for="duration" class="block text-sm font-medium text-gray-700 mb-2">Duration (Seconds)</label>
-        <input type="number" id="duration" min="1" placeholder="Duration in seconds" class="block w-full rounded-md border border-gray-300 bg-white py-2.5 px-4 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
-      </div>
-
-      <div class="form-item">
-        <label for="startTime" class="block text-sm font-medium text-gray-700 mb-2">Start Time (24hr Format)</label>
-        <input type="time" id="startTime" step="1" class="block w-full rounded-md border border-gray-300 bg-white py-2.5 px-4 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
-      </div>
-
-      <div class="form-item">
-        <label for="schedule_camera" class="block text-sm font-medium text-gray-700 mb-2">Camera Selection</label>
-        <select name="schedule_camera" id="schedule_camera" class="block w-full rounded-md border border-gray-300 bg-white py-2.5 px-4 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
-          <option value="">-- Select Camera --</option>
-          @foreach (var camera in Model.Cameras)
-          {
-            <option value="@camera.CameraID">@camera.CameraName</option>
-          }
-        </select>
-      </div>
-
-      <div class="form-item flex items-end">
-        <button onclick="addQuickSchedule()" class="action-button">
-          <i class="fas fa-plus mr-2"></i>
-          Add Schedule
-        </button>
-      </div>
-    </div>
-
-    <!-- Existing Schedules Table -->
-    <div class="bg-white rounded-lg border border-gray-200 p-4">
-      <h3 class="text-md font-medium text-gray-700 mb-4">Existing Schedules</h3>
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Schedule Name</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Camera</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Time</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration (s)</th>
-            </tr>
-          </thead>
-          <tbody id="schedulesTableBody" class="bg-white divide-y divide-gray-200">
-            @foreach (var schedule in Model.AllSchedules)
-            {
-              <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">@schedule.ScheduleName</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  @{
-                    var camera = Model.Cameras.FirstOrDefault(c => c.CameraID == schedule.CameraID);
-                  }
-                  @(camera?.CameraName ?? "Unknown Camera")
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@schedule.StartTime.ToString("HH:mm:ss")</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@schedule.DurationInSec</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+  
 
 </section>
 

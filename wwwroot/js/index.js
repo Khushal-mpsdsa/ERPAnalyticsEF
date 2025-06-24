@@ -46,6 +46,7 @@ tailwind.config = {
   let activityChart;
   let autoRefreshInterval;
   let scheduleStatusInterval;
+  let lastFiveMinutesInterval;
   
   // API Functions
   async function apiCall(endpoint, method = 'GET', data = null) {
@@ -74,21 +75,92 @@ tailwind.config = {
     }
   }
   
-  // Auto refresh function with schedule awareness
+  // Load Last 5 Minutes Data - FIXED VERSION
+  async function loadLastFiveMinutesData() {
+    try {
+      console.log('[LAST 5 MIN JS] Loading last 5 minutes data...');
+      const data = await apiCall('LastFiveMinutesData');
+      console.log('[LAST 5 MIN JS] API Response:', data);
+      updateLastFiveMinutesUI(data);
+    } catch (error) {
+      console.error('[LAST 5 MIN JS] Failed to load last 5 minutes data:', error);
+      // Set default values on error
+      updateLastFiveMinutesUI({
+        success: false,
+        data: { In: 0, Out: 0, Present: 0 },
+        hasActiveSchedule: false
+      });
+    }
+  }
+  
+  // Update Last 5 Minutes UI - FIXED VERSION
+  function updateLastFiveMinutesUI(responseData) {
+    console.log('[LAST 5 MIN JS] Updating UI with data:', responseData);
+    
+    const presentElement = document.getElementById('lastFiveMinutesPresent');
+    const inElement = document.getElementById('lastFiveMinutesIn');
+    const outElement = document.getElementById('lastFiveMinutesOut');
+    const updatedElement = document.getElementById('lastFiveMinutesUpdated');
+    
+    if (!presentElement || !inElement || !outElement) {
+      console.error('[LAST 5 MIN JS] UI elements not found');
+      return;
+    }
+
+    if (responseData && responseData.success && responseData.data) {
+      const data = responseData.data;
+      
+      // Update the main count
+      presentElement.textContent = data.Present || 0;
+      inElement.textContent = data.In || 0;
+      outElement.textContent = data.Out || 0;
+      
+      // Update the timestamp
+      const now = new Date();
+      if (updatedElement) {
+        updatedElement.textContent = `Updated: ${now.toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit'
+        })}`;
+      }
+      
+      console.log(`[LAST 5 MIN JS] UI Updated: Present=${data.Present}, In=${data.In}, Out=${data.Out}`);
+    } else {
+      // Handle error or no active schedule
+      console.log('[LAST 5 MIN JS] No data available, setting to 0');
+      presentElement.textContent = '0';
+      inElement.textContent = '0';
+      outElement.textContent = '0';
+      
+      if (updatedElement) {
+        updatedElement.textContent = 'No data';
+      }
+    }
+  }
+  
+  // Enhanced auto refresh function - FIXED VERSION
   function startAutoRefresh() {
     autoRefreshInterval = setInterval(async () => {
-      console.log('Auto-refreshing data...');
+      console.log('[AUTO REFRESH] Starting refresh cycle...');
       await loadSystemOverview();
       await loadCameras();
       await loadSchedules();
       await loadHourlyTrafficData();
       await checkScheduleStatus();
+      // Remove separate last 5 minutes call since it's included in SystemOverview
+      console.log('[AUTO REFRESH] Refresh cycle complete');
     }, 30000); // 30 seconds
     
     // More frequent schedule status checking
     scheduleStatusInterval = setInterval(async () => {
       await checkScheduleStatus();
     }, 10000); // 10 seconds
+
+    // Separate interval for last 5 minutes data (less frequent since it's also in system overview)
+    lastFiveMinutesInterval = setInterval(async () => {
+      console.log('[LAST 5 MIN] Dedicated refresh...');
+      await loadLastFiveMinutesData();
+    }, 60000); // 60 seconds (less frequent since SystemOverview also includes this data)
   }
   
   function stopAutoRefresh() {
@@ -97,6 +169,9 @@ tailwind.config = {
     }
     if (scheduleStatusInterval) {
       clearInterval(scheduleStatusInterval);
+    }
+    if (lastFiveMinutesInterval) {
+      clearInterval(lastFiveMinutesInterval);
     }
   }
   
@@ -144,7 +219,7 @@ tailwind.config = {
         window.serverData.currentScheduleName = data.currentScheduleName;
         window.serverData.totalIn = data.peopleIn;
         window.serverData.totalOut = data.peopleOut;
-        window.serverData.totalPresent = Math.max(0,data.peopleIn - data.peopleOut);
+        window.serverData.totalPresent = data.peopleIn - data.peopleOut;
       }
     } catch (error) {
       console.error('Failed to load system overview:', error);
@@ -220,9 +295,11 @@ tailwind.config = {
     });
   }
   
-  // Update System Overview UI with schedule-aware data
+  // Enhanced System Overview UI update - FIXED VERSION
   function updateSystemOverviewUI() {
     if (!systemOverviewData) return;
+    
+    console.log('[SYSTEM OVERVIEW] Updating with data:', systemOverviewData);
     
     // Update Total Cameras
     document.getElementById('totalCameras').textContent = systemOverviewData.totalCameras;
@@ -250,11 +327,41 @@ tailwind.config = {
     // Update Total Present (schedule-aware)
     const totalPresent = Math.max(0, systemOverviewData.peopleIn - systemOverviewData.peopleOut);
     document.getElementById('totalPresent').textContent = totalPresent;
-    document.querySelector('.current-people-count').textContent = totalPresent;
+    const currentCountElement = document.querySelector('.current-people-count');
+    if (currentCountElement) {
+      currentCountElement.textContent = totalPresent;
+    }
     document.getElementById('currentCountProgress').style.width = `${(totalPresent / systemOverviewData.peopleInCapacity) * 100}%`;
     
+    // Update Last 5 Minutes data if available from SystemOverview API - FIXED
+    if (systemOverviewData.lastFiveMinutesIn !== undefined && 
+        systemOverviewData.lastFiveMinutesOut !== undefined && 
+        systemOverviewData.lastFiveMinutesPresent !== undefined) {
+      
+      console.log('[SYSTEM OVERVIEW] Last 5 min data found:', {
+        in: systemOverviewData.lastFiveMinutesIn,
+        out: systemOverviewData.lastFiveMinutesOut,
+        present: systemOverviewData.lastFiveMinutesPresent
+      });
+      
+      const presentElement = document.getElementById('lastFiveMinutesPresent');
+      const inElement = document.getElementById('lastFiveMinutesIn');
+      const outElement = document.getElementById('lastFiveMinutesOut');
+      
+      if (presentElement && inElement && outElement) {
+        presentElement.textContent = systemOverviewData.lastFiveMinutesPresent || 0;
+        inElement.textContent = systemOverviewData.lastFiveMinutesIn || 0;
+        outElement.textContent = systemOverviewData.lastFiveMinutesOut || 0;
+        
+        console.log('[SYSTEM OVERVIEW] Updated last 5 min UI from system overview');
+      }
+    } else {
+      console.log('[SYSTEM OVERVIEW] No last 5 min data in system overview response');
+    }
+
     // Update schedule status indicators
     updateScheduleStatusIndicators(systemOverviewData);
+    updateLastFiveMinutesScheduleIndicators(systemOverviewData);
   }
   
   // Update schedule status indicators in the UI
@@ -272,6 +379,24 @@ tailwind.config = {
       if (peopleInLabel) peopleInLabel.textContent = 'People In (No Active Schedule)';
       if (peopleOutLabel) peopleOutLabel.textContent = 'People Out (No Active Schedule)';
       if (totalPresentLabel) totalPresentLabel.textContent = 'Current People in Kitchen (No Active Schedule)';
+    }
+  }
+  
+  // Update schedule status indicators for last 5 minutes card - FIXED VERSION
+  function updateLastFiveMinutesScheduleIndicators(data) {
+    const lastFiveMinCard = document.querySelector('#lastFiveMinutesPresent')?.closest('.dashboard-card');
+    if (!lastFiveMinCard) return;
+    
+    const lastFiveMinLabel = lastFiveMinCard.querySelector('.text-gray-500');
+    
+    if (data && data.hasActiveSchedule && data.currentScheduleName) {
+      if (lastFiveMinLabel) {
+        lastFiveMinLabel.textContent = `Last 5 Minutes Activity (${data.currentScheduleName})`;
+      }
+    } else {
+      if (lastFiveMinLabel) {
+        lastFiveMinLabel.textContent = 'Last 5 Minutes Activity (No Active Schedule)';
+      }
     }
   }
   
@@ -712,8 +837,10 @@ tailwind.config = {
     });
   }
   
-  // Set up event listeners
+  // Enhanced DOMContentLoaded event listener - FIXED VERSION
   document.addEventListener('DOMContentLoaded', function() {
+    console.log('[INIT] Page loaded, initializing...');
+    
     // Set today's date as default
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('Test_DatetimeLocal').value = today;
@@ -723,6 +850,7 @@ tailwind.config = {
     loadCameras();
     loadSchedules();
     loadHourlyTrafficData();
+    loadLastFiveMinutesData(); // Initial load
     initMapChart();
     
     // Start auto refresh and schedule checking
@@ -733,26 +861,41 @@ tailwind.config = {
     
     // Update dashboard with server data immediately
     if (window.serverData) {
-        document.getElementById('totalCameras').textContent = window.serverData.totalCameras;
-        document.getElementById('activeCameras').textContent = window.serverData.activeCameras;
-        document.getElementById('peopleIn').textContent = window.serverData.totalIn;
-        document.getElementById('peopleOut').textContent = window.serverData.totalOut;
-        document.getElementById('totalPresent').textContent = window.serverData.totalPresent;
-        
-        if (window.serverData.totalCameras > 0) {
-            const activePercentage = (window.serverData.activeCameras / window.serverData.totalCameras) * 100;
-            document.getElementById('activeCamerasProgress').style.width = `${activePercentage}%`;
-            document.getElementById('activeCamerasPercentage').textContent = `${Math.round(activePercentage)}% operational`;
-        }
-        
-        // Update progress bars for schedule-based data
-        if (window.serverData.totalIn > 0) {
-            document.getElementById('peopleInProgress').style.width = `${(window.serverData.totalIn / 165) * 100}%`;
-            document.getElementById('currentCountProgress').style.width = `${(window.serverData.totalPresent / 165) * 100}%`;
-        }
-        if (window.serverData.totalIn > 0 && window.serverData.totalOut > 0) {
-            document.getElementById('peopleOutProgress').style.width = `${(window.serverData.totalOut / window.serverData.totalIn) * 100}%`;
-        }
+      console.log('[INIT] Server data available:', window.serverData);
+      
+      document.getElementById('totalCameras').textContent = window.serverData.totalCameras;
+      document.getElementById('activeCameras').textContent = window.serverData.activeCameras;
+      document.getElementById('peopleIn').textContent = window.serverData.totalIn;
+      document.getElementById('peopleOut').textContent = window.serverData.totalOut;
+      document.getElementById('totalPresent').textContent = window.serverData.totalPresent;
+      
+      // Initialize last 5 minutes data from server if available
+      if (window.serverData.lastFiveMinutesPresent !== undefined) {
+        console.log('[INIT] Setting initial last 5 min data from server');
+        document.getElementById('lastFiveMinutesPresent').textContent = window.serverData.lastFiveMinutesPresent || 0;
+        document.getElementById('lastFiveMinutesIn').textContent = window.serverData.lastFiveMinutesIn || 0;
+        document.getElementById('lastFiveMinutesOut').textContent = window.serverData.lastFiveMinutesOut || 0;
+      } else {
+        console.log('[INIT] No server-side last 5 min data, setting defaults');
+        document.getElementById('lastFiveMinutesPresent').textContent = '0';
+        document.getElementById('lastFiveMinutesIn').textContent = '0';
+        document.getElementById('lastFiveMinutesOut').textContent = '0';
+      }
+      
+      if (window.serverData.totalCameras > 0) {
+        const activePercentage = (window.serverData.activeCameras / window.serverData.totalCameras) * 100;
+        document.getElementById('activeCamerasProgress').style.width = `${activePercentage}%`;
+        document.getElementById('activeCamerasPercentage').textContent = `${Math.round(activePercentage)}% operational`;
+      }
+      
+      // Update progress bars for schedule-based data
+      if (window.serverData.totalIn > 0) {
+        document.getElementById('peopleInProgress').style.width = `${(window.serverData.totalIn / 165) * 100}%`;
+        document.getElementById('currentCountProgress').style.width = `${(window.serverData.totalPresent / 165) * 100}%`;
+      }
+      if (window.serverData.totalIn > 0 && window.serverData.totalOut > 0) {
+        document.getElementById('peopleOutProgress').style.width = `${(window.serverData.totalOut / window.serverData.totalIn) * 100}%`;
+      }
     }
     
     updateCamerasUIFromServerData();
@@ -763,7 +906,7 @@ tailwind.config = {
       cameranameSelect.addEventListener('change', function () {
         const selectedOptions = Array.from(this.selectedOptions);
         const selectedCameraIDs = selectedOptions.map(option => option.value);
-  
+
         if (selectedCameraIDs.length > 0) {
           fetch(`/Index?handler=GetSchedules&cameraId=${selectedCameraIDs[0]}`)
           .then(response => response.json())
@@ -803,5 +946,19 @@ tailwind.config = {
     }
   }
   
+  // Update last updated timestamp for last 5 minutes card
+  function updateLastFiveMinutesTimestamp() {
+    const lastFiveMinutesElement = document.getElementById('lastFiveMinutesUpdated');
+    if (lastFiveMinutesElement && !lastFiveMinutesElement.textContent.includes('Updated:')) {
+      const now = new Date();
+      const timeString = now.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      lastFiveMinutesElement.textContent = `Updated: ${timeString}`;
+    }
+  }
+  
   // Call updateLastUpdated when data is refreshed
   setInterval(updateLastUpdated, 1000); // Update every second
+  setInterval(updateLastFiveMinutesTimestamp, 15000); // Update every 15 seconds

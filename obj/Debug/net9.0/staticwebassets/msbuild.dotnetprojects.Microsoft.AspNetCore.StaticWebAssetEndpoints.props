@@ -96,17 +96,17 @@
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"o3bwiysrsq"},{"Name":"integrity","Value":"sha256-zGU3q6zahSmCKX5t7pTYblOA7tTZ/ZIOx/Tk9u0B7Nw="},{"Name":"label","Value":"_content/dotnetprojects/js/cameras.js"}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"19145"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022zGU3q6zahSmCKX5t7pTYblOA7tTZ/ZIOx/Tk9u0B7Nw=\u0022"},{"Name":"Last-Modified","Value":"Sat, 21 Jun 2025 11:17:19 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/dotnetprojects/js/index.2ksh42t2ei.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\index.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"2ksh42t2ei"},{"Name":"integrity","Value":"sha256-LjnQiBkkC9CafYBAvNTQyIat3tgDTROwTEBpWT5u3cY="},{"Name":"label","Value":"_content/dotnetprojects/js/index.js"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"36271"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022LjnQiBkkC9CafYBAvNTQyIat3tgDTROwTEBpWT5u3cY=\u0022"},{"Name":"Last-Modified","Value":"Tue, 24 Jun 2025 10:21:46 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/dotnetprojects/js/index.js">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\index.js'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-q6h/NeTmv\u002BsMApKS0wEIraybucLGjVdmSFQxBdlpF5o="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"29415"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022q6h/NeTmv\u002BsMApKS0wEIraybucLGjVdmSFQxBdlpF5o=\u0022"},{"Name":"Last-Modified","Value":"Mon, 23 Jun 2025 12:47:23 GMT"}]]]></ResponseHeaders>
-    </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/dotnetprojects/js/index.np1c50jbky.js">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\index.js'))</AssetFile>
-      <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"np1c50jbky"},{"Name":"integrity","Value":"sha256-q6h/NeTmv\u002BsMApKS0wEIraybucLGjVdmSFQxBdlpF5o="},{"Name":"label","Value":"_content/dotnetprojects/js/index.js"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"29415"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022q6h/NeTmv\u002BsMApKS0wEIraybucLGjVdmSFQxBdlpF5o=\u0022"},{"Name":"Last-Modified","Value":"Mon, 23 Jun 2025 12:47:23 GMT"}]]]></ResponseHeaders>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-LjnQiBkkC9CafYBAvNTQyIat3tgDTROwTEBpWT5u3cY="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"36271"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022LjnQiBkkC9CafYBAvNTQyIat3tgDTROwTEBpWT5u3cY=\u0022"},{"Name":"Last-Modified","Value":"Tue, 24 Jun 2025 10:21:46 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/dotnetprojects/js/schedule.js">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\schedule.js'))</AssetFile>
