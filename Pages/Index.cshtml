@@ -648,6 +648,308 @@ window.serverData = {
 </section>
 
 <script src="~/js/index.js" asp-append-version="true"></script>
+<script src="~/js/schedule-dashboard-integration.js" asp-append-version="true"></script>
 
+ 
+
+<script>
+console.log('=== SIMPLE DAILY SCHEDULES ===');
+
+let schedules = [];
+
+async function loadDailySchedules() {
+    try {
+        console.log('Loading daily recurring schedules...');
+        
+        const cameras = window.camerasFromServer || [];
+        if (cameras.length === 0) {
+            showNoSchedules();
+            return;
+        }
+        
+        showLoading();
+        let allSchedules = [];
+        
+        // Get schedules from all cameras
+        for (const camera of cameras) {
+            try {
+                const response = await fetch(`/Index?handler=GetSchedules&cameraId=${camera.cameraID}`);
+                const cameraSchedules = await response.json();
+                
+                // Add camera name and treat as daily recurring
+                cameraSchedules.forEach(schedule => {
+                    allSchedules.push({
+                        ...schedule,
+                        cameraName: camera.cameraName,
+                        // Extract just the time part for daily recurring
+                        timeOnly: new Date(schedule.startTime).toLocaleTimeString('en-US', {
+                            hour: '2-digit', 
+                            minute: '2-digit',
+                            hour12: false
+                        })
+                    });
+                });
+                
+            } catch (error) {
+                console.error(`Error loading camera ${camera.cameraID}:`, error);
+            }
+        }
+        
+        console.log(`Loaded ${allSchedules.length} daily schedules`);
+        schedules = allSchedules.sort((a, b) => a.timeOnly.localeCompare(b.timeOnly));
+        
+        displaySchedules();
+        
+    } catch (error) {
+        console.error('Error loading schedules:', error);
+    }
+}
+
+function displaySchedules() {
+    const tableBody = document.querySelector('#enhancedSchedulesTableBody') || 
+                     document.querySelector('tbody');
+    const table = document.querySelector('#enhancedSchedulesTable') || 
+                 document.querySelector('table');
+    const noSchedulesDiv = document.querySelector('#noSchedulesForDate');
+    const countDisplay = document.querySelector('#scheduleCountDisplay');
+    
+    if (countDisplay) {
+        countDisplay.textContent = `${schedules.length} schedules`;
+    }
+    
+    if (!tableBody) {
+        console.error('Table body not found');
+        return;
+    }
+    
+    tableBody.innerHTML = '';
+    
+    if (schedules.length === 0) {
+        showNoSchedules();
+        return;
+    }
+    
+    if (table) table.style.display = 'table';
+    if (noSchedulesDiv) {
+        noSchedulesDiv.classList.add('hidden');
+        noSchedulesDiv.style.display = 'none';
+    }
+    
+    // Create a row for each schedule
+    schedules.forEach(schedule => {
+        const row = createScheduleRow(schedule);
+        tableBody.appendChild(row);
+    });
+    
+    console.log(`Displayed ${schedules.length} schedules in table`);
+}
+
+function createScheduleRow(schedule) {
+    const row = document.createElement('tr');
+    row.className = 'hover:bg-gray-50 cursor-pointer transition-colors';
+    
+    // Get the time from the original schedule
+    const originalTime = new Date(schedule.startTime);
+    const timeString = originalTime.toLocaleTimeString('en-US', {
+        hour: '2-digit', 
+        minute: '2-digit'
+    });
+    
+    // Calculate end time
+    const endTime = new Date(originalTime.getTime() + (schedule.durationInSec * 1000));
+    const endTimeString = endTime.toLocaleTimeString('en-US', {
+        hour: '2-digit', 
+        minute: '2-digit'
+    });
+    
+    // Check if this schedule is active RIGHT NOW (today at this time)
+    const now = new Date();
+    const todayScheduleStart = new Date();
+    todayScheduleStart.setHours(originalTime.getHours(), originalTime.getMinutes(), originalTime.getSeconds(), 0);
+    const todayScheduleEnd = new Date(todayScheduleStart.getTime() + (schedule.durationInSec * 1000));
+    
+    let status = 'upcoming';
+    let statusClass = 'bg-blue-100 text-blue-800';
+    
+    if (now >= todayScheduleStart && now <= todayScheduleEnd) {
+        status = 'active';
+        statusClass = 'bg-green-100 text-green-800';
+    } else if (now > todayScheduleEnd) {
+        status = 'completed';
+        statusClass = 'bg-gray-100 text-gray-800';
+    }
+    
+    // Format duration
+    const minutes = Math.floor(schedule.durationInSec / 60);
+    const seconds = schedule.durationInSec % 60;
+    const durationText = minutes > 0 ? `${minutes}m` : `${seconds}s`;
+    
+    // Click handler
+    row.onclick = () => selectSchedule(schedule, row);
+    
+    row.innerHTML = `
+        <td class="px-4 py-3 whitespace-nowrap text-sm">
+            <div class="font-medium text-gray-900">${timeString}</div>
+            <div class="text-xs text-gray-500">${endTimeString}</div>
+        </td>
+        <td class="px-4 py-3 whitespace-nowrap">
+            <div class="text-sm font-medium text-gray-900">${schedule.scheduleName}</div>
+            <div class="text-xs text-gray-500">Daily Recurring</div>
+        </td>
+        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+            <div class="flex items-center">
+                <i class="fas fa-video text-gray-400 mr-1"></i>
+                ${schedule.cameraName}
+            </div>
+        </td>
+        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${durationText}</td>
+        <td class="px-4 py-3 whitespace-nowrap">
+            <span class="px-2 py-1 text-xs rounded-full ${statusClass}">
+                <i class="fas fa-circle mr-1" style="font-size: 6px;"></i>
+                ${status.charAt(0).toUpperCase() + status.slice(1)}
+            </span>
+        </td>
+    `;
+    
+    return row;
+}
+
+function selectSchedule(schedule, row) {
+    console.log('Selected schedule:', schedule.scheduleName);
+    
+    // Remove previous selection
+    document.querySelectorAll('.schedule-selected').forEach(el => {
+        el.classList.remove('schedule-selected', 'bg-primary-50', 'border-l-4', 'border-primary-500');
+    });
+    
+    // Highlight selected row
+    row.classList.add('schedule-selected', 'bg-primary-50', 'border-l-4', 'border-primary-500');
+    
+    // Update dashboard
+    updateDashboard(schedule);
+    
+    // Show notification
+    showNotification(`Selected: ${schedule.scheduleName}`, 'success');
+}
+
+async function updateDashboard(schedule) {
+    // Update card headers
+    updateCardHeaders(schedule.scheduleName);
+    
+    // Check if schedule is active right now
+    const now = new Date();
+    const originalTime = new Date(schedule.startTime);
+    const todayStart = new Date();
+    todayStart.setHours(originalTime.getHours(), originalTime.getMinutes(), originalTime.getSeconds(), 0);
+    const todayEnd = new Date(todayStart.getTime() + (schedule.durationInSec * 1000));
+    
+    const isActive = now >= todayStart && now <= todayEnd;
+    
+    if (isActive) {
+        // Get real data for active schedule
+        try {
+            const startUnix = Math.floor(todayStart.getTime() / 1000);
+            const nowUnix = Math.floor(now.getTime() / 1000);
+            
+            const response = await fetch(`/Index?handler=GetPeopleCount&cameraIds=${schedule.cameraID}&from=${startUnix}&to=${nowUnix}`);
+            const data = await response.json();
+            
+            updateCards({
+                totalIn: data.totalIn || 0,
+                totalOut: data.totalOut || 0,
+                totalPresent: Math.max(0, (data.totalIn || 0) - (data.totalOut || 0))
+            });
+            
+        } catch (error) {
+            updateCards({ totalIn: 0, totalOut: 0, totalPresent: 0 });
+        }
+    } else {
+        // Show zero for inactive schedules
+        updateCards({ totalIn: 0, totalOut: 0, totalPresent: 0 });
+    }
+}
+
+function updateCardHeaders(scheduleName) {
+    const headers = [
+        { id: 'peopleIn', text: `People In (${scheduleName})` },
+        { id: 'peopleOut', text: `People Out (${scheduleName})` },
+        { id: 'totalPresent', text: `Current Present (${scheduleName})` }
+    ];
+    
+    headers.forEach(header => {
+        const element = document.getElementById(header.id);
+        const card = element?.closest('.dashboard-card, .bg-white');
+        const label = card?.querySelector('.text-gray-500');
+        if (label) label.textContent = header.text;
+    });
+}
+
+function updateCards(data) {
+    const elements = [
+        { id: 'peopleIn', value: data.totalIn },
+        { id: 'peopleOut', value: data.totalOut },
+        { id: 'totalPresent', value: data.totalPresent }
+    ];
+    
+    elements.forEach(({ id, value }) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+    });
+    
+    const currentCountEl = document.querySelector('.current-people-count');
+    if (currentCountEl) currentCountEl.textContent = data.totalPresent;
+}
+
+function showLoading() {
+    const container = findContainer();
+    if (container) {
+        container.innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-spinner fa-spin text-2xl text-gray-400 mb-4"></i>
+                <p class="text-gray-500">Loading daily schedules...</p>
+            </div>
+        `;
+    }
+}
+
+function showNoSchedules() {
+    const table = document.querySelector('#enhancedSchedulesTable, table');
+    const container = findContainer();
+    
+    if (table) table.style.display = 'none';
+    if (container) {
+        container.innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-calendar-times text-2xl text-gray-400 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No schedules found</h3>
+                <p class="text-gray-500">No daily schedules configured.</p>
+            </div>
+        `;
+    }
+}
+
+function findContainer() {
+    return document.querySelector('#noSchedulesForDate') || 
+           document.querySelector('#enhancedSchedulesTable')?.parentElement ||
+           document.querySelector('table')?.parentElement;
+}
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 p-3 rounded-lg shadow-lg text-white text-sm`;
+    notification.style.backgroundColor = type === 'success' ? '#10b981' : '#3b82f6';
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(loadDailySchedules, 1500);
+});
+
+window.loadDailySchedules = loadDailySchedules;
+console.log('=== SIMPLE DAILY SCHEDULES LOADED ===');
+</script>
 </body>
 </html>

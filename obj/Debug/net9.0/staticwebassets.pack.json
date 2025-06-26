@@ -37,6 +37,10 @@
       "PackagePath": "staticwebassets\\js\\index.js"
     },
     {
+      "Id": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\ERPAnalyticsEF\\wwwroot\\js\\schedule-dashboard-integration.js",
+      "PackagePath": "staticwebassets\\js\\schedule-dashboard-integration.js"
+    },
+    {
       "Id": "D:\\Khushal\\ICT\\ERPAnalyticsEF\\ERPAnalyticsEF\\wwwroot\\js\\schedule.js",
       "PackagePath": "staticwebassets\\js\\schedule.js"
     },

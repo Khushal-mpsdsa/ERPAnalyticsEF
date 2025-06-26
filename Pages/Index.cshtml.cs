@@ -1519,5 +1519,5 @@ public async Task<JsonResult> OnGetGetScheduleBasedDashboardOverviewBetterAsync(
             error = ex.Message
         });
     }
-}
+  }
 }

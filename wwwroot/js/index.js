@@ -1,3 +1,4 @@
+
 // Tailwind Config
 tailwind.config = {
     darkMode: 'class',
@@ -42,7 +43,6 @@ tailwind.config = {
   // Global variables for data
   let systemOverviewData = null;
   let camerasData = [];
-  let schedulesData = [];
   let activityChart;
   let autoRefreshInterval;
   let scheduleStatusInterval;
@@ -147,7 +147,6 @@ tailwind.config = {
       console.log('[AUTO REFRESH] Starting refresh cycle...');
       await loadSystemOverview();
       await loadCameras();
-      await loadSchedules();
       await loadHourlyTrafficData();
       await checkScheduleStatus();
       console.log('[AUTO REFRESH] Refresh cycle complete');
@@ -292,24 +291,6 @@ tailwind.config = {
     } catch (error) {
       console.error('Failed to load cameras:', error);
       updateCamerasUIFromServerData();
-    }
-  }
-  
-  // Load Schedules Data
-  async function loadSchedules() {
-    try {
-      let allSchedules = [];
-      if (window.camerasFromServer) {
-        for (const camera of window.camerasFromServer) {
-          const schedules = await apiCall(`GetSchedules&cameraId=${camera.cameraID}`);
-          allSchedules = allSchedules.concat(schedules);
-        }
-      }
-      schedulesData = allSchedules;
-      updateSchedulesUI();
-      updateSchedulesTable();
-    } catch (error) {
-      console.error('Failed to load schedules:', error);
     }
   }
   
@@ -518,49 +499,6 @@ tailwind.config = {
     document.getElementById('inactiveCamerasCount').textContent = inactiveCameras.length;
   }
   
-  // Update Schedules UI
-  function updateSchedulesUI() {
-    if (!schedulesData.length) return;
-    
-    const scheduleSelect = document.getElementById('mealtype');
-    if (scheduleSelect) {
-      scheduleSelect.innerHTML = '<option value="">-- Select a schedule --</option>';
-      schedulesData.forEach(schedule => {
-        const option = document.createElement('option');
-        option.value = schedule.scheduleID || schedule.id;
-        option.textContent = schedule.scheduleName || schedule.name;
-        scheduleSelect.appendChild(option);
-      });
-    }
-  }
-  
-  // Update schedules table
-  function updateSchedulesTable() {
-    const tbody = document.getElementById('schedulesTableBody');
-    if (!tbody || !schedulesData.length) return;
-    
-    tbody.innerHTML = '';
-    schedulesData.forEach(schedule => {
-      const cameraName = window.camerasFromServer?.find(c => c.cameraID === schedule.cameraID)?.cameraName || 'Unknown Camera';
-      const startTime = new Date(schedule.startTime).toLocaleTimeString('en-US', { 
-        hour12: false, 
-        hour: '2-digit', 
-        minute: '2-digit', 
-        second: '2-digit' 
-      });
-      
-      const row = `
-        <tr>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${schedule.scheduleName}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${cameraName}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${startTime}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${schedule.durationInSec}</td>
-        </tr>
-      `;
-      tbody.insertAdjacentHTML('beforeend', row);
-    });
-  }
-  
   // Main showPplCount function with schedule awareness
   async function showPplCount() {
     const selectedCameras = Array.from(document.getElementById('activity_camera').selectedOptions).map(opt => parseInt(opt.value));
@@ -752,58 +690,6 @@ tailwind.config = {
     sidebar.classList.toggle('flex');
   }
   
-  // Function to add quick schedule
-  function addQuickSchedule() {
-      var scheduleName = document.getElementById('scheduleName').value;
-      var timeValue = document.getElementById('startTime').value;
-      var duration = parseInt(document.getElementById('duration').value, 10);
-      var cameraId = parseInt(document.getElementById('schedule_camera').value, 10);
-  
-      if (!scheduleName || !timeValue || isNaN(duration) || isNaN(cameraId)) {
-          alert('Please fill in all fields with valid values!');
-          return;
-      }
-  
-      var [hours, minutes, seconds] = timeValue.split(':');
-      seconds = seconds || '00';
-  
-      var today = new Date();
-      var localTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), parseInt(hours), parseInt(minutes), parseInt(seconds));
-      const pad = (n) => n.toString().padStart(2, '0');
-      var formattedLocalDate = `${localTime.getFullYear()}-${pad(localTime.getMonth() + 1)}-${pad(localTime.getDate())}T${pad(localTime.getHours())}:${pad(localTime.getMinutes())}:${pad(localTime.getSeconds())}`;
-  
-      const scheduleData = {
-          cameraID: cameraId,
-          scheduleName: scheduleName,
-          startTime: formattedLocalDate,
-          durationInSec: duration
-      };
-  
-      fetch('/Schedule?handler=AddSchedule', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-              'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-          },
-          body: JSON.stringify(scheduleData)
-      })
-      .then(response => response.json())
-      .then(data => {
-          alert("Schedule added: " + data.count);
-          // Clear form
-          document.getElementById('scheduleName').value = '';
-          document.getElementById('startTime').value = '';
-          document.getElementById('duration').value = '';
-          document.getElementById('schedule_camera').value = '';
-          // Refresh schedules
-          loadSchedules();
-      })
-      .catch(error => {
-          console.error('Error adding schedule:', error);
-          alert("Error adding schedule: " + error.message);
-      });
-  }
-  
   // Initialize camera map chart
   function initMapChart() {
     const ctx = document.getElementById('cameraMapChart').getContext('2d');
@@ -905,7 +791,6 @@ tailwind.config = {
     // Load initial data
     loadSystemOverview();
     loadCameras();
-    loadSchedules();
     loadHourlyTrafficData();
     loadLastFiveMinutesData(); // Initial load for queue data
     initMapChart();
@@ -995,6 +880,30 @@ tailwind.config = {
       });
     }
     
+    // Initialize schedule management after a delay to ensure DOM is ready
+    setTimeout(() => {
+      console.log('[INIT] Initializing schedule management');
+      
+      // Set today's date as default for schedule date picker
+      const scheduleDate = document.getElementById('scheduleDate');
+      if (scheduleDate) {
+        scheduleDate.value = today;
+        
+        // Add event listener for date changes
+        scheduleDate.addEventListener('change', function() {
+          console.log('[SCHEDULE] Date changed to:', this.value);
+          if (typeof loadSchedulesForDate === 'function') {
+            loadSchedulesForDate();
+          }
+        });
+      }
+      
+      // Load initial schedules if the function exists
+      if (typeof loadSchedulesForDate === 'function') {
+        loadSchedulesForDate();
+      }
+    }, 1500);
+    
     // Clean up on page unload
     window.addEventListener('beforeunload', function() {
       stopAutoRefresh();
@@ -1031,536 +940,4 @@ tailwind.config = {
   setInterval(updateLastUpdated, 1000); // Update every second
   setInterval(updateQueueTimestamp, 15000); // Update every 15 seconds
 
-  // Global variables for schedule-based dashboard
-let selectedScheduleForDashboard = null;
-let selectedDateForDashboard = null;
-let dashboardUpdateInterval = null;
-
-// Initialize schedule-based dashboard functionality
-function initializeScheduleBasedDashboard() {
-    // Set today's date as default
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('scheduleDate').value = today;
-    selectedDateForDashboard = today;
-    
-    // Load schedules and set default dashboard view
-    loadSchedulesForDateAndDashboard();
-    
-    // Update display
-    updateSelectedDateDisplay();
-}
-
-// Load schedules for the selected date and update dashboard
-async function loadSchedulesForDateAndDashboard() {
-    try {
-        const dateInput = document.getElementById('scheduleDate');
-        const selectedDate = dateInput.value;
-        
-        if (!selectedDate) {
-            showNotification('Please select a date', 'warning');
-            return;
-        }
-        
-        selectedDateForDashboard = selectedDate;
-        updateSelectedDateDisplay();
-        
-        // Show loading state
-        showSchedulesLoading();
-        
-        // Get all cameras and their schedules
-        const cameras = window.camerasFromServer || [];
-        let allSchedulesForDate = [];
-        
-        for (const camera of cameras) {
-            try {
-                const response = await fetch(`/Index?handler=GetSchedules&cameraId=${camera.cameraID}`);
-                const schedules = await response.json();
-                
-                // Add camera information to each schedule
-                const schedulesWithCamera = schedules.map(schedule => ({
-                    ...schedule,
-                    cameraName: camera.cameraName
-                }));
-                
-                allSchedulesForDate = allSchedulesForDate.concat(schedulesWithCamera);
-            } catch (error) {
-                console.error(`Failed to load schedules for camera ${camera.cameraID}:`, error);
-            }
-        }
-        
-        // Sort schedules by start time (ascending order)
-        allSchedulesForDate.sort((a, b) => {
-            const timeA = new Date(`2000-01-01T${new Date(a.startTime).toTimeString()}`);
-            const timeB = new Date(`2000-01-01T${new Date(b.startTime).toTimeString()}`);
-            return timeA - timeB;
-        });
-        
-        schedulesForDate = allSchedulesForDate;
-        
-        // Update the schedules table
-        updateEnhancedSchedulesTable();
-        
-        // Update timeline
-        updateScheduleTimeline();
-        
-        // Reset dashboard to show overall data for the selected date (no specific schedule selected)
-        await updateDashboardForDate(selectedDate);
-        
-        console.log(`Loaded ${allSchedulesForDate.length} schedules for ${selectedDate}`);
-        
-    } catch (error) {
-        console.error('Error loading schedules for date:', error);
-        showNotification('Failed to load schedules', 'error');
-        hideSchedulesLoading();
-    }
-}
-
-// Update dashboard cards for a specific date (when no schedule is selected)
-async function updateDashboardForDate(dateString) {
-    try {
-        const targetDate = new Date(dateString);
-        const isToday = dateString === new Date().toISOString().split('T')[0];
-        
-        // Clear any selected schedule
-        selectedScheduleForDashboard = null;
-        
-        // Update card headers to show date-based information
-        updateDashboardCardHeaders(dateString, null);
-        
-        if (isToday) {
-            // For today, check if there's any active schedule
-            const activeSchedule = getCurrentActiveScheduleFromList(schedulesForDate);
-            
-            if (activeSchedule) {
-                // Show data for the currently active schedule
-                await updateDashboardForSchedule(activeSchedule, dateString);
-                return;
-            }
-        }
-        
-        // No active schedule or not today - show aggregate data or zeros
-        const dashboardData = await getDashboardDataForDate(dateString);
-        updateDashboardCards(dashboardData, dateString, null);
-        
-    } catch (error) {
-        console.error('Error updating dashboard for date:', error);
-        showNotification('Failed to update dashboard data', 'error');
-    }
-}
-
-// Update dashboard cards for a specific schedule
-async function updateDashboardForSchedule(schedule, dateString) {
-    try {
-        selectedScheduleForDashboard = schedule;
-        
-        // Update card headers to show schedule information
-        updateDashboardCardHeaders(dateString, schedule);
-        
-        // Get schedule data
-        const scheduleData = await getScheduleDataForDashboard(schedule, dateString);
-        updateDashboardCards(scheduleData, dateString, schedule);
-        
-        // Start real-time updates if schedule is active
-        if (scheduleData.isActive) {
-            startDashboardRealTimeUpdates(schedule, dateString);
-        } else {
-            stopDashboardRealTimeUpdates();
-        }
-        
-        console.log(`Dashboard updated for schedule: ${schedule.scheduleName}`);
-        
-    } catch (error) {
-        console.error('Error updating dashboard for schedule:', error);
-        showNotification('Failed to update schedule data', 'error');
-    }
-}
-
-// Get dashboard data for a specific date (no schedule selected)
-async function getDashboardDataForDate(dateString) {
-    try {
-        const targetDate = new Date(dateString);
-        const isToday = dateString === new Date().toISOString().split('T')[0];
-        
-        let dashboardData = {
-            totalIn: 0,
-            totalOut: 0,
-            totalPresent: 0,
-            lastFiveMinutesIn: 0,
-            lastFiveMinutesOut: 0,
-            lastFiveMinutesPresent: 0,
-            isActive: false,
-            hasData: false
-        };
-        
-        if (isToday) {
-            // For today, get overall system data or active schedule data
-            const activeSchedule = getCurrentActiveScheduleFromList(schedulesForDate);
-            if (activeSchedule) {
-                dashboardData = await getScheduleDataForDashboard(activeSchedule, dateString);
-            }
-        }
-        
-        return dashboardData;
-        
-    } catch (error) {
-        console.error('Error getting dashboard data for date:', error);
-        return {
-            totalIn: 0,
-            totalOut: 0,
-            totalPresent: 0,
-            lastFiveMinutesIn: 0,
-            lastFiveMinutesOut: 0,
-            lastFiveMinutesPresent: 0,
-            isActive: false,
-            hasData: false
-        };
-    }
-}
-
-// Get data for a specific schedule
-async function getScheduleDataForDashboard(schedule, dateString) {
-    try {
-        const targetDate = new Date(dateString);
-        const isToday = dateString === new Date().toISOString().split('T')[0];
-        const status = getScheduleStatusForDate(schedule, dateString);
-        
-        let scheduleData = {
-            totalIn: 0,
-            totalOut: 0,
-            totalPresent: 0,
-            lastFiveMinutesIn: 0,
-            lastFiveMinutesOut: 0,
-            lastFiveMinutesPresent: 0,
-            isActive: status === 'active',
-            hasData: false,
-            status: status
-        };
-        
-        if (isToday && (status === 'active' || status === 'completed')) {
-            const now = new Date();
-            const scheduleStartToday = new DateTime(
-                targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(),
-                new Date(schedule.startTime).getHours(),
-                new Date(schedule.startTime).getMinutes(),
-                new Date(schedule.startTime).getSeconds()
-            );
-            
-            const scheduleStartUnix = Math.floor(scheduleStartToday.getTime() / 1000);
-            const scheduleEndUnix = scheduleStartUnix + schedule.durationInSec;
-            const currentTimeUnix = Math.floor(now.getTime() / 1000);
-            
-            // Get data from schedule start to now (for active) or schedule end (for completed)
-            const queryEndTime = status === 'active' ? currentTimeUnix : scheduleEndUnix;
-            
-            const response = await fetch(`/Index?handler=GetPeopleCount&cameraIds=${schedule.cameraID}&from=${scheduleStartUnix}&to=${queryEndTime}`);
-            const data = await response.json();
-            
-            scheduleData.totalIn = data.totalIn || 0;
-            scheduleData.totalOut = data.totalOut || 0;
-            scheduleData.totalPresent = Math.max(0, scheduleData.totalIn - scheduleData.totalOut);
-            scheduleData.hasData = true;
-            
-            // Get last 5 minutes data for active schedules
-            if (status === 'active') {
-                const fiveMinutesAgoUnix = currentTimeUnix - (5 * 60);
-                const lastFiveResponse = await fetch(`/Index?handler=GetPeopleCount&cameraIds=${schedule.cameraID}&from=${fiveMinutesAgoUnix}&to=${currentTimeUnix}`);
-                const lastFiveData = await lastFiveResponse.json();
-                
-                scheduleData.lastFiveMinutesIn = lastFiveData.totalIn || 0;
-                scheduleData.lastFiveMinutesOut = lastFiveData.totalOut || 0;
-                scheduleData.lastFiveMinutesPresent = Math.max(0, scheduleData.lastFiveMinutesIn - scheduleData.lastFiveMinutesOut);
-            }
-        }
-        
-        return scheduleData;
-        
-    } catch (error) {
-        console.error('Error getting schedule data:', error);
-        return {
-            totalIn: 0,
-            totalOut: 0,
-            totalPresent: 0,
-            lastFiveMinutesIn: 0,
-            lastFiveMinutesOut: 0,
-            lastFiveMinutesPresent: 0,
-            isActive: false,
-            hasData: false,
-            status: 'error'
-        };
-    }
-}
-
-// Update dashboard card headers based on selection
-function updateDashboardCardHeaders(dateString, schedule) {
-    const dateObj = new Date(dateString);
-    const isToday = dateString === new Date().toISOString().split('T')[0];
-    
-    let dateLabel = dateObj.toLocaleDateString('en-US', { 
-        weekday: 'short', 
-        month: 'short', 
-        day: 'numeric' 
-    });
-    
-    if (isToday) dateLabel = 'Today';
-    else if (dateString === new Date(Date.now() + 86400000).toISOString().split('T')[0]) dateLabel = 'Tomorrow';
-    else if (dateString === new Date(Date.now() - 86400000).toISOString().split('T')[0]) dateLabel = 'Yesterday';
-    
-    const scheduleInfo = schedule ? ` - ${schedule.scheduleName}` : ' - All Data';
-    
-    // Update card headers
-    const peopleInLabel = document.querySelector('#peopleIn').closest('.dashboard-card').querySelector('.text-gray-500');
-    const peopleOutLabel = document.querySelector('#peopleOut').closest('.dashboard-card').querySelector('.text-gray-500');
-    const totalPresentLabel = document.querySelector('#totalPresent').closest('.dashboard-card').querySelector('.text-gray-500');
-    const lastFiveMinLabel = document.querySelector('#lastFiveMinutesPresent').closest('.dashboard-card').querySelector('.text-gray-500');
-    
-    if (peopleInLabel) peopleInLabel.textContent = `People In (${dateLabel}${scheduleInfo})`;
-    if (peopleOutLabel) peopleOutLabel.textContent = `People Out (${dateLabel}${scheduleInfo})`;
-    if (totalPresentLabel) totalPresentLabel.textContent = `Current Present (${dateLabel}${scheduleInfo})`;
-    if (lastFiveMinLabel) lastFiveMinLabel.textContent = `Last 5 Min Activity (${dateLabel}${scheduleInfo})`;
-}
-
-// Update the main dashboard cards with data
-function updateDashboardCards(data, dateString, schedule) {
-    // Update People In card
-    document.getElementById('peopleIn').textContent = data.totalIn;
-    document.getElementById('peopleInCapacity').textContent = `${data.totalIn} of 165 capacity`;
-    document.getElementById('peopleInProgress').style.width = `${(data.totalIn / 165) * 100}%`;
-    
-    // Update People Out card  
-    document.getElementById('peopleOut').textContent = data.totalOut;
-    document.getElementById('peopleOutCapacity').textContent = `${data.totalOut} of ${data.totalIn} checked in`;
-    if (data.totalIn > 0) {
-        document.getElementById('peopleOutProgress').style.width = `${(data.totalOut / data.totalIn) * 100}%`;
-    } else {
-        document.getElementById('peopleOutProgress').style.width = '0%';
-    }
-    
-    // Update Total Present card
-    document.getElementById('totalPresent').textContent = data.totalPresent;
-    document.getElementById('currentCountProgress').style.width = `${(data.totalPresent / 165) * 100}%`;
-    
-    // Update the current people count span
-    const currentCountElement = document.querySelector('.current-people-count');
-    if (currentCountElement) {
-        currentCountElement.textContent = data.totalPresent;
-    }
-    
-    // Update Last 5 Minutes card
-    document.getElementById('lastFiveMinutesPresent').textContent = data.lastFiveMinutesPresent;
-    document.getElementById('lastFiveMinutesIn').textContent = data.lastFiveMinutesIn;
-    document.getElementById('lastFiveMinutesOut').textContent = data.lastFiveMinutesOut;
-    
-    // Update schedule status indicators
-    updateScheduleStatusIndicatorsInCards(data, schedule);
-    
-    // Update last updated timestamp
-    updateLastUpdatedTimestamp();
-    
-    console.log('Dashboard cards updated:', data);
-}
-
-// Update schedule status indicators in dashboard cards
-function updateScheduleStatusIndicatorsInCards(data, schedule) {
-    // Update status indicators in the cards
-    const statusElements = document.querySelectorAll('.schedule-status-indicator');
-    
-    statusElements.forEach(element => {
-        if (schedule && data.isActive) {
-            element.className = 'schedule-status-indicator flex items-center text-green-600';
-            element.innerHTML = '<i class="fas fa-circle mr-1" style="font-size: 6px;"></i>Active Schedule';
-        } else if (schedule && !data.isActive) {
-            element.className = 'schedule-status-indicator flex items-center text-blue-600';
-            element.innerHTML = '<i class="fas fa-circle mr-1" style="font-size: 6px;"></i>Selected Schedule';
-        } else {
-            element.className = 'schedule-status-indicator flex items-center text-gray-600';
-            element.innerHTML = '<i class="fas fa-circle mr-1" style="font-size: 6px;"></i>No Schedule Selected';
-        }
-    });
-    
-    // Update the specific status in the Total Present card
-    const totalPresentCard = document.querySelector('#totalPresent').closest('.dashboard-card');
-    const statusElement = totalPresentCard.querySelector('.mt-3 .flex.items-center');
-    
-    if (statusElement) {
-        if (schedule && data.isActive) {
-            statusElement.className = 'flex items-center text-green-600';
-            statusElement.innerHTML = '<i class="fas fa-circle mr-1" style="font-size: 6px;"></i>Active Schedule';
-        } else if (schedule) {
-            statusElement.className = 'flex items-center text-blue-600';
-            statusElement.innerHTML = '<i class="fas fa-circle mr-1" style="font-size: 6px;"></i>Selected Schedule';
-        } else {
-            statusElement.className = 'flex items-center text-gray-600';
-            statusElement.innerHTML = '<i class="fas fa-circle mr-1" style="font-size: 6px;"></i>No Schedule Selected';
-        }
-    }
-}
-
-// Start real-time updates for active schedules
-function startDashboardRealTimeUpdates(schedule, dateString) {
-    stopDashboardRealTimeUpdates(); // Clear any existing interval
-    
-    dashboardUpdateInterval = setInterval(async () => {
-        console.log('Updating dashboard real-time data for active schedule');
-        await updateDashboardForSchedule(schedule, dateString);
-    }, 5000); // Update every 5 seconds
-}
-
-// Stop real-time updates
-function stopDashboardRealTimeUpdates() {
-    if (dashboardUpdateInterval) {
-        clearInterval(dashboardUpdateInterval);
-        dashboardUpdateInterval = null;
-    }
-}
-
-// Enhanced function to select schedule and update dashboard
-async function selectScheduleForDashboard(schedule) {
-    try {
-        console.log('Schedule selected for dashboard:', schedule);
-        
-        // Update table selection visuals
-        updateEnhancedSchedulesTable();
-        
-        // Update dashboard cards with schedule data
-        await updateDashboardForSchedule(schedule, selectedDateForDashboard);
-        
-        // Update timeline highlighting
-        updateScheduleTimeline();
-        
-        // Show notification
-        showNotification(`Dashboard updated for: ${schedule.scheduleName}`, 'info');
-        
-    } catch (error) {
-        console.error('Error selecting schedule for dashboard:', error);
-        showNotification('Failed to update dashboard for selected schedule', 'error');
-    }
-}
-
-// Clear schedule selection and return to date-based view
-async function clearScheduleSelection() {
-    try {
-        console.log('Clearing schedule selection, returning to date view');
-        
-        selectedScheduleForDashboard = null;
-        
-        // Stop real-time updates
-        stopDashboardRealTimeUpdates();
-        
-        // Update dashboard to show date-based data
-        await updateDashboardForDate(selectedDateForDashboard);
-        
-        // Update table to remove selection highlight
-        updateEnhancedSchedulesTable();
-        
-        // Update timeline
-        updateScheduleTimeline();
-        
-        showNotification('Dashboard reset to date view', 'info');
-        
-    } catch (error) {
-        console.error('Error clearing schedule selection:', error);
-    }
-}
-
-// Update last updated timestamp
-function updateLastUpdatedTimestamp() {
-    const lastUpdatedElement = document.getElementById('lastUpdated');
-    const lastFiveMinutesElement = document.getElementById('lastFiveMinutesUpdated');
-    
-    const now = new Date();
-    const timeString = now.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-    
-    if (lastUpdatedElement) {
-        lastUpdatedElement.textContent = `Updated: ${timeString}`;
-    }
-    
-    if (lastFiveMinutesElement && selectedScheduleForDashboard) {
-        lastFiveMinutesElement.textContent = `Updated: ${timeString}`;
-    }
-}
-
-// Enhanced table update with dashboard selection awareness
-function updateEnhancedSchedulesTableWithDashboard() {
-    const tableBody = document.getElementById('enhancedSchedulesTableBody');
-    const table = document.getElementById('enhancedSchedulesTable');
-    const noSchedulesDiv = document.getElementById('noSchedulesForDate');
-    const countDisplay = document.getElementById('scheduleCountDisplay');
-    
-    // Clear existing content
-    tableBody.innerHTML = '';
-    
-    if (schedulesForDate.length === 0) {
-        table.style.display = 'none';
-        noSchedulesDiv.classList.remove('hidden');
-        countDisplay.textContent = '0 schedules';
-        return;
-    }
-    
-    table.style.display = 'table';
-    noSchedulesDiv.classList.add('hidden');
-    countDisplay.textContent = `${schedulesForDate.length} schedule${schedulesForDate.length !== 1 ? 's' : ''}`;
-    
-    schedulesForDate.forEach((schedule, index) => {
-        const startTime = new Date(schedule.startTime);
-        const endTime = new Date(startTime.getTime() + (schedule.durationInSec * 1000));
-        const status = getScheduleStatusForDate(schedule, selectedDateForDashboard);
-        
-        const row = document.createElement('tr');
-        row.className = 'hover:bg-gray-50 cursor-pointer transition-colors';
-        row.onclick = () => selectScheduleForDashboard(schedule);
-        
-        // Add visual indicator for selected schedule in dashboard
-        if (selectedScheduleForDashboard && selectedScheduleForDashboard.scheduleID === schedule.scheduleID) {
-            row.classList.add('bg-primary-50', 'border-l-4', 'border-primary-500');
-        }
-        
-        row.innerHTML = `
-            <td class="px-4 py-3 whitespace-nowrap text-sm">
-                <div class="font-medium text-gray-900">${startTime.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'})}</div>
-                <div class="text-xs text-gray-500">${endTime.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'})}</div>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-                <div class="text-sm font-medium text-gray-900">${schedule.scheduleName || 'Unnamed Schedule'}</div>
-                <div class="text-xs text-gray-500">ID: ${schedule.scheduleID}</div>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                <div class="flex items-center">
-                    <i class="fas fa-video text-gray-400 mr-1"></i>
-                    ${schedule.cameraName || 'Unknown Camera'}
-                </div>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                ${formatDuration(schedule.durationInSec)}
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-                <span class="schedule-status ${status.class}">
-                    <i class="fas fa-circle mr-1 text-xs"></i>
-                    ${status.text}
-                </span>
-            </td>
-        `;
-        
-        tableBody.appendChild(row);
-    });
-}
-
-// Override the existing functions to use dashboard-aware versions
-window.loadSchedulesForDate = loadSchedulesForDateAndDashboard;
-window.updateEnhancedSchedulesTable = updateEnhancedSchedulesTableWithDashboard;
-window.selectScheduleForDetails = selectScheduleForDashboard;
-window.clearScheduleDetails = clearScheduleSelection;
-
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(() => {
-        initializeScheduleBasedDashboard();
-    }, 1000);
-});
-
-// Cleanup on page unload
-window.addEventListener('beforeunload', function() {
-    stopDashboardRealTimeUpdates();
-})
+  console.log(window.camerasFromServer);

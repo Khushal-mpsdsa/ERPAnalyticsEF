@@ -96,17 +96,29 @@
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"o3bwiysrsq"},{"Name":"integrity","Value":"sha256-zGU3q6zahSmCKX5t7pTYblOA7tTZ/ZIOx/Tk9u0B7Nw="},{"Name":"label","Value":"_content/dotnetprojects/js/cameras.js"}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"19145"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022zGU3q6zahSmCKX5t7pTYblOA7tTZ/ZIOx/Tk9u0B7Nw=\u0022"},{"Name":"Last-Modified","Value":"Sat, 21 Jun 2025 11:17:19 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/dotnetprojects/js/index.8zknxfblwz.js">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\index.js'))</AssetFile>
-      <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"8zknxfblwz"},{"Name":"integrity","Value":"sha256-DOm0smGiwhrt1Sb/P49y6WPo7tcr6mNGe7Psnf1FSXE="},{"Name":"label","Value":"_content/dotnetprojects/js/index.js"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"61671"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022DOm0smGiwhrt1Sb/P49y6WPo7tcr6mNGe7Psnf1FSXE=\u0022"},{"Name":"Last-Modified","Value":"Wed, 25 Jun 2025 06:23:46 GMT"}]]]></ResponseHeaders>
-    </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/dotnetprojects/js/index.js">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\index.js'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-DOm0smGiwhrt1Sb/P49y6WPo7tcr6mNGe7Psnf1FSXE="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"61671"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022DOm0smGiwhrt1Sb/P49y6WPo7tcr6mNGe7Psnf1FSXE=\u0022"},{"Name":"Last-Modified","Value":"Wed, 25 Jun 2025 06:23:46 GMT"}]]]></ResponseHeaders>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-VWxaQ9juOp6KWY\u002BOEhtJU9zzf/20iwhNL3/sfqYHio8="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"35449"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022VWxaQ9juOp6KWY\u002BOEhtJU9zzf/20iwhNL3/sfqYHio8=\u0022"},{"Name":"Last-Modified","Value":"Wed, 25 Jun 2025 14:36:45 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/dotnetprojects/js/index.ju2h7l1esh.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\index.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"ju2h7l1esh"},{"Name":"integrity","Value":"sha256-VWxaQ9juOp6KWY\u002BOEhtJU9zzf/20iwhNL3/sfqYHio8="},{"Name":"label","Value":"_content/dotnetprojects/js/index.js"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"35449"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022VWxaQ9juOp6KWY\u002BOEhtJU9zzf/20iwhNL3/sfqYHio8=\u0022"},{"Name":"Last-Modified","Value":"Wed, 25 Jun 2025 14:36:45 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/dotnetprojects/js/schedule-dashboard-integration.2s24lqcgua.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\schedule-dashboard-integration.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"2s24lqcgua"},{"Name":"integrity","Value":"sha256-7nufu\u002BSrUbjpG3I7AJUBr9/enkc1V/rHvD55zuWEwEw="},{"Name":"label","Value":"_content/dotnetprojects/js/schedule-dashboard-integration.js"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"37538"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u00227nufu\u002BSrUbjpG3I7AJUBr9/enkc1V/rHvD55zuWEwEw=\u0022"},{"Name":"Last-Modified","Value":"Wed, 25 Jun 2025 14:05:17 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/dotnetprojects/js/schedule-dashboard-integration.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\schedule-dashboard-integration.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-7nufu\u002BSrUbjpG3I7AJUBr9/enkc1V/rHvD55zuWEwEw="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"37538"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u00227nufu\u002BSrUbjpG3I7AJUBr9/enkc1V/rHvD55zuWEwEw=\u0022"},{"Name":"Last-Modified","Value":"Wed, 25 Jun 2025 14:05:17 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/dotnetprojects/js/schedule.js">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\schedule.js'))</AssetFile>
