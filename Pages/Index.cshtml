@@ -653,55 +653,71 @@ window.serverData = {
  
 
 <script>
-console.log('=== SIMPLE DAILY SCHEDULES ===');
+console.log('=== ENHANCED CLICKABLE SCHEDULES ===');
 
 let schedules = [];
+let selectedScheduleId = null;
 
 async function loadDailySchedules() {
     try {
         console.log('Loading daily recurring schedules...');
         
-        const cameras = window.camerasFromServer || [];
-        if (cameras.length === 0) {
-            showNoSchedules();
-            return;
-        }
-        
         showLoading();
-        let allSchedules = [];
         
-        // Get schedules from all cameras
-        for (const camera of cameras) {
-            try {
-                const response = await fetch(`/Index?handler=GetSchedules&cameraId=${camera.cameraID}`);
-                const cameraSchedules = await response.json();
-                
-                // Add camera name and treat as daily recurring
-                cameraSchedules.forEach(schedule => {
-                    allSchedules.push({
-                        ...schedule,
-                        cameraName: camera.cameraName,
-                        // Extract just the time part for daily recurring
-                        timeOnly: new Date(schedule.startTime).toLocaleTimeString('en-US', {
-                            hour: '2-digit', 
-                            minute: '2-digit',
-                            hour12: false
-                        })
-                    });
-                });
-                
-            } catch (error) {
-                console.error(`Error loading camera ${camera.cameraID}:`, error);
-            }
+        // Call the correct API endpoint
+        const response = await fetch('/Index?handler=GetAllSchedules');
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         
-        console.log(`Loaded ${allSchedules.length} daily schedules`);
-        schedules = allSchedules.sort((a, b) => a.timeOnly.localeCompare(b.timeOnly));
+        const allSchedules = await response.json();
+        console.log('Raw schedules from API:', allSchedules);
+        
+        // Process schedules for display
+        schedules = allSchedules.map(schedule => ({
+            ...schedule,
+            timeOnly: schedule.timeOnly || new Date(schedule.startTime).toLocaleTimeString('en-US', {
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false
+            }),
+            endTimeOnly: schedule.endTime || new Date(new Date(schedule.startTime).getTime() + (schedule.durationInSec * 1000)).toLocaleTimeString('en-US', {
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false
+            })
+        })).sort((a, b) => a.timeOnly.localeCompare(b.timeOnly));
+        
+        console.log(`Loaded ${schedules.length} daily schedules`);
         
         displaySchedules();
         
+        // Auto-select active schedule if any
+        await autoSelectActiveSchedule();
+        
     } catch (error) {
         console.error('Error loading schedules:', error);
+        showError('Failed to load schedules: ' + error.message);
+    }
+}
+
+async function autoSelectActiveSchedule() {
+    try {
+        const response = await fetch('/Index?handler=GetCurrentActiveSchedule');
+        const result = await response.json();
+        
+        if (result.success && result.hasActiveSchedule) {
+            const activeScheduleId = result.schedule.scheduleID;
+            console.log('Auto-selecting active schedule:', activeScheduleId);
+            
+            // Find and select the active schedule
+            const activeSchedule = schedules.find(s => s.scheduleID === activeScheduleId);
+            if (activeSchedule) {
+                await selectScheduleById(activeScheduleId);
+            }
+        }
+    } catch (error) {
+        console.error('Error auto-selecting active schedule:', error);
     }
 }
 
@@ -746,35 +762,27 @@ function displaySchedules() {
 
 function createScheduleRow(schedule) {
     const row = document.createElement('tr');
-    row.className = 'hover:bg-gray-50 cursor-pointer transition-colors';
+    row.className = 'hover:bg-gray-50 cursor-pointer transition-colors schedule-row';
+    row.setAttribute('data-schedule-id', schedule.scheduleID);
     
-    // Get the time from the original schedule
-    const originalTime = new Date(schedule.startTime);
-    const timeString = originalTime.toLocaleTimeString('en-US', {
-        hour: '2-digit', 
-        minute: '2-digit'
-    });
-    
-    // Calculate end time
-    const endTime = new Date(originalTime.getTime() + (schedule.durationInSec * 1000));
-    const endTimeString = endTime.toLocaleTimeString('en-US', {
-        hour: '2-digit', 
-        minute: '2-digit'
-    });
-    
-    // Check if this schedule is active RIGHT NOW (today at this time)
+    // Calculate status for this schedule
     const now = new Date();
-    const todayScheduleStart = new Date();
-    todayScheduleStart.setHours(originalTime.getHours(), originalTime.getMinutes(), originalTime.getSeconds(), 0);
-    const todayScheduleEnd = new Date(todayScheduleStart.getTime() + (schedule.durationInSec * 1000));
+    const today = now.toDateString();
+    
+    // Create today's schedule times
+    const todayStartTime = new Date();
+    const originalStart = new Date(schedule.startTime);
+    todayStartTime.setHours(originalStart.getHours(), originalStart.getMinutes(), originalStart.getSeconds(), 0);
+    
+    const todayEndTime = new Date(todayStartTime.getTime() + (schedule.durationInSec * 1000));
     
     let status = 'upcoming';
     let statusClass = 'bg-blue-100 text-blue-800';
     
-    if (now >= todayScheduleStart && now <= todayScheduleEnd) {
+    if (now >= todayStartTime && now <= todayEndTime) {
         status = 'active';
         statusClass = 'bg-green-100 text-green-800';
-    } else if (now > todayScheduleEnd) {
+    } else if (now > todayEndTime) {
         status = 'completed';
         statusClass = 'bg-gray-100 text-gray-800';
     }
@@ -784,13 +792,13 @@ function createScheduleRow(schedule) {
     const seconds = schedule.durationInSec % 60;
     const durationText = minutes > 0 ? `${minutes}m` : `${seconds}s`;
     
-    // Click handler
+    // Click handler for row selection
     row.onclick = () => selectSchedule(schedule, row);
     
     row.innerHTML = `
         <td class="px-4 py-3 whitespace-nowrap text-sm">
-            <div class="font-medium text-gray-900">${timeString}</div>
-            <div class="text-xs text-gray-500">${endTimeString}</div>
+            <div class="font-medium text-gray-900">${schedule.timeOnly}</div>
+            <div class="text-xs text-gray-500">${schedule.endTimeOnly}</div>
         </td>
         <td class="px-4 py-3 whitespace-nowrap">
             <div class="text-sm font-medium text-gray-900">${schedule.scheduleName}</div>
@@ -814,8 +822,8 @@ function createScheduleRow(schedule) {
     return row;
 }
 
-function selectSchedule(schedule, row) {
-    console.log('Selected schedule:', schedule.scheduleName);
+async function selectSchedule(schedule, row) {
+    console.log('Selected schedule:', schedule.scheduleName, 'ID:', schedule.scheduleID);
     
     // Remove previous selection
     document.querySelectorAll('.schedule-selected').forEach(el => {
@@ -825,79 +833,213 @@ function selectSchedule(schedule, row) {
     // Highlight selected row
     row.classList.add('schedule-selected', 'bg-primary-50', 'border-l-4', 'border-primary-500');
     
-    // Update dashboard
-    updateDashboard(schedule);
+    // Store selected schedule ID
+    selectedScheduleId = schedule.scheduleID;
+    
+    // Update dashboard with schedule data
+    await updateDashboardForSchedule(schedule.scheduleID);
     
     // Show notification
     showNotification(`Selected: ${schedule.scheduleName}`, 'success');
 }
 
-async function updateDashboard(schedule) {
-    // Update card headers
-    updateCardHeaders(schedule.scheduleName);
-    
-    // Check if schedule is active right now
-    const now = new Date();
-    const originalTime = new Date(schedule.startTime);
-    const todayStart = new Date();
-    todayStart.setHours(originalTime.getHours(), originalTime.getMinutes(), originalTime.getSeconds(), 0);
-    const todayEnd = new Date(todayStart.getTime() + (schedule.durationInSec * 1000));
-    
-    const isActive = now >= todayStart && now <= todayEnd;
-    
-    if (isActive) {
-        // Get real data for active schedule
-        try {
-            const startUnix = Math.floor(todayStart.getTime() / 1000);
-            const nowUnix = Math.floor(now.getTime() / 1000);
-            
-            const response = await fetch(`/Index?handler=GetPeopleCount&cameraIds=${schedule.cameraID}&from=${startUnix}&to=${nowUnix}`);
-            const data = await response.json();
-            
-            updateCards({
-                totalIn: data.totalIn || 0,
-                totalOut: data.totalOut || 0,
-                totalPresent: Math.max(0, (data.totalIn || 0) - (data.totalOut || 0))
-            });
-            
-        } catch (error) {
-            updateCards({ totalIn: 0, totalOut: 0, totalPresent: 0 });
+async function selectScheduleById(scheduleId) {
+    const schedule = schedules.find(s => s.scheduleID === scheduleId);
+    if (schedule) {
+        const row = document.querySelector(`[data-schedule-id="${scheduleId}"]`);
+        if (row) {
+            await selectSchedule(schedule, row);
         }
-    } else {
-        // Show zero for inactive schedules
-        updateCards({ totalIn: 0, totalOut: 0, totalPresent: 0 });
     }
 }
 
-function updateCardHeaders(scheduleName) {
+async function updateDashboardForSchedule(scheduleId) {
+    try {
+        console.log('Updating dashboard for schedule ID:', scheduleId);
+        
+        // Show loading state on cards
+        showCardLoading();
+        
+        // Get dashboard data for this schedule
+        const response = await fetch(`/Index?handler=GetDashboardDataForSelectedSchedule&scheduleId=${scheduleId}`);
+        const result = await response.json();
+        
+        if (result.success) {
+            console.log('Dashboard data received:', result);
+            
+            // Update card headers
+            updateCardHeaders(result.scheduleName, result.cameraName, result.status);
+            
+            // Update card values
+            updateCardValues(result.data);
+            
+            // Update current meal header if applicable
+            updateCurrentMealHeader(result);
+            
+        } else {
+            console.error('Failed to get dashboard data:', result.message);
+            showNotification('Failed to load schedule data', 'error');
+        }
+        
+    } catch (error) {
+        console.error('Error updating dashboard:', error);
+        showNotification('Error loading schedule data', 'error');
+    }
+}
+
+function updateCardHeaders(scheduleName, cameraName, status) {
+    // Update the headers of the dashboard cards
     const headers = [
-        { id: 'peopleIn', text: `People In (${scheduleName})` },
-        { id: 'peopleOut', text: `People Out (${scheduleName})` },
-        { id: 'totalPresent', text: `Current Present (${scheduleName})` }
+        { 
+            selector: '#peopleIn', 
+            text: `People In (${scheduleName})`,
+            icon: 'fas fa-sign-in-alt'
+        },
+        { 
+            selector: '#peopleOut', 
+            text: `People Out (${scheduleName})`,
+            icon: 'fas fa-sign-out-alt'
+        },
+        { 
+            selector: '#totalPresent', 
+            text: `Current People in Kitchen (${scheduleName})`,
+            icon: 'fas fa-users'
+        },
+        { 
+            selector: '#lastFiveMinutesPresent', 
+            text: `Last 5 Minutes Activity (${scheduleName})`,
+            icon: 'fas fa-clock'
+        }
     ];
     
     headers.forEach(header => {
-        const element = document.getElementById(header.id);
+        const element = document.querySelector(header.selector);
         const card = element?.closest('.dashboard-card, .bg-white');
         const label = card?.querySelector('.text-gray-500');
-        if (label) label.textContent = header.text;
+        if (label) {
+            label.textContent = header.text;
+        }
+    });
+    
+    // Update status indicators if any
+    const statusElements = document.querySelectorAll('.current-people-count');
+    statusElements.forEach(el => {
+        const statusContainer = el.closest('.bg-white')?.querySelector('.mt-3');
+        if (statusContainer) {
+            const statusText = status === 'active' ? 'Schedule Active' : 
+                              status === 'completed' ? 'Schedule Completed' : 'Schedule Upcoming';
+            const statusColor = status === 'active' ? 'text-green-600' : 
+                               status === 'completed' ? 'text-gray-600' : 'text-blue-600';
+            
+            const statusSpan = statusContainer.querySelector('span');
+            if (statusSpan) {
+                statusSpan.className = `flex items-center ${statusColor}`;
+                statusSpan.innerHTML = `<i class="fas fa-circle mr-1" style="font-size: 6px;"></i>${statusText}`;
+            }
+        }
     });
 }
 
-function updateCards(data) {
-    const elements = [
+function updateCardValues(data) {
+    // Update the numeric values in the dashboard cards
+    const updates = [
         { id: 'peopleIn', value: data.totalIn },
         { id: 'peopleOut', value: data.totalOut },
-        { id: 'totalPresent', value: data.totalPresent }
+        { id: 'totalPresent', value: data.totalPresent },
+        { id: 'lastFiveMinutesPresent', value: data.lastFiveMinutesPresent },
+        { id: 'lastFiveMinutesIn', value: data.lastFiveMinutesIn },
+        { id: 'lastFiveMinutesOut', value: data.lastFiveMinutesOut }
     ];
     
-    elements.forEach(({ id, value }) => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = value;
+    updates.forEach(({ id, value }) => {
+        const element = document.getElementById(id);
+        if (element) {
+            // Animate the number change
+            animateNumberChange(element, parseInt(element.textContent) || 0, value);
+        }
     });
     
-    const currentCountEl = document.querySelector('.current-people-count');
-    if (currentCountEl) currentCountEl.textContent = data.totalPresent;
+    // Update progress bars if they exist
+    updateProgressBars(data);
+    
+    // Update additional display elements
+    const currentCountElements = document.querySelectorAll('.current-people-count');
+    currentCountElements.forEach(el => {
+        el.textContent = data.totalPresent;
+    });
+}
+
+function animateNumberChange(element, fromValue, toValue) {
+    const duration = 500; // ms
+    const steps = 20;
+    const stepValue = (toValue - fromValue) / steps;
+    const stepDuration = duration / steps;
+    
+    let currentStep = 0;
+    const interval = setInterval(() => {
+        currentStep++;
+        const currentValue = Math.round(fromValue + (stepValue * currentStep));
+        element.textContent = currentStep === steps ? toValue : currentValue;
+        
+        if (currentStep >= steps) {
+            clearInterval(interval);
+        }
+    }, stepDuration);
+}
+
+function updateProgressBars(data) {
+    // Update progress bars based on the data
+    const progressUpdates = [
+        { id: 'peopleInProgress', value: (data.totalIn / 165) * 100 },
+        { id: 'peopleOutProgress', value: data.totalIn > 0 ? (data.totalOut / data.totalIn) * 100 : 0 },
+        { id: 'currentCountProgress', value: (data.totalPresent / 165) * 100 }
+    ];
+    
+    progressUpdates.forEach(({ id, value }) => {
+        const progressBar = document.getElementById(id);
+        if (progressBar) {
+            progressBar.style.width = `${Math.min(100, Math.max(0, value))}%`;
+        }
+    });
+    
+    // Update capacity text
+    const capacityUpdates = [
+        { id: 'peopleInCapacity', text: `${data.totalIn} of 165 capacity` },
+        { id: 'peopleOutCapacity', text: `${data.totalOut} of ${data.totalIn} checked in` }
+    ];
+    
+    capacityUpdates.forEach(({ id, text }) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = text;
+        }
+    });
+}
+
+function updateCurrentMealHeader(result) {
+    // Update the main meal header if it exists
+    const mealHeader = document.getElementById('currentMealHeader');
+    if (mealHeader && result.isActive) {
+        mealHeader.textContent = result.scheduleName;
+        
+        // Update the header container classes for active state
+        const headerContainer = mealHeader.closest('.bg-gradient-to-r');
+        if (headerContainer) {
+            headerContainer.className = headerContainer.className
+                .replace('from-gray-500 to-gray-600', 'from-primary-600 to-primary-700');
+        }
+    }
+}
+
+function showCardLoading() {
+    // Show loading state on cards
+    const loadingElements = ['peopleIn', 'peopleOut', 'totalPresent', 'lastFiveMinutesPresent'];
+    loadingElements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.innerHTML = '<i class="fas fa-spinner fa-spin text-sm"></i>';
+        }
+    });
 }
 
 function showLoading() {
@@ -928,6 +1070,22 @@ function showNoSchedules() {
     }
 }
 
+function showError(message) {
+    const container = findContainer();
+    if (container) {
+        container.innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-exclamation-triangle text-2xl text-red-400 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Error Loading Schedules</h3>
+                <p class="text-gray-500">${message}</p>
+                <button onclick="loadDailySchedules()" class="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+                    Retry
+                </button>
+            </div>
+        `;
+    }
+}
+
 function findContainer() {
     return document.querySelector('#noSchedulesForDate') || 
            document.querySelector('#enhancedSchedulesTable')?.parentElement ||
@@ -936,20 +1094,88 @@ function findContainer() {
 
 function showNotification(message, type) {
     const notification = document.createElement('div');
-    notification.className = `fixed top-4 right-4 z-50 p-3 rounded-lg shadow-lg text-white text-sm`;
-    notification.style.backgroundColor = type === 'success' ? '#10b981' : '#3b82f6';
+    notification.className = `fixed top-4 right-4 z-50 p-3 rounded-lg shadow-lg text-white text-sm transition-all duration-300`;
+    notification.style.backgroundColor = type === 'success' ? '#10b981' : 
+                                        type === 'error' ? '#ef4444' : '#3b82f6';
     notification.textContent = message;
+    
     document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 3000);
+    
+    // Animate in
+    setTimeout(() => notification.style.transform = 'translateX(0)', 10);
+    
+    // Remove after delay
+    setTimeout(() => {
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
 }
 
-// Initialize
+// Function to clear selection and reset to default state
+function clearScheduleSelection() {
+    selectedScheduleId = null;
+    
+    // Remove selection styling
+    document.querySelectorAll('.schedule-selected').forEach(el => {
+        el.classList.remove('schedule-selected', 'bg-primary-50', 'border-l-4', 'border-primary-500');
+    });
+    
+    // Reset cards to default state (you might want to load actual current active schedule or show zeros)
+    resetCardsToDefault();
+    
+    showNotification('Schedule selection cleared', 'success');
+}
+
+async function resetCardsToDefault() {
+    // Check if there's an active schedule and show that, otherwise show zeros
+    try {
+        const response = await fetch('/Index?handler=GetCurrentActiveSchedule');
+        const result = await response.json();
+        
+        if (result.success && result.hasActiveSchedule) {
+            // Auto-select the active schedule
+            await selectScheduleById(result.schedule.scheduleID);
+        } else {
+            // Show default/zero state
+            updateCardHeaders('No Active Schedule', '', 'inactive');
+            updateCardValues({
+                totalIn: 0,
+                totalOut: 0,
+                totalPresent: 0,
+                lastFiveMinutesIn: 0,
+                lastFiveMinutesOut: 0,
+                lastFiveMinutesPresent: 0
+            });
+        }
+    } catch (error) {
+        console.error('Error resetting to default:', error);
+    }
+}
+
+// Initialize when page loads
 document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(loadDailySchedules, 1500);
+    console.log('DOM loaded, initializing schedules...');
+    setTimeout(loadDailySchedules, 1000); // Small delay to ensure other scripts are loaded
 });
 
+// Auto-refresh every 30 seconds to update schedule statuses
+setInterval(() => {
+    if (schedules.length > 0) {
+        displaySchedules(); // Refresh the display to update statuses
+        
+        // If a schedule is selected, refresh its data
+        if (selectedScheduleId) {
+            updateDashboardForSchedule(selectedScheduleId);
+        }
+    }
+}, 30000);
+
+// Export functions for global access
 window.loadDailySchedules = loadDailySchedules;
-console.log('=== SIMPLE DAILY SCHEDULES LOADED ===');
+window.clearScheduleSelection = clearScheduleSelection;
+window.selectScheduleById = selectScheduleById;
+
+console.log('=== ENHANCED CLICKABLE SCHEDULES LOADED ===');
 </script>
 </body>
 </html>
