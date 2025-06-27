@@ -1,4 +1,3 @@
-
 // Tailwind Config
 tailwind.config = {
     darkMode: 'class',
@@ -40,15 +39,81 @@ tailwind.config = {
     }
   }
   
-  // Global variables for data
+  // FIXED: Consolidated refresh management to prevent conflicts
   let systemOverviewData = null;
   let camerasData = [];
   let activityChart;
-  let autoRefreshInterval;
-  let scheduleStatusInterval;
-  let lastFiveMinutesInterval;
+  let masterRefreshManager = {
+    intervals: new Map(),
+    isRunning: false,
+    
+    start() {
+      if (this.isRunning) {
+        console.warn('[REFRESH MANAGER] Already running, stopping existing intervals first');
+        this.stop();
+      }
+      
+      console.log('[REFRESH MANAGER] Starting consolidated refresh system');
+      this.isRunning = true;
+      
+      // Main data refresh every 30 seconds
+      this.intervals.set('main', setInterval(async () => {
+        console.log('[REFRESH] Main refresh cycle starting...');
+        try {
+          await this.refreshMainData();
+        } catch (error) {
+          console.error('[REFRESH] Main refresh failed:', error);
+        }
+      }, 30000));
+      
+      // Schedule status check every 10 seconds
+      this.intervals.set('schedule', setInterval(async () => {
+        try {
+          await checkScheduleStatus();
+        } catch (error) {
+          console.error('[REFRESH] Schedule status check failed:', error);
+        }
+      }, 10000));
+      
+      // Queue data refresh every 60 seconds
+      this.intervals.set('queue', setInterval(async () => {
+        console.log('[REFRESH] Queue data refresh...');
+        try {
+          await loadQueueData();
+        } catch (error) {
+          console.error('[REFRESH] Queue refresh failed:', error);
+        }
+      }, 60000));
+      
+      // Timestamp update every second
+      this.intervals.set('timestamp', setInterval(() => {
+        updateLastUpdatedTimestamp();
+      }, 1000));
+    },
+    
+    stop() {
+      console.log('[REFRESH MANAGER] Stopping all refresh intervals');
+      this.intervals.forEach((interval, name) => {
+        clearInterval(interval);
+        console.log(`[REFRESH MANAGER] Stopped ${name} interval`);
+      });
+      this.intervals.clear();
+      this.isRunning = false;
+    },
+    
+    async refreshMainData() {
+      const tasks = [
+        loadSystemOverview(),
+        loadCameras(),
+        loadHourlyTrafficData()
+      ];
+      
+      await Promise.allSettled(tasks);
+      console.log('[REFRESH] Main data refresh completed');
+    }
+  };
   
-  // API Functions
+  // API Functions with better error handling
   async function apiCall(endpoint, method = 'GET', data = null) {
     try {
       const options = {
@@ -65,18 +130,18 @@ tailwind.config = {
       const response = await fetch(`/Index?handler=${endpoint}`, options);
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
       }
       
       return await response.json();
     } catch (error) {
-      console.error('API call failed:', error);
+      console.error(`[API] ${endpoint} failed:`, error);
       throw error;
     }
   }
   
-  // UPDATED: Load Last 5 Minutes Data and Calculate Queue
-  async function loadLastFiveMinutesData() {
+  // FIXED: Load Queue Data (was Last 5 Minutes Data)
+  async function loadQueueData() {
     try {
       console.log('[QUEUE DATA] Loading queue data...');
       const data = await apiCall('LastFiveMinutesData');
@@ -84,7 +149,6 @@ tailwind.config = {
       updateQueueUI(data);
     } catch (error) {
       console.error('[QUEUE DATA] Failed to load queue data:', error);
-      // Set default values on error
       updateQueueUI({
         success: false,
         data: { In: 0, Out: 0, Present: 0 },
@@ -93,7 +157,7 @@ tailwind.config = {
     }
   }
   
-  // UPDATED: Update Queue UI (was Last 5 Minutes UI)
+  // FIXED: Update Queue UI with proper error handling
   function updateQueueUI(responseData) {
     console.log('[QUEUE DATA] Updating UI with data:', responseData);
     
@@ -110,13 +174,14 @@ tailwind.config = {
     if (responseData && responseData.success && responseData.data) {
       const data = responseData.data;
       
-      // UPDATED: Calculate queue as In - Out (people who entered minus people who left)
-      const queueCount = Math.max(0, data.In - data.Out);
+      // FIXED: Ensure numbers are properly handled
+      const inCount = parseInt(data.In) || 0;
+      const outCount = parseInt(data.Out) || 0;
+      const queueCount = Math.max(0, inCount - outCount);
       
-      // Update the main queue count
       queueCountElement.textContent = queueCount;
-      inElement.textContent = data.In || 0;
-      outElement.textContent = data.Out || 0;
+      inElement.textContent = inCount;
+      outElement.textContent = outCount;
       
       // Update the timestamp
       const now = new Date();
@@ -127,9 +192,8 @@ tailwind.config = {
         })}`;
       }
       
-      console.log(`[QUEUE DATA] UI Updated: Queue=${queueCount}, In=${data.In}, Out=${data.Out}`);
+      console.log(`[QUEUE DATA] UI Updated: Queue=${queueCount}, In=${inCount}, Out=${outCount}`);
     } else {
-      // Handle error or no active schedule
       console.log('[QUEUE DATA] No data available, setting to 0');
       queueCountElement.textContent = '0';
       inElement.textContent = '0';
@@ -141,101 +205,58 @@ tailwind.config = {
     }
   }
   
-  // Enhanced auto refresh function - UPDATED
-  function startAutoRefresh() {
-    autoRefreshInterval = setInterval(async () => {
-      console.log('[AUTO REFRESH] Starting refresh cycle...');
-      await loadSystemOverview();
-      await loadCameras();
-      await loadHourlyTrafficData();
-      await checkScheduleStatus();
-      console.log('[AUTO REFRESH] Refresh cycle complete');
-    }, 30000); // 30 seconds
-    
-    // More frequent schedule status checking
-    scheduleStatusInterval = setInterval(async () => {
-      await checkScheduleStatus();
-    }, 10000); // 10 seconds
-
-    // Separate interval for queue data (was last 5 minutes data)
-    lastFiveMinutesInterval = setInterval(async () => {
-      console.log('[QUEUE DATA] Dedicated refresh...');
-      await loadLastFiveMinutesData();
-    }, 60000); // 60 seconds
-  }
-  
-  function stopAutoRefresh() {
-    if (autoRefreshInterval) {
-      clearInterval(autoRefreshInterval);
-    }
-    if (scheduleStatusInterval) {
-      clearInterval(scheduleStatusInterval);
-    }
-    if (lastFiveMinutesInterval) {
-      clearInterval(lastFiveMinutesInterval);
-    }
-  }
-  
-  // UPDATED: Check current schedule status and update header
+  // FIXED: Check current schedule status and update header
   async function checkScheduleStatus() {
     try {
       const data = await apiCall('CurrentScheduleStatus');
       updateScheduleStatusUI(data);
-      updateCurrentMealHeader(data); // NEW: Update header
+      updateCurrentMealHeader(data);
       
       // If schedule status changed, reload the overview data
       if (window.serverData && window.serverData.hasActiveSchedule !== data.hasActiveSchedule) {
         await loadSystemOverview();
       }
     } catch (error) {
-      console.error('Failed to check schedule status:', error);
+      console.error('[SCHEDULE STATUS] Failed to check schedule status:', error);
     }
   }
   
-  // NEW: Update current meal header
+  // FIXED: Update current meal header with proper validation
   function updateCurrentMealHeader(statusData) {
     const headerElement = document.getElementById('currentMealHeader');
     const headerContainer = headerElement?.closest('.bg-gradient-to-r');
     
     if (!headerElement || !headerContainer) return;
     
-    if (statusData.hasActiveSchedule) {
-      // Update to active schedule
+    if (statusData && statusData.hasActiveSchedule) {
       headerElement.textContent = statusData.scheduleName || 'Active Schedule';
       
-      // Update header styling to active
       headerContainer.className = headerContainer.className
         .replace('from-gray-500 to-gray-600', 'from-primary-600 to-primary-700');
       
-      // Update subtitle and status
       const subtitle = headerContainer.querySelector('.text-primary-100, .text-gray-100');
       if (subtitle) {
         subtitle.textContent = 'Currently Active Schedule';
         subtitle.className = subtitle.className.replace('text-gray-100', 'text-primary-100');
       }
       
-      // Update status indicator
       const statusDiv = headerContainer.querySelector('.text-white.text-xl.font-bold');
       if (statusDiv) {
         statusDiv.innerHTML = '<i class="fas fa-circle text-green-400 mr-2" style="font-size: 8px;"></i>Active';
       }
       
     } else {
-      // Update to no active schedule
       headerElement.textContent = 'No Active Schedule';
       
-      // Update header styling to inactive
       headerContainer.className = headerContainer.className
         .replace('from-primary-600 to-primary-700', 'from-gray-500 to-gray-600');
       
-      // Update subtitle and status
       const subtitle = headerContainer.querySelector('.text-primary-100, .text-gray-100');
       if (subtitle) {
         subtitle.textContent = 'Waiting for next meal schedule';
         subtitle.className = subtitle.className.replace('text-primary-100', 'text-gray-100');
       }
       
-      // Update status indicator
       const statusDiv = headerContainer.querySelector('.text-white.text-xl.font-bold');
       if (statusDiv) {
         statusDiv.innerHTML = '<i class="fas fa-circle text-gray-400 mr-2" style="font-size: 8px;"></i>Inactive';
@@ -247,7 +268,7 @@ tailwind.config = {
   function updateScheduleStatusUI(statusData) {
     const scheduleTimeElement = document.getElementById('scheduleTimeRemaining');
     
-    if (statusData.hasActiveSchedule && scheduleTimeElement) {
+    if (statusData && statusData.hasActiveSchedule && scheduleTimeElement) {
       const timeRemaining = statusData.timeRemaining;
       if (timeRemaining > 0) {
         const minutes = Math.floor(timeRemaining / 60);
@@ -261,35 +282,58 @@ tailwind.config = {
     }
   }
   
-  // Load System Overview Data with schedule awareness
+  // ENHANCED: Load System Overview Data with better error handling
   async function loadSystemOverview() {
     try {
+      console.log('[SYSTEM] Loading system overview...');
       const data = await apiCall('SystemOverview');
       systemOverviewData = data;
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      
       updateSystemOverviewUI();
       
       // Update server data for consistency
       if (window.serverData) {
         window.serverData.hasActiveSchedule = data.hasActiveSchedule;
         window.serverData.currentScheduleName = data.currentScheduleName;
-        window.serverData.totalIn = data.peopleIn;
-        window.serverData.totalOut = data.peopleOut;
-        window.serverData.totalPresent = data.peopleIn - data.peopleOut;
+        window.serverData.totalIn = data.peopleIn || 0;
+        window.serverData.totalOut = data.peopleOut || 0;
+        window.serverData.totalPresent = Math.max(0, (data.peopleIn || 0) - (data.peopleOut || 0));
       }
+      
+      console.log('[SYSTEM] System overview loaded successfully');
     } catch (error) {
-      console.error('Failed to load system overview:', error);
+      console.error('[SYSTEM] Failed to load system overview:', error);
+      // Set safe defaults to prevent UI breaking
+      systemOverviewData = {
+        totalCameras: window.serverData?.totalCameras || 0,
+        activeCameras: window.serverData?.activeCameras || 0,
+        peopleIn: 0,
+        peopleOut: 0,
+        lastFiveMinutesIn: 0,
+        lastFiveMinutesOut: 0,
+        lastFiveMinutesPresent: 0,
+        hasActiveSchedule: false,
+        currentScheduleName: "Error loading data"
+      };
+      updateSystemOverviewUI();
     }
   }
   
   // Load Cameras Data
   async function loadCameras() {
     try {
+      console.log('[CAMERAS] Loading camera data...');
       const data = await apiCall('CamerasData');
       camerasData = data;
       updateCamerasUI();
       updateCameraMapUI();
+      console.log('[CAMERAS] Camera data loaded successfully');
     } catch (error) {
-      console.error('Failed to load cameras:', error);
+      console.error('[CAMERAS] Failed to load cameras:', error);
       updateCamerasUIFromServerData();
     }
   }
@@ -297,6 +341,7 @@ tailwind.config = {
   // Load hourly traffic data for the last hour
   async function loadHourlyTrafficData() {
     try {
+      console.log('[TRAFFIC] Loading hourly traffic data...');
       const allCameraIds = window.camerasFromServer ? window.camerasFromServer.map(c => c.cameraID) : [];
       
       if (allCameraIds.length > 0) {
@@ -308,9 +353,10 @@ tailwind.config = {
         const peopleOutData = activityData.map(d => d.peopleOut);
         
         updateActivityChart(labels, peopleInData, peopleOutData);
+        console.log('[TRAFFIC] Hourly traffic data loaded successfully');
       }
     } catch (error) {
-      console.error('Failed to load hourly traffic data:', error);
+      console.error('[TRAFFIC] Failed to load hourly traffic data:', error);
       updateActivityChart(); // Fall back to default chart
     }
   }
@@ -332,69 +378,112 @@ tailwind.config = {
     });
   }
   
-  // UPDATED: Enhanced System Overview UI update with queue data
+  // ENHANCED: System Overview UI update with proper null checking
   function updateSystemOverviewUI() {
-    if (!systemOverviewData) return;
+    if (!systemOverviewData) {
+      console.warn('[SYSTEM UI] No system overview data available');
+      return;
+    }
     
-    console.log('[SYSTEM OVERVIEW] Updating with data:', systemOverviewData);
+    console.log('[SYSTEM UI] Updating with data:', systemOverviewData);
+    
+    // Helper function to safely update element
+    const safeUpdateElement = (id, value, fallback = 0) => {
+      const element = document.getElementById(id);
+      if (element) {
+        const safeValue = parseInt(value) || fallback;
+        element.textContent = safeValue;
+        return safeValue;
+      }
+      return fallback;
+    };
+    
+    // Helper function to safely update progress bar
+    const safeUpdateProgress = (id, percentage) => {
+      const element = document.getElementById(id);
+      if (element) {
+        const safePercentage = Math.min(100, Math.max(0, percentage || 0));
+        element.style.width = `${safePercentage}%`;
+      }
+    };
     
     // Update Total Cameras
-    document.getElementById('totalCameras').textContent = systemOverviewData.totalCameras;
-    document.getElementById('totalCamerasCapacity').textContent = `${systemOverviewData.totalCameras} of ${systemOverviewData.totalCameraCapacity} capacity`;
-    document.getElementById('totalCamerasProgress').style.width = `${(systemOverviewData.totalCameras / systemOverviewData.totalCameraCapacity) * 100}%`;
+    const totalCameras = safeUpdateElement('totalCameras', systemOverviewData.totalCameras);
+    const totalCameraCapacity = systemOverviewData.totalCameraCapacity || 32;
+    
+    const totalCamerasCapacityEl = document.getElementById('totalCamerasCapacity');
+    if (totalCamerasCapacityEl) {
+      totalCamerasCapacityEl.textContent = `${totalCameras} of ${totalCameraCapacity} capacity`;
+    }
+    safeUpdateProgress('totalCamerasProgress', (totalCameras / totalCameraCapacity) * 100);
     
     // Update Active Cameras
-    document.getElementById('activeCameras').textContent = systemOverviewData.activeCameras;
-    document.getElementById('activeCamerasTotal').textContent = `of ${systemOverviewData.totalCameras}`;
-    document.getElementById('activeCamerasProgress').style.width = `${(systemOverviewData.activeCameras / systemOverviewData.totalCameras) * 100}%`;
-    document.getElementById('activeCamerasPercentage').textContent = `${Math.round((systemOverviewData.activeCameras / systemOverviewData.totalCameras) * 100)}% operational`;
+    const activeCameras = safeUpdateElement('activeCameras', systemOverviewData.activeCameras);
     
-    // Update People In (schedule-aware)
-    document.getElementById('peopleIn').textContent = systemOverviewData.peopleIn;
-    document.getElementById('peopleInCapacity').textContent = `${systemOverviewData.peopleIn} of ${systemOverviewData.peopleInCapacity} capacity`;
-    document.getElementById('peopleInProgress').style.width = `${(systemOverviewData.peopleIn / systemOverviewData.peopleInCapacity) * 100}%`;
+    const activeCamerasTotalEl = document.getElementById('activeCamerasTotal');
+    if (activeCamerasTotalEl) {
+      activeCamerasTotalEl.textContent = `of ${totalCameras}`;
+    }
     
-    // Update People Out (schedule-aware)
-    document.getElementById('peopleOut').textContent = systemOverviewData.peopleOut;
-    document.getElementById('peopleOutCapacity').textContent = `${systemOverviewData.peopleOut} of ${systemOverviewData.peopleIn} checked in`;
-    if (systemOverviewData.peopleIn > 0) {
-      document.getElementById('peopleOutProgress').style.width = `${(systemOverviewData.peopleOut / systemOverviewData.peopleIn) * 100}%`;
+    if (totalCameras > 0) {
+      const activePercentage = (activeCameras / totalCameras) * 100;
+      safeUpdateProgress('activeCamerasProgress', activePercentage);
+      
+      const activeCamerasPercentageEl = document.getElementById('activeCamerasPercentage');
+      if (activeCamerasPercentageEl) {
+        activeCamerasPercentageEl.textContent = `${Math.round(activePercentage)}% operational`;
+      }
+    }
+    
+    // Update People In/Out (schedule-aware)
+    const peopleIn = safeUpdateElement('peopleIn', systemOverviewData.peopleIn);
+    const peopleOut = safeUpdateElement('peopleOut', systemOverviewData.peopleOut);
+    const peopleInCapacity = systemOverviewData.peopleInCapacity || 165;
+    
+    const peopleInCapacityEl = document.getElementById('peopleInCapacity');
+    if (peopleInCapacityEl) {
+      peopleInCapacityEl.textContent = `${peopleIn} of ${peopleInCapacity} capacity`;
+    }
+    safeUpdateProgress('peopleInProgress', (peopleIn / peopleInCapacity) * 100);
+    
+    const peopleOutCapacityEl = document.getElementById('peopleOutCapacity');
+    if (peopleOutCapacityEl) {
+      peopleOutCapacityEl.textContent = `${peopleOut} of ${peopleIn} checked in`;
+    }
+    if (peopleIn > 0) {
+      safeUpdateProgress('peopleOutProgress', (peopleOut / peopleIn) * 100);
     }
     
     // Update Total Present (schedule-aware)
-    const totalPresent = Math.max(0, systemOverviewData.peopleIn - systemOverviewData.peopleOut);
-    document.getElementById('totalPresent').textContent = totalPresent;
-    const currentCountElement = document.querySelector('.current-people-count');
-    if (currentCountElement) {
-      currentCountElement.textContent = totalPresent;
-    }
-    document.getElementById('currentCountProgress').style.width = `${(totalPresent / systemOverviewData.peopleInCapacity) * 100}%`;
+    const totalPresent = Math.max(0, peopleIn - peopleOut);
+    safeUpdateElement('totalPresent', totalPresent);
     
-    // UPDATED: Update Queue data from SystemOverview API
-    if (systemOverviewData.lastFiveMinutesIn !== undefined && 
-        systemOverviewData.lastFiveMinutesOut !== undefined) {
+    const currentCountElements = document.querySelectorAll('.current-people-count');
+    currentCountElements.forEach(el => {
+      el.textContent = totalPresent;
+    });
+    safeUpdateProgress('currentCountProgress', (totalPresent / peopleInCapacity) * 100);
+    
+    // FIXED: Update Queue data with proper validation
+    if (typeof systemOverviewData.lastFiveMinutesIn !== 'undefined' && 
+        typeof systemOverviewData.lastFiveMinutesOut !== 'undefined') {
       
-      console.log('[SYSTEM OVERVIEW] Queue data found:', {
+      console.log('[SYSTEM UI] Queue data found:', {
         in: systemOverviewData.lastFiveMinutesIn,
         out: systemOverviewData.lastFiveMinutesOut
       });
       
-      const queueCountElement = document.getElementById('lastFiveMinutesPresent');
-      const inElement = document.getElementById('lastFiveMinutesIn');
-      const outElement = document.getElementById('lastFiveMinutesOut');
+      const queueIn = parseInt(systemOverviewData.lastFiveMinutesIn) || 0;
+      const queueOut = parseInt(systemOverviewData.lastFiveMinutesOut) || 0;
+      const queueCount = Math.max(0, queueIn - queueOut);
       
-      if (queueCountElement && inElement && outElement) {
-        // UPDATED: Calculate queue count (In - Out)
-        const queueCount = Math.max(0, systemOverviewData.lastFiveMinutesIn - systemOverviewData.lastFiveMinutesOut);
-        
-        queueCountElement.textContent = queueCount;
-        inElement.textContent = systemOverviewData.lastFiveMinutesIn || 0;
-        outElement.textContent = systemOverviewData.lastFiveMinutesOut || 0;
-        
-        console.log('[SYSTEM OVERVIEW] Updated queue UI from system overview - Queue:', queueCount);
-      }
+      safeUpdateElement('lastFiveMinutesPresent', queueCount);
+      safeUpdateElement('lastFiveMinutesIn', queueIn);
+      safeUpdateElement('lastFiveMinutesOut', queueOut);
+      
+      console.log('[SYSTEM UI] Updated queue UI from system overview - Queue:', queueCount);
     } else {
-      console.log('[SYSTEM OVERVIEW] No queue data in system overview response');
+      console.log('[SYSTEM UI] No queue data in system overview response');
     }
 
     // Update schedule status indicators
@@ -404,37 +493,32 @@ tailwind.config = {
   
   // Update schedule status indicators in the UI
   function updateScheduleStatusIndicators(data) {
-    // Update card labels to reflect schedule status
-    const peopleInLabel = document.querySelector('#peopleIn').closest('.dashboard-card').querySelector('.text-gray-500');
-    const peopleOutLabel = document.querySelector('#peopleOut').closest('.dashboard-card').querySelector('.text-gray-500');
-    const totalPresentLabel = document.querySelector('#totalPresent').closest('.dashboard-card').querySelector('.text-gray-500');
+    const scheduleText = data.hasActiveSchedule ? 
+      data.currentScheduleName : 
+      'No Active Schedule';
     
-    if (data.hasActiveSchedule) {
-      if (peopleInLabel) peopleInLabel.textContent = `People In (${data.currentScheduleName})`;
-      if (peopleOutLabel) peopleOutLabel.textContent = `People Out (${data.currentScheduleName})`;
-      if (totalPresentLabel) totalPresentLabel.textContent = `Current People in Kitchen (${data.currentScheduleName})`;
-    } else {
-      if (peopleInLabel) peopleInLabel.textContent = 'People In (No Active Schedule)';
-      if (peopleOutLabel) peopleOutLabel.textContent = 'People Out (No Active Schedule)';
-      if (totalPresentLabel) totalPresentLabel.textContent = 'Current People in Kitchen (No Active Schedule)';
-    }
+    // Update card labels to reflect schedule status
+    const peopleInLabel = document.querySelector('#peopleIn')?.closest('.dashboard-card')?.querySelector('.text-gray-500');
+    const peopleOutLabel = document.querySelector('#peopleOut')?.closest('.dashboard-card')?.querySelector('.text-gray-500');
+    const totalPresentLabel = document.querySelector('#totalPresent')?.closest('.dashboard-card')?.querySelector('.text-gray-500');
+    
+    if (peopleInLabel) peopleInLabel.textContent = `People In (${scheduleText})`;
+    if (peopleOutLabel) peopleOutLabel.textContent = `People Out (${scheduleText})`;
+    if (totalPresentLabel) totalPresentLabel.textContent = `Current People in Kitchen (${scheduleText})`;
   }
   
-  // UPDATED: Update schedule status indicators for queue card
+  // FIXED: Update schedule status indicators for queue card
   function updateQueueScheduleIndicators(data) {
     const queueCard = document.querySelector('#lastFiveMinutesPresent')?.closest('.dashboard-card');
     if (!queueCard) return;
     
     const queueLabel = queueCard.querySelector('.text-gray-500');
+    const scheduleText = data && data.hasActiveSchedule && data.currentScheduleName ? 
+      data.currentScheduleName : 
+      'No Active Schedule';
     
-    if (data && data.hasActiveSchedule && data.currentScheduleName) {
-      if (queueLabel) {
-        queueLabel.textContent = `People in Queue (${data.currentScheduleName})`;
-      }
-    } else {
-      if (queueLabel) {
-        queueLabel.textContent = 'People in Queue (No Active Schedule)';
-      }
+    if (queueLabel) {
+      queueLabel.textContent = `People in Queue (${scheduleText})`;
     }
   }
   
@@ -459,7 +543,8 @@ tailwind.config = {
   
   // Update camera map with real data
   function updateCameraMapUI() {
-    const ctx = document.getElementById('cameraMapChart').getContext('2d');
+    const ctx = document.getElementById('cameraMapChart')?.getContext('2d');
+    if (!ctx) return;
     
     let activeCameras = [];
     let inactiveCameras = [];
@@ -495,11 +580,14 @@ tailwind.config = {
     }
     
     // Update legend
-    document.getElementById('activeCamerasCount').textContent = activeCameras.length;
-    document.getElementById('inactiveCamerasCount').textContent = inactiveCameras.length;
+    const activeCamerasCountEl = document.getElementById('activeCamerasCount');
+    const inactiveCamerasCountEl = document.getElementById('inactiveCamerasCount');
+    
+    if (activeCamerasCountEl) activeCamerasCountEl.textContent = activeCameras.length;
+    if (inactiveCamerasCountEl) inactiveCamerasCountEl.textContent = inactiveCameras.length;
   }
   
-  // Main showPplCount function with schedule awareness
+  // ENHANCED: Main showPplCount function with better error handling
   async function showPplCount() {
     const selectedCameras = Array.from(document.getElementById('activity_camera').selectedOptions).map(opt => parseInt(opt.value));
     const selectedSchedule = document.getElementById('mealtype').value;
@@ -511,6 +599,8 @@ tailwind.config = {
     }
   
     try {
+      console.log('[PEOPLE COUNT] Getting count for:', { selectedCameras, selectedSchedule, selectedDate });
+      
       const scheduleData = await apiCall(`GetScheduleByID&scheduleID=${selectedSchedule}`);
       
       if (scheduleData && scheduleData.length > 0) {
@@ -528,16 +618,18 @@ tailwind.config = {
         const cameraParams = selectedCameras.map(id => `cameraIds=${id}`).join('&');
         const countData = await apiCall(`GetPeopleCount&${cameraParams}&from=${startTime}&to=${endTime}`);
         
-        // Update UI
+        // Update UI with safe number handling
         document.getElementById('countLabel1').textContent = countData.totalIn || 0;
         document.getElementById('countLabel2').textContent = countData.totalOut || 0;
         document.getElementById('countLabel3').textContent = countData.totalPresent || 0;
         
         await updateActivityChartWithData(selectedCameras, inputDate);
+        
+        console.log('[PEOPLE COUNT] Count retrieved successfully:', countData);
       }
     } catch (error) {
-      console.error('Failed to get people count:', error);
-      alert('Failed to get people count. Please try again.');
+      console.error('[PEOPLE COUNT] Failed to get people count:', error);
+      alert('Failed to get people count: ' + error.message);
     }
   }
   
@@ -554,14 +646,18 @@ tailwind.config = {
       
       updateActivityChart(labels, peopleInData, peopleOutData);
     } catch (error) {
-      console.error('Failed to load activity data:', error);
+      console.error('[ACTIVITY CHART] Failed to load activity data:', error);
       updateActivityChart();
     }
   }
   
-  // Updated chart function
+  // ENHANCED: Updated chart function with better error handling
   function updateActivityChart(labels = null, peopleInData = null, peopleOutData = null) {
-    const ctx = document.getElementById('activityChart').getContext('2d');
+    const ctx = document.getElementById('activityChart')?.getContext('2d');
+    if (!ctx) {
+      console.warn('[ACTIVITY CHART] Canvas context not found');
+      return;
+    }
     
     if (activityChart) {
       activityChart.destroy();
@@ -571,128 +667,138 @@ tailwind.config = {
     const inData = peopleInData || [5, 12, 28, 45, 77, 105, 118, 125, 131];
     const outData = peopleOutData || [0, 3, 8, 22, 48, 87, 102, 118, 128];
     
-    activityChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: chartLabels,
-        datasets: [
-          {
-            label: 'People In',
-            data: inData,
-            borderColor: '#0284c7',
-            backgroundColor: 'rgba(2, 132, 199, 0.1)',
-            tension: 0.4,
-            fill: true,
-            pointRadius: 3,
-            pointHoverRadius: 5,
-            borderWidth: 2
-          },
-          {
-            label: 'People Out',
-            data: outData,
-            borderColor: '#ea580c',
-            backgroundColor: 'rgba(234, 88, 12, 0.1)',
-            tension: 0.4,
-            fill: true,
-            pointRadius: 3,
-            pointHoverRadius: 5,
-            borderWidth: 2
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        aspectRatio: 2.5,
-        layout: {
-          padding: {
-            left: 20,
-            right: 20,
-            top: 20,
-            bottom: 20
-          }
+    try {
+      activityChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: chartLabels,
+          datasets: [
+            {
+              label: 'People In',
+              data: inData,
+              borderColor: '#0284c7',
+              backgroundColor: 'rgba(2, 132, 199, 0.1)',
+              tension: 0.4,
+              fill: true,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              borderWidth: 2
+            },
+            {
+              label: 'People Out',
+              data: outData,
+              borderColor: '#ea580c',
+              backgroundColor: 'rgba(234, 88, 12, 0.1)',
+              tension: 0.4,
+              fill: true,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              borderWidth: 2
+            }
+          ]
         },
-        plugins: {
-          legend: {
-            position: 'top',
-            align: 'center',
-            labels: {
-              usePointStyle: true,
-              padding: 20,
-              boxWidth: 12,
-              boxHeight: 12
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          aspectRatio: 2.5,
+          layout: {
+            padding: {
+              left: 20,
+              right: 20,
+              top: 20,
+              bottom: 20
             }
           },
-          tooltip: {
-            mode: 'index',
-            intersect: false,
-            backgroundColor: 'rgba(17, 24, 39, 0.9)',
-            padding: 12,
-            titleFont: {
-              size: 14
-            },
-            bodyFont: {
-              size: 13
-            },
-            cornerRadius: 8,
-            displayColors: true
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            min: 0,
-            max: 150,
-            ticks: {
-              stepSize: 20,
-              padding: 10,
-              color: '#6b7280',
-              font: {
-                size: 12
+          plugins: {
+            legend: {
+              position: 'top',
+              align: 'center',
+              labels: {
+                usePointStyle: true,
+                padding: 20,
+                boxWidth: 12,
+                boxHeight: 12
               }
             },
-            grid: {
-              color: 'rgba(156, 163, 175, 0.2)',
-              drawBorder: false
-            },
-            border: {
-              display: false
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+              backgroundColor: 'rgba(17, 24, 39, 0.9)',
+              padding: 12,
+              titleFont: {
+                size: 14
+              },
+              bodyFont: {
+                size: 13
+              },
+              cornerRadius: 8,
+              displayColors: true
             }
           },
-          x: {
-            ticks: {
-              padding: 10,
-              color: '#6b7280',
-              font: {
-                size: 12
+          scales: {
+            y: {
+              beginAtZero: true,
+              min: 0,
+              max: 150,
+              ticks: {
+                stepSize: 20,
+                padding: 10,
+                color: '#6b7280',
+                font: {
+                  size: 12
+                }
+              },
+              grid: {
+                color: 'rgba(156, 163, 175, 0.2)',
+                drawBorder: false
+              },
+              border: {
+                display: false
               }
             },
-            grid: {
-              display: false
-            },
-            border: {
-              display: false
+            x: {
+              ticks: {
+                padding: 10,
+                color: '#6b7280',
+                font: {
+                  size: 12
+                }
+              },
+              grid: {
+                display: false
+              },
+              border: {
+                display: false
+              }
             }
+          },
+          interaction: {
+            mode: 'nearest',
+            axis: 'x',
+            intersect: false
           }
-        },
-        interaction: {
-          mode: 'nearest',
-          axis: 'x',
-          intersect: false
         }
-      }
-    });
+      });
+    } catch (error) {
+      console.error('[ACTIVITY CHART] Failed to create chart:', error);
+    }
   }
   
   function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
-    sidebar.classList.toggle('hidden');
-    sidebar.classList.toggle('flex');
+    if (sidebar) {
+      sidebar.classList.toggle('hidden');
+      sidebar.classList.toggle('flex');
+    }
   }
   
   // Initialize camera map chart
   function initMapChart() {
-    const ctx = document.getElementById('cameraMapChart').getContext('2d');
+    const ctx = document.getElementById('cameraMapChart')?.getContext('2d');
+    if (!ctx) {
+      console.warn('[MAP CHART] Canvas context not found');
+      return;
+    }
     
     let activeCameras = [];
     let inactiveCameras = [];
@@ -715,203 +821,77 @@ tailwind.config = {
       });
     }
     
-    const chart = new Chart(ctx, {
-      type: 'scatter',
-      data: {
-        datasets: [
-          {
-            label: `Active Cameras (${activeCameras.length})`,
-            data: activeCameras,
-            backgroundColor: '#0ea5e9',
-            radius: 6,
-            hoverRadius: 8
-          },
-          {
-            label: `Inactive Cameras (${inactiveCameras.length})`,
-            data: inactiveCameras,
-            backgroundColor: '#d1d5db',
-            radius: 6,
-            hoverRadius: 8
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        aspectRatio: 2,
-        scales: {
-          x: {
-            min: 0,
-            max: 100,
-            ticks: { display: false },
-            grid: { display: false },
-            border: { display: false }
-          },
-          y: {
-            min: 0,
-            max: 100,
-            ticks: { display: false },
-            grid: { display: false },
-            border: { display: false }
-          }
+    try {
+      const chart = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+          datasets: [
+            {
+              label: `Active Cameras (${activeCameras.length})`,
+              data: activeCameras,
+              backgroundColor: '#0ea5e9',
+              radius: 6,
+              hoverRadius: 8
+            },
+            {
+              label: `Inactive Cameras (${inactiveCameras.length})`,
+              data: inactiveCameras,
+              backgroundColor: '#d1d5db',
+              radius: 6,
+              hoverRadius: 8
+            }
+          ]
         },
-        plugins: {
-          tooltip: {
-            backgroundColor: 'rgba(17, 24, 39, 0.9)',
-            padding: 8,
-            cornerRadius: 6,
-            callbacks: {
-              label: function(context) {
-                const isActive = context.datasetIndex === 0;
-                return isActive ? 'Active Camera' : 'Inactive Camera';
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          aspectRatio: 2,
+          scales: {
+            x: {
+              min: 0,
+              max: 100,
+              ticks: { display: false },
+              grid: { display: false },
+              border: { display: false }
+            },
+            y: {
+              min: 0,
+              max: 100,
+              ticks: { display: false },
+              grid: { display: false },
+              border: { display: false }
+            }
+          },
+          plugins: {
+            tooltip: {
+              backgroundColor: 'rgba(17, 24, 39, 0.9)',
+              padding: 8,
+              cornerRadius: 6,
+              callbacks: {
+                label: function(context) {
+                  const isActive = context.datasetIndex === 0;
+                  return isActive ? 'Active Camera' : 'Inactive Camera';
+                }
+              }
+            },
+            legend: {
+              labels: {
+                usePointStyle: true,
+                padding: 15,
+                boxWidth: 12,
+                boxHeight: 12
               }
             }
-          },
-          legend: {
-            labels: {
-              usePointStyle: true,
-              padding: 15,
-              boxWidth: 12,
-              boxHeight: 12
-            }
           }
-        }
-      }
-    });
-  }
-  
-  // UPDATED: Enhanced DOMContentLoaded event listener with header and queue initialization
-  document.addEventListener('DOMContentLoaded', function() {
-    console.log('[INIT] Page loaded, initializing...');
-    
-    // Set today's date as default
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('Test_DatetimeLocal').value = today;
-    
-    // Load initial data
-    loadSystemOverview();
-    loadCameras();
-    loadHourlyTrafficData();
-    loadLastFiveMinutesData(); // Initial load for queue data
-    initMapChart();
-    
-    // Start auto refresh and schedule checking
-    startAutoRefresh();
-    
-    // Initial schedule status check
-    checkScheduleStatus();
-    
-    // UPDATED: Update dashboard with server data immediately including queue
-    if (window.serverData) {
-      console.log('[INIT] Server data available:', window.serverData);
-      
-      document.getElementById('totalCameras').textContent = window.serverData.totalCameras;
-      document.getElementById('activeCameras').textContent = window.serverData.activeCameras;
-      document.getElementById('peopleIn').textContent = window.serverData.totalIn;
-      document.getElementById('peopleOut').textContent = window.serverData.totalOut;
-      document.getElementById('totalPresent').textContent = window.serverData.totalPresent;
-      
-      // UPDATED: Initialize queue data from server if available
-      if (window.serverData.lastFiveMinutesPresent !== undefined) {
-        console.log('[INIT] Setting initial queue data from server');
-        // UPDATED: Calculate queue count correctly
-        const queueCount = Math.max(0, (window.serverData.lastFiveMinutesIn || 0) - (window.serverData.lastFiveMinutesOut || 0));
-        document.getElementById('lastFiveMinutesPresent').textContent = queueCount;
-        document.getElementById('lastFiveMinutesIn').textContent = window.serverData.lastFiveMinutesIn || 0;
-        document.getElementById('lastFiveMinutesOut').textContent = window.serverData.lastFiveMinutesOut || 0;
-      } else {
-        console.log('[INIT] No server-side queue data, setting defaults');
-        document.getElementById('lastFiveMinutesPresent').textContent = '0';
-        document.getElementById('lastFiveMinutesIn').textContent = '0';
-        document.getElementById('lastFiveMinutesOut').textContent = '0';
-      }
-      
-      // UPDATED: Initialize header with server data
-      if (window.serverData.hasActiveSchedule && window.serverData.currentScheduleName) {
-        const headerElement = document.getElementById('currentMealHeader');
-        if (headerElement) {
-          headerElement.textContent = window.serverData.currentScheduleName;
-        }
-        console.log('[INIT] Set initial header to:', window.serverData.currentScheduleName);
-      }
-      
-      if (window.serverData.totalCameras > 0) {
-        const activePercentage = (window.serverData.activeCameras / window.serverData.totalCameras) * 100;
-        document.getElementById('activeCamerasProgress').style.width = `${activePercentage}%`;
-        document.getElementById('activeCamerasPercentage').textContent = `${Math.round(activePercentage)}% operational`;
-      }
-      
-      // Update progress bars for schedule-based data
-      if (window.serverData.totalIn > 0) {
-        document.getElementById('peopleInProgress').style.width = `${(window.serverData.totalIn / 165) * 100}%`;
-        document.getElementById('currentCountProgress').style.width = `${(window.serverData.totalPresent / 165) * 100}%`;
-      }
-      if (window.serverData.totalIn > 0 && window.serverData.totalOut > 0) {
-        document.getElementById('peopleOutProgress').style.width = `${(window.serverData.totalOut / window.serverData.totalIn) * 100}%`;
-      }
-    }
-    
-    updateCamerasUIFromServerData();
-    
-    // Camera selection event listeners
-    const cameranameSelect = document.getElementById('cameraname');
-    if (cameranameSelect) {
-      cameranameSelect.addEventListener('change', function () {
-        const selectedOptions = Array.from(this.selectedOptions);
-        const selectedCameraIDs = selectedOptions.map(option => option.value);
-
-        if (selectedCameraIDs.length > 0) {
-          fetch(`/Index?handler=GetSchedules&cameraId=${selectedCameraIDs[0]}`)
-          .then(response => response.json())
-          .then(data => {
-            const mealTypeSelect = document.getElementById('mealtype');
-            mealTypeSelect.innerHTML = '<option value="">-- Select a schedule --</option>'; 
-            data.forEach(schedule => {
-              const option = document.createElement('option');
-              option.value = schedule.scheduleID; 
-              option.textContent = schedule.scheduleName;
-              mealTypeSelect.appendChild(option);
-            });
-          })
-          .catch(error => {
-            console.error("Error fetching schedules:", error);
-          });
         }
       });
+    } catch (error) {
+      console.error('[MAP CHART] Failed to create map chart:', error);
     }
-    
-    // Initialize schedule management after a delay to ensure DOM is ready
-    setTimeout(() => {
-      console.log('[INIT] Initializing schedule management');
-      
-      // Set today's date as default for schedule date picker
-      const scheduleDate = document.getElementById('scheduleDate');
-      if (scheduleDate) {
-        scheduleDate.value = today;
-        
-        // Add event listener for date changes
-        scheduleDate.addEventListener('change', function() {
-          console.log('[SCHEDULE] Date changed to:', this.value);
-          if (typeof loadSchedulesForDate === 'function') {
-            loadSchedulesForDate();
-          }
-        });
-      }
-      
-      // Load initial schedules if the function exists
-      if (typeof loadSchedulesForDate === 'function') {
-        loadSchedulesForDate();
-      }
-    }, 1500);
-    
-    // Clean up on page unload
-    window.addEventListener('beforeunload', function() {
-      stopAutoRefresh();
-    });
-  });
+  }
   
-  // Update last updated timestamp
-  function updateLastUpdated() {
+  // FIXED: Update last updated timestamp
+  function updateLastUpdatedTimestamp() {
     const lastUpdatedElement = document.getElementById('lastUpdated');
     if (lastUpdatedElement) {
       const now = new Date();
@@ -921,10 +901,8 @@ tailwind.config = {
         second: '2-digit'
       });
     }
-  }
-  
-  // UPDATED: Update timestamp for queue card
-  function updateQueueTimestamp() {
+    
+    // Also update queue timestamp if needed
     const queueTimestampElement = document.getElementById('lastFiveMinutesUpdated');
     if (queueTimestampElement && !queueTimestampElement.textContent.includes('Updated:')) {
       const now = new Date();
@@ -936,8 +914,171 @@ tailwind.config = {
     }
   }
   
-  // Call updateLastUpdated when data is refreshed
-  setInterval(updateLastUpdated, 1000); // Update every second
-  setInterval(updateQueueTimestamp, 15000); // Update every 15 seconds
+  // FIXED: Enhanced DOMContentLoaded event listener
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('[INIT] Page loaded, initializing dashboard...');
+    
+    try {
+      // Set today's date as default
+      const today = new Date().toISOString().split('T')[0];
+      const dateInput = document.getElementById('Test_DatetimeLocal');
+      if (dateInput) {
+        dateInput.value = today;
+      }
+      
+      // Initialize dashboard with server data immediately
+      if (window.serverData) {
+        console.log('[INIT] Server data available:', window.serverData);
+        
+        // Update initial values safely
+        const safeUpdate = (id, value) => {
+          const element = document.getElementById(id);
+          if (element) {
+            element.textContent = parseInt(value) || 0;
+          }
+        };
+        
+        safeUpdate('totalCameras', window.serverData.totalCameras);
+        safeUpdate('activeCameras', window.serverData.activeCameras);
+        safeUpdate('peopleIn', window.serverData.totalIn);
+        safeUpdate('peopleOut', window.serverData.totalOut);
+        safeUpdate('totalPresent', window.serverData.totalPresent);
+        
+        // Initialize queue data from server if available
+        if (typeof window.serverData.lastFiveMinutesPresent !== 'undefined') {
+          console.log('[INIT] Setting initial queue data from server');
+          const queueCount = Math.max(0, (window.serverData.lastFiveMinutesIn || 0) - (window.serverData.lastFiveMinutesOut || 0));
+          safeUpdate('lastFiveMinutesPresent', queueCount);
+          safeUpdate('lastFiveMinutesIn', window.serverData.lastFiveMinutesIn);
+          safeUpdate('lastFiveMinutesOut', window.serverData.lastFiveMinutesOut);
+        } else {
+          console.log('[INIT] No server-side queue data, setting defaults');
+          safeUpdate('lastFiveMinutesPresent', 0);
+          safeUpdate('lastFiveMinutesIn', 0);
+          safeUpdate('lastFiveMinutesOut', 0);
+        }
+        
+        // Initialize header with server data
+        if (window.serverData.hasActiveSchedule && window.serverData.currentScheduleName) {
+          const headerElement = document.getElementById('currentMealHeader');
+          if (headerElement) {
+            headerElement.textContent = window.serverData.currentScheduleName;
+          }
+          console.log('[INIT] Set initial header to:', window.serverData.currentScheduleName);
+        }
+        
+        // Update progress bars
+        if (window.serverData.totalCameras > 0) {
+          const activePercentage = (window.serverData.activeCameras / window.serverData.totalCameras) * 100;
+          const progressElement = document.getElementById('activeCamerasProgress');
+          if (progressElement) {
+            progressElement.style.width = `${activePercentage}%`;
+          }
+          
+          const percentageElement = document.getElementById('activeCamerasPercentage');
+          if (percentageElement) {
+            percentageElement.textContent = `${Math.round(activePercentage)}% operational`;
+          }
+        }
+        
+        // Update progress bars for schedule-based data
+        if (window.serverData.totalIn > 0) {
+          const peopleInProgress = document.getElementById('peopleInProgress');
+          if (peopleInProgress) {
+            peopleInProgress.style.width = `${(window.serverData.totalIn / 165) * 100}%`;
+          }
+          
+          const currentCountProgress = document.getElementById('currentCountProgress');
+          if (currentCountProgress) {
+            currentCountProgress.style.width = `${(window.serverData.totalPresent / 165) * 100}%`;
+          }
+        }
+        
+        if (window.serverData.totalIn > 0 && window.serverData.totalOut > 0) {
+          const peopleOutProgress = document.getElementById('peopleOutProgress');
+          if (peopleOutProgress) {
+            peopleOutProgress.style.width = `${(window.serverData.totalOut / window.serverData.totalIn) * 100}%`;
+          }
+        }
+      }
+      
+      // Load initial data
+      Promise.allSettled([
+        loadSystemOverview(),
+        loadCameras(),
+        loadHourlyTrafficData(),
+        loadQueueData()
+      ]).then(() => {
+        console.log('[INIT] Initial data loading completed');
+      });
+      
+      // Initialize charts
+      initMapChart();
+      updateActivityChart(); // Initialize with default data
+      
+      // Update cameras UI from server data
+      updateCamerasUIFromServerData();
+      
+      // Set up camera selection event listeners
+      const cameranameSelect = document.getElementById('cameraname');
+      if (cameranameSelect) {
+        cameranameSelect.addEventListener('change', function () {
+          const selectedOptions = Array.from(this.selectedOptions);
+          const selectedCameraIDs = selectedOptions.map(option => option.value);
 
-  console.log(window.camerasFromServer);
+          if (selectedCameraIDs.length > 0) {
+            fetch(`/Index?handler=GetSchedules&cameraId=${selectedCameraIDs[0]}`)
+            .then(response => response.json())
+            .then(data => {
+              const mealTypeSelect = document.getElementById('mealtype');
+              if (mealTypeSelect) {
+                mealTypeSelect.innerHTML = '<option value="">-- Select a schedule --</option>'; 
+                data.forEach(schedule => {
+                  const option = document.createElement('option');
+                  option.value = schedule.scheduleID; 
+                  option.textContent = schedule.scheduleName;
+                  mealTypeSelect.appendChild(option);
+                });
+              }
+            })
+            .catch(error => {
+              console.error("[CAMERA SELECT] Error fetching schedules:", error);
+            });
+          }
+        });
+      }
+      
+      // Start the consolidated refresh manager
+      masterRefreshManager.start();
+      
+      // Initial schedule status check
+      checkScheduleStatus();
+      
+      console.log('[INIT] Dashboard initialization completed successfully');
+      
+    } catch (error) {
+      console.error('[INIT] Error during initialization:', error);
+    }
+    
+    // Clean up on page unload
+    window.addEventListener('beforeunload', function() {
+      masterRefreshManager.stop();
+    });
+  });
+  
+  // REMOVED DUPLICATE FUNCTIONS AND CONSOLIDATED REFRESH LOGIC
+  // The old functions like startAutoRefresh, stopAutoRefresh, etc. have been
+  // replaced with the masterRefreshManager for better control
+  
+  // Export main functions for global access
+  window.dashboardAPI = {
+    loadSystemOverview,
+    loadCameras,
+    loadQueueData,
+    showPplCount,
+    toggleSidebar,
+    updateActivityChart,
+    masterRefreshManager
+  };
+  
+  console.log('[DASHBOARD] Enhanced dashboard script loaded with consolidated refresh management');

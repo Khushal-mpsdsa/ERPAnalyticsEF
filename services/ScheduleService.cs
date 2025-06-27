@@ -10,7 +10,7 @@ public class ScheduleService
     }
 
     // ====================
-    // OPTIMIZED METHODS (NEW & FIXED)
+    // OPTIMIZED METHODS (ENHANCED)
     // ====================
 
     // FIXED: Get all schedules with camera information in a single query
@@ -147,7 +147,7 @@ public class ScheduleService
         }
     }
 
-    // OPTIMIZED: Method to get single schedule by ID with AsNoTracking
+    // NEW: Method to get single schedule by ID with AsNoTracking (ADDED FOR API COMPATIBILITY)
     public Schedule? GetSingleScheduleByID(int scheduleID)
     {
         try
@@ -155,6 +155,15 @@ public class ScheduleService
             var schedule = _dbContext.Schedules
                 .AsNoTracking()
                 .FirstOrDefault(s => s.ScheduleID == scheduleID);
+
+            if (schedule != null)
+            {
+                Console.WriteLine($"[SCHEDULE SERVICE] Found schedule {scheduleID}: {schedule.ScheduleName}");
+            }
+            else
+            {
+                Console.WriteLine($"[SCHEDULE SERVICE] No schedule found with ID {scheduleID}");
+            }
 
             return schedule;
         }
@@ -194,6 +203,7 @@ public class ScheduleService
                 Console.WriteLine($"[SCHEDULE SERVICE] Successfully deleted schedule {scheduleID}");
                 return true;
             }
+            Console.WriteLine($"[SCHEDULE SERVICE] Schedule {scheduleID} not found for deletion");
             return false;
         }
         catch (Exception ex)
@@ -233,9 +243,11 @@ public class ScheduleService
 
             if (scheduleWithCamera != null)
             {
+                Console.WriteLine($"[SCHEDULE SERVICE] Found schedule {scheduleID} with camera: {scheduleWithCamera.CameraName}");
                 return (scheduleWithCamera.schedule, scheduleWithCamera.CameraName);
             }
 
+            Console.WriteLine($"[SCHEDULE SERVICE] No schedule found with ID {scheduleID}");
             return (null, string.Empty);
         }
         catch (Exception ex)
@@ -245,13 +257,15 @@ public class ScheduleService
         }
     }
 
-    // OPTIMIZED: Get currently active schedule
+    // ENHANCED: Get currently active schedule with better logging
     public Schedule? GetCurrentActiveSchedule()
     {
         try
         {
             var now = DateTime.Now;
             var today = now.Date;
+
+            Console.WriteLine($"[SCHEDULE SERVICE] Checking for active schedule at {now:HH:mm:ss}");
 
             var allSchedules = _dbContext.Schedules.AsNoTracking().ToList();
 
@@ -268,6 +282,8 @@ public class ScheduleService
 
                 var scheduleEndTime = scheduleTimeToday.AddSeconds(schedule.DurationInSec);
 
+                Console.WriteLine($"[SCHEDULE SERVICE] Checking '{schedule.ScheduleName}': {scheduleTimeToday:HH:mm:ss} - {scheduleEndTime:HH:mm:ss}");
+
                 if (now >= scheduleTimeToday && now <= scheduleEndTime)
                 {
                     Console.WriteLine($"[SCHEDULE SERVICE] Active schedule found: {schedule.ScheduleName}");
@@ -275,6 +291,7 @@ public class ScheduleService
                 }
             }
 
+            Console.WriteLine($"[SCHEDULE SERVICE] No active schedule found");
             return null;
         }
         catch (Exception ex)
@@ -284,13 +301,15 @@ public class ScheduleService
         }
     }
 
-    // NEW METHOD: Get schedule status for a specific time
+    // NEW METHOD: Get schedule status for a specific time with enhanced logging
     public ScheduleStatus GetScheduleStatusAtTime(DateTime checkTime)
     {
         try
         {
             var date = checkTime.Date;
             var allSchedules = _dbContext.Schedules.AsNoTracking().ToList();
+
+            Console.WriteLine($"[SCHEDULE SERVICE] Checking schedule status at {checkTime:yyyy-MM-dd HH:mm:ss}");
 
             foreach (var schedule in allSchedules)
             {
@@ -308,6 +327,8 @@ public class ScheduleService
                 if (checkTime >= scheduleTimeOnDate && checkTime <= scheduleEndTime)
                 {
                     var timeRemaining = scheduleEndTime - checkTime;
+                    Console.WriteLine($"[SCHEDULE SERVICE] Found active schedule: {schedule.ScheduleName}, Time remaining: {timeRemaining.TotalMinutes:F1} minutes");
+                    
                     return new ScheduleStatus
                     {
                         IsActive = true,
@@ -319,6 +340,7 @@ public class ScheduleService
                 }
             }
 
+            Console.WriteLine($"[SCHEDULE SERVICE] No active schedule found for {checkTime:HH:mm:ss}");
             return new ScheduleStatus
             {
                 IsActive = false,
@@ -350,6 +372,8 @@ public class ScheduleService
             var endTime = startTime.AddSeconds(durationInSeconds);
             var date = startTime.Date;
 
+            Console.WriteLine($"[SCHEDULE SERVICE] Checking for conflicts: {startTime:HH:mm:ss} - {endTime:HH:mm:ss}");
+
             var allSchedules = _dbContext.Schedules.AsNoTracking().ToList();
 
             foreach (var schedule in allSchedules)
@@ -370,16 +394,79 @@ public class ScheduleService
 
                 if (startTime < scheduleEndOnDate && endTime > scheduleStartOnDate)
                 {
+                    Console.WriteLine($"[SCHEDULE SERVICE] Conflict found with schedule: {schedule.ScheduleName}");
                     return true; // Conflict found
                 }
             }
 
+            Console.WriteLine($"[SCHEDULE SERVICE] No conflicts found");
             return false; // No conflict
         }
         catch (Exception ex)
         {
             Console.WriteLine($"[SCHEDULE SERVICE ERROR] HasScheduleConflict failed: {ex.Message}");
             return false;
+        }
+    }
+
+    // NEW METHOD: Get schedules for a specific date
+    public List<TodayScheduleInfo> GetSchedulesForDate(DateTime date)
+    {
+        try
+        {
+            var now = DateTime.Now;
+            var isToday = date.Date == now.Date;
+            
+            Console.WriteLine($"[SCHEDULE SERVICE] Getting schedules for {date:yyyy-MM-dd} (isToday: {isToday})");
+
+            var allSchedules = _dbContext.Schedules.AsNoTracking().ToList();
+            var todaySchedules = new List<TodayScheduleInfo>();
+
+            foreach (var schedule in allSchedules)
+            {
+                var scheduleStartToday = new DateTime(
+                    date.Year, date.Month, date.Day,
+                    schedule.StartTime.Hour, schedule.StartTime.Minute, schedule.StartTime.Second
+                );
+                var scheduleEndToday = scheduleStartToday.AddSeconds(schedule.DurationInSec);
+
+                ScheduleStatusType status;
+                if (isToday)
+                {
+                    if (now < scheduleStartToday)
+                    {
+                        status = ScheduleStatusType.Upcoming;
+                    }
+                    else if (now >= scheduleStartToday && now <= scheduleEndToday)
+                    {
+                        status = ScheduleStatusType.Active;
+                    }
+                    else
+                    {
+                        status = ScheduleStatusType.Completed;
+                    }
+                }
+                else
+                {
+                    status = date.Date < now.Date ? ScheduleStatusType.Completed : ScheduleStatusType.Upcoming;
+                }
+
+                todaySchedules.Add(new TodayScheduleInfo
+                {
+                    Schedule = schedule,
+                    ScheduleStartToday = scheduleStartToday,
+                    ScheduleEndToday = scheduleEndToday,
+                    Status = status
+                });
+            }
+
+            Console.WriteLine($"[SCHEDULE SERVICE] Found {todaySchedules.Count} schedules for {date:yyyy-MM-dd}");
+            return todaySchedules.OrderBy(s => s.ScheduleStartToday).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[SCHEDULE SERVICE ERROR] GetSchedulesForDate failed: {ex.Message}");
+            return new List<TodayScheduleInfo>();
         }
     }
 }

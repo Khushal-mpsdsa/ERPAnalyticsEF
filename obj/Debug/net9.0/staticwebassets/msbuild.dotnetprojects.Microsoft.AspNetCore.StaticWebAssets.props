@@ -156,8 +156,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>ju2h7l1esh</Fingerprint>
-      <Integrity>VWxaQ9juOp6KWY+OEhtJU9zzf/20iwhNL3/sfqYHio8=</Integrity>
+      <Fingerprint>bdyoi4op1h</Fingerprint>
+      <Integrity>/2XMX1R9MqtyQZLmn0QS0wqSCLSPIeDzmNq0raThMH0=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\index.js'))</OriginalItemSpec>
@@ -192,8 +192,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>rk72mr8cv9</Fingerprint>
-      <Integrity>2zQLApV+2u9DKEtnOE2OCvqyaWfeMGxQcd4kzUhE4aQ=</Integrity>
+      <Fingerprint>zhda5vgcjo</Fingerprint>
+      <Integrity>12Ogij1Ptiwg27w1t937Hx/7D5kFrXHroEXZJpGthO8=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\schedule-dashboard-integration.js'))</OriginalItemSpec>

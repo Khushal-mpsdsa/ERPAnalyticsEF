@@ -9,7 +9,6 @@ public class IndexModel : PageModel
     private readonly ScheduleService _scheduleService;
     private readonly ApplicationDBContext _context;
 
-    // FIXED: Proper constructor with all dependencies
     public IndexModel(CameraService cameraService, CountDataService countDataService, ScheduleService scheduleService, ApplicationDBContext context)
     {
         _cameraService = cameraService;
@@ -51,19 +50,7 @@ public class IndexModel : PageModel
         public bool HasData { get; set; }
         public string? ScheduleName { get; set; }
         public string? CameraName { get; set; }
-    }
-
-    public class DashboardOverview
-    {
-        public string Date { get; set; } = string.Empty;
-        public bool IsToday { get; set; }
-        public int TotalCameras { get; set; }
-        public int ActiveCameras { get; set; }
-        public bool HasSelectedSchedule { get; set; }
-        public int? SelectedScheduleId { get; set; }
-        public string? SelectedScheduleName { get; set; }
-        public string? SelectedCameraName { get; set; }
-        public DashboardData Data { get; set; } = new DashboardData();
+        public string Status { get; set; } = "inactive";
     }
 
     public async Task OnGetAsync()
@@ -126,24 +113,22 @@ public class IndexModel : PageModel
     }
 
     // ====================
-    // OPTIMIZED API ENDPOINTS
+    // NEW: FIXED MISSING API ENDPOINTS
     // ====================
 
-    // NEW: OPTIMIZED - Single API call to get all schedules at once
+    // NEW: GetAllSchedulesOptimized - The missing endpoint that frontend expects
     public async Task<JsonResult> OnGetGetAllSchedulesOptimizedAsync()
     {
         try
         {
-            Console.WriteLine("[OPTIMIZED API] Starting single-query schedule load");
+            Console.WriteLine("[API] GetAllSchedulesOptimized called");
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-            // Use ScheduleService instead of direct context access
             var schedulesWithCamera = _scheduleService.GetAllSchedulesWithCameraInfo();
 
             stopwatch.Stop();
-            Console.WriteLine($"[OPTIMIZED API] Loaded {schedulesWithCamera.Count} schedules in {stopwatch.ElapsedMilliseconds}ms");
+            Console.WriteLine($"[API] Loaded {schedulesWithCamera.Count} schedules in {stopwatch.ElapsedMilliseconds}ms");
 
-            // Ensure proper JSON serialization
             var result = schedulesWithCamera.Select(s => new {
                 scheduleID = s.ScheduleID,
                 scheduleName = s.ScheduleName ?? "Unnamed Schedule",
@@ -157,9 +142,8 @@ public class IndexModel : PageModel
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[OPTIMIZED API ERROR] {ex.Message}");
+            Console.WriteLine($"[API ERROR] GetAllSchedulesOptimized failed: {ex.Message}");
             
-            // FALLBACK: Return data using old method if optimized fails
             try 
             {
                 var cameras = _cameraService.GetCameras();
@@ -182,12 +166,12 @@ public class IndexModel : PageModel
                     }
                 }
 
-                Console.WriteLine($"[FALLBACK API] Loaded {allSchedules.Count} schedules using fallback method");
+                Console.WriteLine($"[API] Fallback loaded {allSchedules.Count} schedules");
                 return new JsonResult(allSchedules);
             }
             catch (Exception fallbackEx)
             {
-                Console.WriteLine($"[FALLBACK ERROR] {fallbackEx.Message}");
+                Console.WriteLine($"[API ERROR] Fallback failed: {fallbackEx.Message}");
                 return new JsonResult(new { 
                     error = ex.Message, 
                     schedules = new List<object>(),
@@ -197,37 +181,358 @@ public class IndexModel : PageModel
         }
     }
 
-    // API endpoint for getting people count
+    // NEW: GetDashboardDataForSelectedSchedule - The missing endpoint for schedule selection
+    public async Task<JsonResult> OnGetGetDashboardDataForSelectedScheduleAsync([FromQuery] int scheduleId)
+    {
+        try
+        {
+            Console.WriteLine($"[API] GetDashboardDataForSelectedSchedule called for schedule {scheduleId}");
+
+            var schedule = _scheduleService.GetSingleScheduleByID(scheduleId);
+            if (schedule == null)
+            {
+                return new JsonResult(new
+                {
+                    success = false,
+                    message = "Schedule not found"
+                });
+            }
+
+            var camera = _cameraService.GetCameraById(schedule.CameraID);
+            var now = DateTime.Now;
+            var today = now.Date;
+
+            // Calculate schedule time for today
+            var scheduleTimeToday = new DateTime(
+                today.Year, today.Month, today.Day,
+                schedule.StartTime.Hour,
+                schedule.StartTime.Minute,
+                schedule.StartTime.Second
+            );
+            var scheduleEndTime = scheduleTimeToday.AddSeconds(schedule.DurationInSec);
+
+            // Determine status
+            string status;
+            bool isActive = false;
+            if (now < scheduleTimeToday)
+            {
+                status = "upcoming";
+            }
+            else if (now >= scheduleTimeToday && now <= scheduleEndTime)
+            {
+                status = "active";
+                isActive = true;
+            }
+            else
+            {
+                status = "completed";
+            }
+
+            var dashboardData = new DashboardData
+            {
+                ScheduleName = schedule.ScheduleName,
+                CameraName = camera?.CameraName ?? "Unknown Camera",
+                Status = status,
+                IsActive = isActive,
+                HasData = false
+            };
+
+            // Get count data if schedule is active or completed today
+            if (status == "active" || status == "completed")
+            {
+                try
+                {
+                    var cameraIds = new List<int> { schedule.CameraID };
+                    var scheduleStartUnix = ((DateTimeOffset)scheduleTimeToday).ToUnixTimeSeconds();
+                    var currentTimeUnix = ((DateTimeOffset)now).ToUnixTimeSeconds();
+                    var scheduleEndUnix = ((DateTimeOffset)scheduleEndTime).ToUnixTimeSeconds();
+
+                    // For active: get data from start to now, for completed: get data for entire schedule
+                    var queryEndTime = status == "active" ? currentTimeUnix : scheduleEndUnix;
+
+                    var totals = await _countDataService.GetCountTotalsFilteredAsync(cameraIds, scheduleStartUnix, queryEndTime);
+                    
+                    dashboardData.TotalIn = totals.TotalIn;
+                    dashboardData.TotalOut = totals.TotalOut;
+                    dashboardData.TotalPresent = Math.Max(0, totals.TotalIn - totals.TotalOut);
+                    dashboardData.HasData = true;
+
+                    // Get last 5 minutes data only for active schedules
+                    if (status == "active")
+                    {
+                        var lastFiveMinutesStart = ((DateTimeOffset)now.AddMinutes(-5)).ToUnixTimeSeconds();
+                        var recentTotals = await _countDataService.GetCountTotalsFilteredAsync(cameraIds, lastFiveMinutesStart, currentTimeUnix);
+                        
+                        dashboardData.LastFiveMinutesIn = recentTotals.TotalIn;
+                        dashboardData.LastFiveMinutesOut = recentTotals.TotalOut;
+                        dashboardData.LastFiveMinutesPresent = Math.Max(0, recentTotals.TotalIn - recentTotals.TotalOut);
+                    }
+
+                    Console.WriteLine($"[API] Schedule {scheduleId} data: In={dashboardData.TotalIn}, Out={dashboardData.TotalOut}, Present={dashboardData.TotalPresent}");
+                }
+                catch (Exception dataEx)
+                {
+                    Console.WriteLine($"[API] Error getting count data for schedule {scheduleId}: {dataEx.Message}");
+                }
+            }
+
+            return new JsonResult(new
+            {
+                success = true,
+                data = dashboardData,
+                scheduleName = schedule.ScheduleName,
+                cameraName = camera?.CameraName ?? "Unknown Camera",
+                status = status,
+                isActive = isActive
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[API ERROR] GetDashboardDataForSelectedSchedule failed: {ex.Message}");
+            return new JsonResult(new
+            {
+                success = false,
+                error = ex.Message,
+                data = new DashboardData()
+            });
+        }
+    }
+
+    // NEW: LastFiveMinutesData - The missing endpoint for queue data
+    public async Task<JsonResult> OnGetLastFiveMinutesDataAsync()
+    {
+        try
+        {
+            Console.WriteLine("[API] LastFiveMinutesData called");
+
+            var activeSchedule = _scheduleService.GetCurrentActiveSchedule();
+            
+            if (activeSchedule == null)
+            {
+                Console.WriteLine("[API] No active schedule for queue data");
+                return new JsonResult(new
+                {
+                    success = false,
+                    hasActiveSchedule = false,
+                    data = new { In = 0, Out = 0, Present = 0 },
+                    message = "No active schedule"
+                });
+            }
+
+            var camera = _cameraService.GetCameraById(activeSchedule.CameraID);
+            if (camera == null)
+            {
+                Console.WriteLine($"[API] Camera {activeSchedule.CameraID} not found for active schedule");
+                return new JsonResult(new
+                {
+                    success = false,
+                    hasActiveSchedule = true,
+                    data = new { In = 0, Out = 0, Present = 0 },
+                    message = "Camera not found"
+                });
+            }
+
+            var now = DateTime.Now;
+            var fiveMinutesAgo = now.AddMinutes(-5);
+            
+            var fiveMinutesAgoUnix = ((DateTimeOffset)fiveMinutesAgo).ToUnixTimeSeconds();
+            var currentTimeUnix = ((DateTimeOffset)now).ToUnixTimeSeconds();
+
+            var cameraIds = new List<int> { camera.CameraID };
+            var recentTotals = await _countDataService.GetCountTotalsFilteredAsync(cameraIds, fiveMinutesAgoUnix, currentTimeUnix);
+
+            var queueData = new
+            {
+                In = recentTotals.TotalIn,
+                Out = recentTotals.TotalOut,
+                Present = Math.Max(0, recentTotals.TotalIn - recentTotals.TotalOut)
+            };
+
+            Console.WriteLine($"[API] Queue data: In={queueData.In}, Out={queueData.Out}, Present={queueData.Present}");
+
+            return new JsonResult(new
+            {
+                success = true,
+                hasActiveSchedule = true,
+                data = queueData,
+                scheduleName = activeSchedule.ScheduleName,
+                cameraName = camera.CameraName
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[API ERROR] LastFiveMinutesData failed: {ex.Message}");
+            return new JsonResult(new
+            {
+                success = false,
+                hasActiveSchedule = false,
+                data = new { In = 0, Out = 0, Present = 0 },
+                error = ex.Message
+            });
+        }
+    }
+
+    // ENHANCED: SystemOverview with better error handling and queue data
+    public async Task<JsonResult> OnGetSystemOverviewAsync()
+    {
+        try
+        {
+            Console.WriteLine("[API] SystemOverview called");
+
+            var cameras = _cameraService.GetCameras();
+            var totalCameras = cameras?.Count ?? 0;
+            var activeCameras = cameras?.Count(c => c.RefreshRateInSeconds > 0) ?? 0;
+
+            var activeSchedule = _scheduleService.GetCurrentActiveSchedule();
+
+            int totalIn = 0, totalOut = 0, totalPresent = 0;
+            int lastFiveMinutesIn = 0, lastFiveMinutesOut = 0, lastFiveMinutesPresent = 0;
+
+            if (activeSchedule != null)
+            {
+                var camera = _cameraService.GetCameraById(activeSchedule.CameraID);
+                if (camera != null)
+                {
+                    var now = DateTime.Now;
+                    var today = now.Date;
+
+                    var scheduleTimeToday = new DateTime(
+                        today.Year, today.Month, today.Day,
+                        activeSchedule.StartTime.Hour,
+                        activeSchedule.StartTime.Minute,
+                        activeSchedule.StartTime.Second
+                    );
+
+                    var scheduleStartUnix = ((DateTimeOffset)scheduleTimeToday).ToUnixTimeSeconds();
+                    var currentTimeUnix = ((DateTimeOffset)now).ToUnixTimeSeconds();
+
+                    try 
+                    {
+                        var cameraIds = new List<int> { camera.CameraID };
+                        var totals = await _countDataService.GetCountTotalsFilteredAsync(cameraIds, scheduleStartUnix, currentTimeUnix);
+                        
+                        totalIn = totals?.TotalIn ?? 0;
+                        totalOut = totals?.TotalOut ?? 0;
+                        totalPresent = Math.Max(0, totalIn - totalOut);
+
+                        // Get last 5 minutes data
+                        var lastFiveMinutesStart = ((DateTimeOffset)now.AddMinutes(-5)).ToUnixTimeSeconds();
+                        var lastFiveMinutesTotals = await _countDataService.GetCountTotalsFilteredAsync(cameraIds, lastFiveMinutesStart, currentTimeUnix);
+                        
+                        lastFiveMinutesIn = lastFiveMinutesTotals?.TotalIn ?? 0;
+                        lastFiveMinutesOut = lastFiveMinutesTotals?.TotalOut ?? 0;
+                        lastFiveMinutesPresent = Math.Max(0, lastFiveMinutesIn - lastFiveMinutesOut);
+
+                        Console.WriteLine($"[API] SystemOverview counts: Total In={totalIn}, Out={totalOut}, Present={totalPresent}");
+                        Console.WriteLine($"[API] SystemOverview queue: In={lastFiveMinutesIn}, Out={lastFiveMinutesOut}, Present={lastFiveMinutesPresent}");
+                    }
+                    catch (Exception dataEx)
+                    {
+                        Console.WriteLine($"[API] Error getting count data in SystemOverview: {dataEx.Message}");
+                    }
+                }
+            }
+
+            var result = new
+            {
+                totalCameras = totalCameras,
+                activeCameras = activeCameras,
+                totalCameraCapacity = 32,
+                peopleIn = totalIn,
+                peopleOut = totalOut,
+                peopleInCapacity = 165,
+                lastFiveMinutesIn = lastFiveMinutesIn,
+                lastFiveMinutesOut = lastFiveMinutesOut,
+                lastFiveMinutesPresent = lastFiveMinutesPresent,
+                hasActiveSchedule = activeSchedule != null,
+                currentScheduleName = activeSchedule?.ScheduleName ?? "No Active Schedule"
+            };
+
+            return new JsonResult(result);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[API ERROR] SystemOverview failed: {ex.Message}");
+            
+            return new JsonResult(new
+            {
+                error = ex.Message,
+                totalCameras = 0,
+                activeCameras = 0,
+                totalCameraCapacity = 32,
+                peopleIn = 0,
+                peopleOut = 0,
+                peopleInCapacity = 165,
+                lastFiveMinutesIn = 0,
+                lastFiveMinutesOut = 0,
+                lastFiveMinutesPresent = 0,
+                hasActiveSchedule = false,
+                currentScheduleName = "Error loading data"
+            });
+        }
+    }
+
+    // ====================
+    // EXISTING API ENDPOINTS (Updated)
+    // ====================
+
     public async Task<JsonResult> OnGetGetPeopleCountAsync([FromQuery] List<int> cameraIds,
     [FromQuery] long from,
     [FromQuery] long to)
     {
-        var totals = await _countDataService.GetCountTotalsFilteredAsync(cameraIds, from, to);
-        int totalPresent = Math.Max(0, totals.TotalIn - totals.TotalOut);
-
-        return new JsonResult(new
+        try
         {
-            totalIn = totals.TotalIn,
-            totalOut = totals.TotalOut,
-            totalPresent = totalPresent
-        });
+            var totals = await _countDataService.GetCountTotalsFilteredAsync(cameraIds, from, to);
+            int totalPresent = Math.Max(0, totals.TotalIn - totals.TotalOut);
+
+            return new JsonResult(new
+            {
+                totalIn = totals.TotalIn,
+                totalOut = totals.TotalOut,
+                totalPresent = totalPresent
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[API ERROR] GetPeopleCount failed: {ex.Message}");
+            return new JsonResult(new
+            {
+                totalIn = 0,
+                totalOut = 0,
+                totalPresent = 0,
+                error = ex.Message
+            });
+        }
     }
 
-    // API endpoint for getting schedules by camera
     public async Task<JsonResult> OnGetGetSchedulesAsync([FromQuery] int cameraId)
     {
-        var schedules = _scheduleService.GetSchedules(cameraId);
-        return new JsonResult(schedules);
+        try
+        {
+            var schedules = _scheduleService.GetSchedules(cameraId);
+            return new JsonResult(schedules);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[API ERROR] GetSchedules failed: {ex.Message}");
+            return new JsonResult(new List<Schedule>());
+        }
     }
 
-    // API endpoint for getting schedule by ID
     public async Task<JsonResult> OnGetGetScheduleByIDAsync([FromQuery] int scheduleID)
     {
-        var schedule = _scheduleService.GetScheduleByID(scheduleID);
-        return new JsonResult(schedule);
+        try
+        {
+            var schedule = _scheduleService.GetScheduleByID(scheduleID);
+            return new JsonResult(schedule);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[API ERROR] GetScheduleByID failed: {ex.Message}");
+            return new JsonResult(new List<Schedule>());
+        }
     }
 
-    // API endpoint for getting all schedules (for compatibility)
     public async Task<JsonResult> OnGetGetAllSchedulesAsync()
     {
         try
@@ -239,21 +544,16 @@ public class IndexModel : PageModel
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[API ERROR] {ex.Message}");
+            Console.WriteLine($"[API ERROR] GetAllSchedules failed: {ex.Message}");
             return new JsonResult(new { error = ex.Message });
         }
     }
 
-    // API endpoint for getting current active schedule
     public async Task<JsonResult> OnGetGetCurrentActiveScheduleAsync()
     {
         try
         {
-            var allSchedules = await Task.Run(() => 
-                _context.Schedules.AsNoTracking().ToList()
-            );
-            
-            var activeSchedule = GetCurrentActiveScheduleFromList(allSchedules);
+            var activeSchedule = _scheduleService.GetCurrentActiveSchedule();
 
             if (activeSchedule != null)
             {
@@ -279,6 +579,7 @@ public class IndexModel : PageModel
         }
         catch (Exception ex)
         {
+            Console.WriteLine($"[API ERROR] GetCurrentActiveSchedule failed: {ex.Message}");
             return new JsonResult(new
             {
                 success = false,
@@ -287,16 +588,11 @@ public class IndexModel : PageModel
         }
     }
 
-    // API endpoint for current schedule status
     public async Task<JsonResult> OnGetCurrentScheduleStatusAsync()
     {
         try
         {
-            var allSchedules = await Task.Run(() => 
-                _context.Schedules.AsNoTracking().ToList()
-            );
-            
-            var activeSchedule = GetCurrentActiveScheduleFromList(allSchedules);
+            var activeSchedule = _scheduleService.GetCurrentActiveSchedule();
 
             if (activeSchedule != null)
             {
@@ -343,7 +639,7 @@ public class IndexModel : PageModel
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[STATUS API ERROR] {ex.Message}");
+            Console.WriteLine($"[API ERROR] CurrentScheduleStatus failed: {ex.Message}");
             return new JsonResult(new
             {
                 hasActiveSchedule = false,
@@ -355,310 +651,121 @@ public class IndexModel : PageModel
         }
     }
 
-    // FIXED: Enhanced System Overview with better error handling
-    public async Task<JsonResult> OnGetSystemOverviewAsync()
+    // ENHANCED: ActivityData and LastHourTraffic endpoints
+    public async Task<JsonResult> OnGetActivityDataAsync([FromQuery] List<int> cameraIds, [FromQuery] string date)
+    {
+        try
+        {
+            Console.WriteLine($"[API] ActivityData called for date {date} and cameras: {string.Join(",", cameraIds)}");
+            
+            var targetDate = DateTime.Parse(date);
+            var startOfDay = targetDate.Date;
+            var endOfDay = startOfDay.AddDays(1);
+            
+            var startUnix = ((DateTimeOffset)startOfDay).ToUnixTimeSeconds();
+            var endUnix = ((DateTimeOffset)endOfDay).ToUnixTimeSeconds();
+            
+            // Generate hourly data for the day
+            var hourlyData = new List<object>();
+            
+            for (int hour = 0; hour < 24; hour++)
+            {
+                var hourStart = startOfDay.AddHours(hour);
+                var hourEnd = hourStart.AddHours(1);
+                
+                var hourStartUnix = ((DateTimeOffset)hourStart).ToUnixTimeSeconds();
+                var hourEndUnix = ((DateTimeOffset)hourEnd).ToUnixTimeSeconds();
+                
+                var totals = await _countDataService.GetCountTotalsFilteredAsync(cameraIds, hourStartUnix, hourEndUnix);
+                
+                hourlyData.Add(new
+                {
+                    hour = hourStart.ToString("HH:mm"),
+                    peopleIn = totals.TotalIn,
+                    peopleOut = totals.TotalOut
+                });
+            }
+            
+            return new JsonResult(hourlyData);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[API ERROR] ActivityData failed: {ex.Message}");
+            return new JsonResult(new List<object>());
+        }
+    }
+
+    public async Task<JsonResult> OnGetLastHourTrafficAsync([FromQuery] List<int> cameraIds)
+    {
+        try
+        {
+            Console.WriteLine($"[API] LastHourTraffic called for cameras: {string.Join(",", cameraIds)}");
+            
+            var now = DateTime.Now;
+            var oneHourAgo = now.AddHours(-1);
+            
+            // Generate data for last hour in 10-minute intervals
+            var intervalData = new List<object>();
+            
+            for (int i = 0; i < 6; i++) // 6 intervals of 10 minutes each
+            {
+                var intervalStart = oneHourAgo.AddMinutes(i * 10);
+                var intervalEnd = intervalStart.AddMinutes(10);
+                
+                var startUnix = ((DateTimeOffset)intervalStart).ToUnixTimeSeconds();
+                var endUnix = ((DateTimeOffset)intervalEnd).ToUnixTimeSeconds();
+                
+                var totals = await _countDataService.GetCountTotalsFilteredAsync(cameraIds, startUnix, endUnix);
+                
+                intervalData.Add(new
+                {
+                    hour = intervalStart.ToString("HH:mm"),
+                    peopleIn = totals.TotalIn,
+                    peopleOut = totals.TotalOut
+                });
+            }
+            
+            return new JsonResult(intervalData);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[API ERROR] LastHourTraffic failed: {ex.Message}");
+            // Return default data structure
+            var defaultData = new List<object>();
+            for (int i = 0; i < 6; i++)
+            {
+                defaultData.Add(new
+                {
+                    hour = DateTime.Now.AddMinutes(-60 + (i * 10)).ToString("HH:mm"),
+                    peopleIn = 0,
+                    peopleOut = 0
+                });
+            }
+            return new JsonResult(defaultData);
+        }
+    }
+
+    public async Task<JsonResult> OnGetCamerasDataAsync()
     {
         try
         {
             var cameras = _cameraService.GetCameras();
-            var totalCameras = cameras?.Count ?? 0;
-            var activeCameras = cameras?.Count(c => c.RefreshRateInSeconds > 0) ?? 0;
-
-            var activeSchedule = _scheduleService.GetCurrentActiveSchedule();
-
-            int totalIn = 0, totalOut = 0, totalPresent = 0;
-            int lastFiveMinutesIn = 0, lastFiveMinutesOut = 0, lastFiveMinutesPresent = 0;
-
-            if (activeSchedule != null)
+            var cameraData = cameras.Select(camera => new
             {
-                var camera = _cameraService.GetCameraById(activeSchedule.CameraID);
-                if (camera != null)
-                {
-                    var now = DateTime.Now;
-                    var today = now.Date;
-
-                    var scheduleTimeToday = new DateTime(
-                        today.Year, today.Month, today.Day,
-                        activeSchedule.StartTime.Hour,
-                        activeSchedule.StartTime.Minute,
-                        activeSchedule.StartTime.Second
-                    );
-
-                    var scheduleStartUnix = ((DateTimeOffset)scheduleTimeToday).ToUnixTimeSeconds();
-                    var currentTimeUnix = ((DateTimeOffset)now).ToUnixTimeSeconds();
-
-                    try 
-                    {
-                        var cameraIds = new List<int> { camera.CameraID };
-                        var totals = await _countDataService.GetCountTotalsFilteredAsync(cameraIds, scheduleStartUnix, currentTimeUnix);
-                        
-                        totalIn = totals?.TotalIn ?? 0;
-                        totalOut = totals?.TotalOut ?? 0;
-                        totalPresent = Math.Max(0, totalIn - totalOut);
-
-                        var lastFiveMinutesStart = ((DateTimeOffset)now.AddMinutes(-5)).ToUnixTimeSeconds();
-                        var lastFiveMinutesTotals = await _countDataService.GetCountTotalsFilteredAsync(cameraIds, lastFiveMinutesStart, currentTimeUnix);
-                        
-                        lastFiveMinutesIn = lastFiveMinutesTotals?.TotalIn ?? 0;
-                        lastFiveMinutesOut = lastFiveMinutesTotals?.TotalOut ?? 0;
-                        lastFiveMinutesPresent = Math.Max(0, lastFiveMinutesIn - lastFiveMinutesOut);
-                    }
-                    catch (Exception dataEx)
-                    {
-                        Console.WriteLine($"[SYSTEM OVERVIEW] Error getting count data: {dataEx.Message}");
-                        // Keep default zero values
-                    }
-                }
-            }
-
-            var result = new
-            {
-                totalCameras = totalCameras,
-                activeCameras = activeCameras,
-                totalIn = totalIn,
-                totalOut = totalOut,
-                totalPresent = totalPresent,
-                lastFiveMinutesIn = lastFiveMinutesIn,
-                lastFiveMinutesOut = lastFiveMinutesOut,
-                lastFiveMinutesPresent = lastFiveMinutesPresent,
-                hasActiveSchedule = activeSchedule != null,
-                currentScheduleName = activeSchedule?.ScheduleName ?? "No Active Schedule"
-            };
-
-            Console.WriteLine($"[SYSTEM OVERVIEW] Returning data: {System.Text.Json.JsonSerializer.Serialize(result)}");
-            return new JsonResult(result);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[SYSTEM OVERVIEW ERROR] {ex.Message}");
-            Console.WriteLine($"[SYSTEM OVERVIEW STACK] {ex.StackTrace}");
+                id = camera.CameraID,
+                name = camera.CameraName,
+                status = camera.RefreshRateInSeconds > 0 ? "active" : "inactive",
+                refreshRate = camera.RefreshRateInSeconds,
+                lastUpdate = camera.LastRefreshTimestamp,
+                location = new { x = 50, y = 50 } // Default location
+            }).ToList();
             
-            return new JsonResult(new
-            {
-                error = ex.Message,
-                totalCameras = 0,
-                activeCameras = 0,
-                totalIn = 0,
-                totalOut = 0,
-                totalPresent = 0,
-                lastFiveMinutesIn = 0,
-                lastFiveMinutesOut = 0,
-                lastFiveMinutesPresent = 0,
-                hasActiveSchedule = false,
-                currentScheduleName = "Error loading data"
-            });
-        }
-    }
-
-    // API endpoint for schedule status for a specific date
-    public async Task<JsonResult> OnGetGetScheduleStatusForDateAsync(
-        [FromQuery] int scheduleId,
-        [FromQuery] string date)
-    {
-        try
-        {
-            var targetDate = DateTime.Parse(date);
-            var schedules = _scheduleService.GetScheduleByID(scheduleId);
-
-            if (!schedules.Any())
-            {
-                return new JsonResult(new
-                {
-                    success = false,
-                    message = "Schedule not found"
-                });
-            }
-
-            var schedule = schedules.First();
-            var status = GetScheduleStatusForDate(schedule, targetDate);
-
-            return new JsonResult(new
-            {
-                success = true,
-                scheduleId = scheduleId,
-                date = targetDate.ToString("yyyy-MM-dd"),
-                status = status,
-                scheduleName = schedule.ScheduleName,
-                startTime = schedule.StartTime.ToString("HH:mm:ss"),
-                durationInSec = schedule.DurationInSec
-            });
+            return new JsonResult(cameraData);
         }
         catch (Exception ex)
         {
-            return new JsonResult(new
-            {
-                success = false,
-                error = ex.Message
-            });
-        }
-    }
-
-    // API endpoint for dashboard data for a specific schedule
-    public async Task<JsonResult> OnGetGetDashboardDataForScheduleAsync(
-        [FromQuery] int scheduleId,
-        [FromQuery] string date)
-    {
-        try
-        {
-            var targetDate = DateTime.Parse(date);
-            var schedules = _scheduleService.GetScheduleByID(scheduleId);
-
-            if (!schedules.Any())
-            {
-                return new JsonResult(new
-                {
-                    success = false,
-                    message = "Schedule not found"
-                });
-            }
-
-            var schedule = schedules.First();
-            var camera = _cameraService.GetCameraById(schedule.CameraID);
-            var isToday = targetDate.Date == DateTime.Today;
-
-            var dashboardData = new
-            {
-                totalIn = 0,
-                totalOut = 0,
-                totalPresent = 0,
-                lastFiveMinutesIn = 0,
-                lastFiveMinutesOut = 0,
-                lastFiveMinutesPresent = 0,
-                isActive = false,
-                hasData = false,
-                status = GetScheduleStatusForDate(schedule, targetDate),
-                scheduleName = schedule.ScheduleName,
-                cameraName = camera?.CameraName ?? "Unknown Camera"
-            };
-
-            return new JsonResult(new
-            {
-                success = true,
-                data = dashboardData
-            });
-        }
-        catch (Exception ex)
-        {
-            return new JsonResult(new
-            {
-                success = false,
-                error = ex.Message
-            });
-        }
-    }
-
-    // Test endpoint for Math.Max functionality
-    public async Task<JsonResult> OnGetTestMathMaxAsync()
-    {
-        int testIn = 5;
-        int testOut = 10;
-        int rawResult = testIn - testOut;
-        int maxResult = Math.Max(0, rawResult);
-
-        return new JsonResult(new
-        {
-            testIn = testIn,
-            testOut = testOut,
-            rawResult = rawResult,
-            maxResult = maxResult,
-            message = $"Raw: {rawResult}, After Math.Max: {maxResult}"
-        });
-    }
-
-    // ====================
-    // HELPER METHODS
-    // ====================
-
-    private Schedule? GetCurrentActiveScheduleFromList(List<Schedule> allSchedules)
-    {
-        var now = DateTime.Now;
-        var today = now.Date;
-
-        Console.WriteLine($"[DEBUG] Current DateTime: {now:yyyy-MM-dd HH:mm:ss}");
-        Console.WriteLine($"[DEBUG] Today's Date: {today:yyyy-MM-dd}");
-
-        foreach (var schedule in allSchedules)
-        {
-            Console.WriteLine($"\n[DEBUG] Checking Schedule: {schedule.ScheduleName}");
-            Console.WriteLine($"[DEBUG] Schedule.StartTime from DB: {schedule.StartTime:yyyy-MM-dd HH:mm:ss}");
-
-            var scheduleTimeToday = new DateTime(
-                today.Year,
-                today.Month,
-                today.Day,
-                schedule.StartTime.Hour,
-                schedule.StartTime.Minute,
-                schedule.StartTime.Second
-            );
-
-            var scheduleEndTime = scheduleTimeToday.AddSeconds(schedule.DurationInSec);
-
-            Console.WriteLine($"[DEBUG] Schedule Start Today: {scheduleTimeToday:HH:mm:ss}");
-            Console.WriteLine($"[DEBUG] Schedule End Today: {scheduleEndTime:HH:mm:ss}");
-            Console.WriteLine($"[DEBUG] Duration: {schedule.DurationInSec} seconds");
-            Console.WriteLine($"[DEBUG] Now >= Start: {now >= scheduleTimeToday}");
-            Console.WriteLine($"[DEBUG] Now <= End: {now <= scheduleEndTime}");
-            Console.WriteLine($"[DEBUG] Is Active: {now >= scheduleTimeToday && now <= scheduleEndTime}");
-
-            if (now >= scheduleTimeToday && now <= scheduleEndTime)
-            {
-                Console.WriteLine($"[DEBUG] *** ACTIVE SCHEDULE FOUND: {schedule.ScheduleName} ***");
-                return schedule;
-            }
-        }
-
-        Console.WriteLine($"[DEBUG] No active schedule found at {now:HH:mm:ss}");
-        return null;
-    }
-
-    private string GetScheduleStatusForDate(Schedule schedule, DateTime targetDate)
-    {
-        var now = DateTime.Now;
-        var isToday = targetDate.Date == now.Date;
-
-        if (!isToday)
-        {
-            if (targetDate.Date < now.Date)
-            {
-                return "completed";
-            }
-            else
-            {
-                return "upcoming";
-            }
-        }
-
-        var scheduleTimeToday = new DateTime(
-            targetDate.Year, targetDate.Month, targetDate.Day,
-            schedule.StartTime.Hour, schedule.StartTime.Minute, schedule.StartTime.Second
-        );
-        var scheduleEndTime = scheduleTimeToday.AddSeconds(schedule.DurationInSec);
-
-        if (now < scheduleTimeToday)
-        {
-            return "upcoming";
-        }
-        else if (now >= scheduleTimeToday && now <= scheduleEndTime)
-        {
-            return "active";
-        }
-        else
-        {
-            return "completed";
-        }
-    }
-
-    // FIXED: Add missing GetCurrentActiveSchedule helper
-    private Schedule? GetCurrentActiveSchedule()
-    {
-        try 
-        {
-            return _scheduleService.GetCurrentActiveSchedule();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[GET ACTIVE SCHEDULE ERROR] {ex.Message}");
-            return null;
+            Console.WriteLine($"[API ERROR] CamerasData failed: {ex.Message}");
+            return new JsonResult(new List<object>());
         }
     }
 }
