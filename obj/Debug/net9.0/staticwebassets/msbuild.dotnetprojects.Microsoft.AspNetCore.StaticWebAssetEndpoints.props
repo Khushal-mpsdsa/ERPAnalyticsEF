@@ -100,25 +100,25 @@
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\index.js'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-VWxaQ9juOp6KWY\u002BOEhtJU9zzf/20iwhNL3/sfqYHio8="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"35449"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022VWxaQ9juOp6KWY\u002BOEhtJU9zzf/20iwhNL3/sfqYHio8=\u0022"},{"Name":"Last-Modified","Value":"Wed, 25 Jun 2025 14:36:45 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"35449"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022VWxaQ9juOp6KWY\u002BOEhtJU9zzf/20iwhNL3/sfqYHio8=\u0022"},{"Name":"Last-Modified","Value":"Thu, 26 Jun 2025 15:13:57 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/dotnetprojects/js/index.ju2h7l1esh.js">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\index.js'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"ju2h7l1esh"},{"Name":"integrity","Value":"sha256-VWxaQ9juOp6KWY\u002BOEhtJU9zzf/20iwhNL3/sfqYHio8="},{"Name":"label","Value":"_content/dotnetprojects/js/index.js"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"35449"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022VWxaQ9juOp6KWY\u002BOEhtJU9zzf/20iwhNL3/sfqYHio8=\u0022"},{"Name":"Last-Modified","Value":"Wed, 25 Jun 2025 14:36:45 GMT"}]]]></ResponseHeaders>
-    </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/dotnetprojects/js/schedule-dashboard-integration.2s24lqcgua.js">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\schedule-dashboard-integration.js'))</AssetFile>
-      <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"2s24lqcgua"},{"Name":"integrity","Value":"sha256-7nufu\u002BSrUbjpG3I7AJUBr9/enkc1V/rHvD55zuWEwEw="},{"Name":"label","Value":"_content/dotnetprojects/js/schedule-dashboard-integration.js"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"37538"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u00227nufu\u002BSrUbjpG3I7AJUBr9/enkc1V/rHvD55zuWEwEw=\u0022"},{"Name":"Last-Modified","Value":"Wed, 25 Jun 2025 14:05:17 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"35449"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022VWxaQ9juOp6KWY\u002BOEhtJU9zzf/20iwhNL3/sfqYHio8=\u0022"},{"Name":"Last-Modified","Value":"Thu, 26 Jun 2025 15:13:57 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/dotnetprojects/js/schedule-dashboard-integration.js">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\schedule-dashboard-integration.js'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-7nufu\u002BSrUbjpG3I7AJUBr9/enkc1V/rHvD55zuWEwEw="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"37538"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u00227nufu\u002BSrUbjpG3I7AJUBr9/enkc1V/rHvD55zuWEwEw=\u0022"},{"Name":"Last-Modified","Value":"Wed, 25 Jun 2025 14:05:17 GMT"}]]]></ResponseHeaders>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-2zQLApV\u002B2u9DKEtnOE2OCvqyaWfeMGxQcd4kzUhE4aQ="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"38221"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u00222zQLApV\u002B2u9DKEtnOE2OCvqyaWfeMGxQcd4kzUhE4aQ=\u0022"},{"Name":"Last-Modified","Value":"Thu, 26 Jun 2025 16:08:28 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/dotnetprojects/js/schedule-dashboard-integration.rk72mr8cv9.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\schedule-dashboard-integration.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"rk72mr8cv9"},{"Name":"integrity","Value":"sha256-2zQLApV\u002B2u9DKEtnOE2OCvqyaWfeMGxQcd4kzUhE4aQ="},{"Name":"label","Value":"_content/dotnetprojects/js/schedule-dashboard-integration.js"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"38221"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u00222zQLApV\u002B2u9DKEtnOE2OCvqyaWfeMGxQcd4kzUhE4aQ=\u0022"},{"Name":"Last-Modified","Value":"Thu, 26 Jun 2025 16:08:28 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/dotnetprojects/js/schedule.js">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\schedule.js'))</AssetFile>

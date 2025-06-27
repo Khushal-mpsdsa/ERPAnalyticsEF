@@ -192,8 +192,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>2s24lqcgua</Fingerprint>
-      <Integrity>7nufu+SrUbjpG3I7AJUBr9/enkc1V/rHvD55zuWEwEw=</Integrity>
+      <Fingerprint>rk72mr8cv9</Fingerprint>
+      <Integrity>2zQLApV+2u9DKEtnOE2OCvqyaWfeMGxQcd4kzUhE4aQ=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\schedule-dashboard-integration.js'))</OriginalItemSpec>
